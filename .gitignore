@@ -32,3 +32,5 @@ build/
 .vscode/
 /log/
 /.mvn/wrapper/
+/mvnw
+/mvnw.cmd
