@@ -1,3 +1,7 @@
+kafka:
+  monitor:
+    zookeeper: 192.168.182.128:2181,192.168.182.129:2181,192.168.182.130:2181
+
 server:
   port: 80
   tomcat:
@@ -23,14 +27,22 @@ spring:
     proxy-target-class: true
   jmx:
     default-domain: ${spring.application.name}
-  thymeleaf:
+  freemarker:
+    allow-session-override: true
+    check-template-location: true
+    suffix: .ftl
+    content-type: text/html
+    enabled: true
     cache: false
-    prefix: classpath:/templates/
-    suffix: .html
-    encoding: UTF-8
-    mode: HTML5
-    servlet:
-      content-type: text/html
+    template-loader-path: classpath:/templates/
+    charset: UTF-8
+    expose-request-attributes: true
+    expose-session-attributes: true
+    expose-spring-macro-helpers: true
+    request-context-attribute: request
+    settings:
+      auto_import: common/spring.ftl as spring
+      number_format: '0.##'
   datasource:
     platform: mysql
     type: com.alibaba.druid.pool.DruidDataSource
