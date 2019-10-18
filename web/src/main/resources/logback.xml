@@ -33,17 +33,19 @@
     </appender>
 
     <appender name="ASYNC_ROLLING_FILE" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="ROLLING_FILE" />
+        <appender-ref ref="ROLLING_FILE"/>
     </appender>
 
     <!-- 控制台输出日志级别 -->
     <root level="INFO">
-        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="CONSOLE"/>
     </root>
     <!-- 指定项目中某个包，当有日志操作行为时的日志记录级别 -->
     <!-- com.cps为根包，也就是只要是发生在这个根包下面的所有日志操作行为的权限都是DEBUG -->
     <!-- 级别依次为【从高到低】：FATAL > ERROR > WARN > INFO > DEBUG > TRACE  -->
     <logger name="com.cps" level="ERROR">
-        <appender-ref ref="ASYNC_ROLLING_FILE" />
+        <appender-ref ref="ASYNC_ROLLING_FILE"/>
     </logger>
+
+    <logger name="org.apache.kafka" level="off"/>
 </configuration>

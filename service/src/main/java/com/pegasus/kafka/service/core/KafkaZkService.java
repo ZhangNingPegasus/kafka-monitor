@@ -7,6 +7,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.curator.utils.CloseableUtils;
+import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -39,7 +40,7 @@ public class KafkaZkService implements InitializingBean, DisposableBean {
 
 
     @Override
-    public void afterPropertiesSet() {
+    public void afterPropertiesSet() throws Exception {
         if (StringUtils.isEmpty(kafkaMonitorProperty.getZookeeper())) {
             throw new BusinessException(ResultCode.ZOOKEEPER_CONFIG_IS_NULL);
         }

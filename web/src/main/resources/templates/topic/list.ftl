@@ -22,12 +22,11 @@
             </div>
         </div>
 
-
         <div class="layui-card-body">
             <table id="grid" lay-filter="grid"></table>
             <script type="text/html" id="grid-toolbar">
                 <div class="layui-btn-container">
-                    <button class="layui-btn layui-btn-sm layuiadmin-btn-admin" lay-event="add">添加</button>
+                    <button class="layui-btn layui-btn-sm layuiadmin-btn-admin" lay-event="add">创建</button>
                 </div>
             </script>
 
@@ -42,7 +41,7 @@
 </div>
 
 <script>
-    layui.config({base: '../../../layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table'], function () {
+    layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table'], function () {
         var admin = layui.admin, form = layui.form, table = layui.table;
         form.on('submit(search)', function (data) {
             var field = data.field;
@@ -53,79 +52,59 @@
             url: 'list',
             toolbar: '#grid-toolbar',
             method: 'post',
-            //height: 'full-100',
             cellMinWidth: 80,
             page: true,
             limit: 15,
             limits: [15],
             even: true,
-            text: "对不起，加载出现异常！",
+            text: {
+                none: '暂无相关数据'
+            },
             cols: [[
                 {type: 'numbers', title: '序号', width: 50},
                 {field: 'name', title: '主题名称'},
-                {field: 'partitionNum', title: '分区数', width: 100},
-                {field: 'partitionIndex', title: '分区索引', width: 100},
-                {field: 'createTime', title: '创建时间', width: 200},
-                {field: 'modifyTime', title: '修改时间', width: 200},
+                {field: 'logSize', title: '消息数量', width: 150},
+                {field: 'partitionNum', title: '分区数', width: 150},
+                {field: 'partitionIndex', title: '分区索引', width: 400},
+                {field: 'createTime', title: '创建时间', width: 180},
+                {field: 'modifyTime', title: '修改时间', width: 180},
                 {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 150}
             ]]
         });
 
-
         table.on('toolbar(grid)', function (obj) {
-            var checkStatus = table.checkStatus(obj.config.id);
-            switch (obj.event) {
-                case 'batchDel':
-                    var data = checkStatus.data;
-                    if (data.length > 0) {
-                        layer.confirm(admin.DEL_QUESTION, function (index) {
-                            var keys = "";
-                            for (var j = 0, len = data.length; j < len; j++) {
-                                keys = keys + data[j].id + ","
-                            }
-                            admin.post("del", {ids: keys}, function () {
+            if (obj.event === 'add') {
+                layer.open({
+                    type: 2,
+                    title: '创建主题',
+                    content: 'toadd',
+                    area: ['880px', '350px'],
+                    btn: admin.BUTTONS,
+                    resize: false,
+                    yes: function (index, layero) {
+                        var iframeWindow = window['layui-layer-iframe' + index], submitID = 'btn_confirm',
+                            submit = layero.find('iframe').contents().find('#' + submitID);
+                        iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
+                            var field = data.field;
+                            admin.post('add', field, function () {
                                 table.reload('grid');
+                                layer.close(index);
+                            }, function (result) {
+                                admin.error(admin.OPT_FAILURE, result.error);
                                 layer.close(index);
                             });
                         });
-                    } else {
-                        admin.error(admin.SYSTEM_PROMPT, admin.DEL_ERROR);
+                        submit.trigger('click');
                     }
-                    break;
-                case 'add':
-                    layer.open({
-                        type: 2,
-                        title: admin.ADD,
-                        content: 'toadd.html',
-                        area: ['880px', '350px'],
-                        btn: admin.BUTTONS,
-                        resize: false,
-                        yes: function (index, layero) {
-                            var iframeWindow = window['layui-layer-iframe' + index], submitID = 'btn_confirm',
-                                submit = layero.find('iframe').contents().find('#' + submitID);
-                            iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
-                                var field = data.field;
-                                admin.post('add', field, function () {
-                                    table.reload('grid');
-                                    layer.close(index);
-                                }, function (result) {
-                                    admin.error(admin.OPT_FAILURE, result.error);
-                                    layer.close(index);
-                                });
-                            });
-                            submit.trigger('click');
-                        }
-                    });
-                    break;
+                });
             }
-            ;
         });
 
         table.on('tool(grid)', function (obj) {
             var data = obj.data;
             if (obj.event === 'del') {
                 layer.confirm(admin.DEL_QUESTION, function (index) {
-                    admin.post("del", {ids: data.id}, function () {
+                    admin.post("del", {topicName: data.name}, function () {
                         table.reload('grid');
                         layer.close(index);
                     });
@@ -133,8 +112,8 @@
             } else if (obj.event = 'edit') {
                 layer.open({
                     type: 2,
-                    title: admin.EDIT,
-                    content: 'toedit.html?id=' + data.id,
+                    title: '编辑主题',
+                    content: 'toedit/' + data.name,
                     area: ['880px', '400px'],
                     btn: admin.BUTTONS,
                     resize: false,
@@ -143,12 +122,11 @@
                             submit = layero.find('iframe').contents().find('#' + submitID);
                         iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
                             var field = data.field;
-                            admin.post('edit', admin.toJson(field), function () {
+                            admin.post('edit', field, function () {
                                 table.reload('grid');
                                 layer.close(index);
                             }, function (result) {
                                 admin.error(admin.OPT_FAILURE, result.error);
-                                layer.close(index);
                             });
                         });
                         submit.trigger('click');

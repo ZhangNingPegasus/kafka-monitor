@@ -10,6 +10,7 @@ import java.io.Serializable;
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class TopicVo implements Serializable {
     private String name;
+    private Long logSize;
     private Integer partitionNum;
     private String partitionIndex;
     private String createTime;
@@ -21,6 +22,14 @@ public class TopicVo implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Long getLogSize() {
+        return logSize;
+    }
+
+    public void setLogSize(Long logSize) {
+        this.logSize = logSize;
     }
 
     public Integer getPartitionNum() {

@@ -14,6 +14,7 @@ public class BrokerVo implements Serializable {
     private String jmxPort;
     private String endpoints;
     private String version;
+    private String createTime;
 
     public String getName() {
         return name;
@@ -63,15 +64,12 @@ public class BrokerVo implements Serializable {
         this.version = version;
     }
 
-    @Override
-    public String toString() {
-        return "BrokerInfo{" +
-                "name='" + name + '\'' +
-                ", host='" + host + '\'' +
-                ", port='" + port + '\'' +
-                ", jmxPort='" + jmxPort + '\'' +
-                ", endpoints='" + endpoints + '\'' +
-                ", version='" + version + '\'' +
-                '}';
+    public String getCreateTime() {
+        return createTime;
     }
+
+    public void setCreateTime(String createTime) {
+        this.createTime = createTime;
+    }
+
 }

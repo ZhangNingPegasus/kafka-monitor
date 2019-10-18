@@ -47,7 +47,7 @@ spring:
     platform: mysql
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${db_server:127.0.0.1:3306}/${db_name:kafka}?serverTimezone=CTT&characterEncoding=utf8&useUnicode=true&autoReconnect=true&allowMultiQueries=true&useSSL=false&zeroDateTimeBehavior=CONVERT_TO_NULL
+    url: jdbc:mysql://${db_server:127.0.0.1:3306}/${db_name:kafka}?allowPublicKeyRetrieval=true&serverTimezone=CTT&characterEncoding=utf8&useUnicode=true&autoReconnect=true&allowMultiQueries=true&useSSL=false&zeroDateTimeBehavior=CONVERT_TO_NULL
     username: root
     password: zhangningpegasus
     druid:
