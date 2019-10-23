@@ -18,8 +18,7 @@ public class KafkaConsumerService {
     }
 
     public List<KafkaConsumerInfo> listKafkaConsumers(String searchGroupId) throws Exception {
-        List<KafkaConsumerInfo> kafkaConsumerInfos = kafkaService.listKafkaConsumers(searchGroupId);
-        return kafkaConsumerInfos;
+        return kafkaService.listKafkaConsumers(searchGroupId);
     }
 
     public List<KafkaConsumerInfo> listKafkaConsumers() throws Exception {
@@ -30,7 +29,7 @@ public class KafkaConsumerService {
         return kafkaService.listOffsetInfo(groupId, topicName);
     }
 
-    public void delete(String consumerGroupId) throws Exception {
+    public void delete(String consumerGroupId) {
         try {
             kafkaService.deleteConsumerGroups(consumerGroupId);
         } catch (Exception e) {

@@ -13,7 +13,7 @@ public class JMXFactoryUtils {
     private static final ThreadFactory daemonThreadFactory = new DaemonThreadFactory();
 
     public static JMXConnector connectWithTimeout(final JMXServiceURL url, long timeout, TimeUnit unit) throws IOException {
-        final BlockingQueue<Object> blockQueue = new ArrayBlockingQueue<Object>(1);
+        final BlockingQueue<Object> blockQueue = new ArrayBlockingQueue<>(1);
         ExecutorService executor = Executors.newSingleThreadExecutor(daemonThreadFactory);
         executor.submit(() -> {
             try {

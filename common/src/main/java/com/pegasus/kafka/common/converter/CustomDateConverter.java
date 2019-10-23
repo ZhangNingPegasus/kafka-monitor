@@ -12,7 +12,7 @@ import java.util.List;
 
 public class CustomDateConverter implements Converter<String, Date> {
 
-    private static final List<String> formarts = new ArrayList<String>();
+    private static final List<String> formarts = new ArrayList<>();
 
     static {
         formarts.add("yyyy-MM");
@@ -33,7 +33,7 @@ public class CustomDateConverter implements Converter<String, Date> {
 
     @Override
     public Date convert(String source) {
-        String value = (source == null) ? "" : source.trim();
+        String value = source.trim();
         if (StringUtils.isEmpty(value)) {
             return null;
         }
@@ -41,7 +41,7 @@ public class CustomDateConverter implements Converter<String, Date> {
         for (String format : formarts) {
             try {
                 result = parseDate(value, format);
-            } catch (ParseException e) {
+            } catch (ParseException ignored) {
             }
         }
 
@@ -54,7 +54,7 @@ public class CustomDateConverter implements Converter<String, Date> {
     private Date parseDate(String dateStr,
                            String format) throws ParseException {
         DateFormat dateFormat = new SimpleDateFormat(format);
-        return (Date) dateFormat.parse(dateStr);
+        return dateFormat.parse(dateStr);
     }
 
 }

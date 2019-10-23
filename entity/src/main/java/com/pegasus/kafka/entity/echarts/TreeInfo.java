@@ -3,10 +3,14 @@ package com.pegasus.kafka.entity.echarts;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.List;
 
+@Getter
+@Setter
 @JsonSerialize
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class TreeInfo implements Serializable {
@@ -20,55 +24,16 @@ public class TreeInfo implements Serializable {
         this.name = name;
     }
 
-    public TreeInfo() {
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Integer getValue() {
-        return value;
-    }
-
-    public void setValue(Integer value) {
-        this.value = value;
-    }
-
-    public Style getItemStyle() {
-        return itemStyle;
-    }
-
-    public void setItemStyle(Style itemStyle) {
-        this.itemStyle = itemStyle;
-    }
-
-    public Style getLineStyle() {
-        return lineStyle;
-    }
-
-    public void setLineStyle(Style lineStyle) {
-        this.lineStyle = lineStyle;
-    }
-
-    public List<TreeInfo> getChildren() {
-        return children;
-    }
-
-    public void setChildren(List<TreeInfo> children) {
-        this.children = children;
-    }
-
     public void setStyle(Style style) {
         this.setItemStyle(style);
         this.setLineStyle(style);
     }
 
-    public static class Style {
+    @Getter
+    @Setter
+    @JsonSerialize
+    @JsonInclude(value = JsonInclude.Include.NON_NULL)
+    public static class Style implements Serializable {
         private String color;
         private String borderColor;
 
@@ -87,22 +52,6 @@ public class TreeInfo implements Serializable {
 
         public static Style info() {
             return new Style("#cccccc", "#cccccc");
-        }
-
-        public String getColor() {
-            return color;
-        }
-
-        public void setColor(String color) {
-            this.color = color;
-        }
-
-        public String getBorderColor() {
-            return borderColor;
-        }
-
-        public void setBorderColor(String borderColor) {
-            this.borderColor = borderColor;
         }
     }
 }

@@ -7,15 +7,13 @@ public class BusinessException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    private Integer code = null;
-    private String description = null;
+    private Integer code;
+    private String description;
 
-    public BusinessException() {
-        super();
-    }
-
-    public BusinessException(Throwable t) {
-        super(t);
+    public BusinessException(Exception e) {
+        super(e);
+        this.code = 0;
+        this.description = e.getMessage();
     }
 
     public BusinessException(String description) {
@@ -24,7 +22,7 @@ public class BusinessException extends RuntimeException {
         this.description = description;
     }
 
-    public BusinessException(Integer code, String description) {
+    private BusinessException(Integer code, String description) {
         super(description);
         this.code = code;
         this.description = description;
@@ -34,38 +32,21 @@ public class BusinessException extends RuntimeException {
         this(resultCode.getCode(), resultCode.getDescription());
     }
 
-    /**
-     * 错误码
-     *
-     * @return
-     */
+
     public int getCode() {
         return code;
     }
 
-    /**
-     * 错误码
-     *
-     * @param code
-     */
+
     public void setCode(int code) {
         this.code = code;
     }
 
-    /**
-     * 错误描述
-     *
-     * @return
-     */
+
     public String getDescription() {
         return description;
     }
 
-    /**
-     * 错误描述
-     *
-     * @param description
-     */
     public void setDescription(String description) {
         this.description = description;
     }

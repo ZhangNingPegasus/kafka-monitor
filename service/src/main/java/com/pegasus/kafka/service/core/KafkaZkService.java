@@ -7,7 +7,6 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.curator.utils.CloseableUtils;
-import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -26,7 +25,7 @@ public class KafkaZkService implements InitializingBean, DisposableBean {
         this.kafkaMonitorProperty = kafkaMonitorProperty;
     }
 
-    public List<String> getChildren(String path) throws Exception {
+    List<String> getChildren(String path) throws Exception {
         return client.getChildren().forPath(path);
     }
 
@@ -38,9 +37,20 @@ public class KafkaZkService implements InitializingBean, DisposableBean {
         return new String(client.getData().storingStatIn(stat).forPath(path), "gbk");
     }
 
+    public boolean exists(String path) throws Exception {
+        Stat stat = client.checkExists().forPath(path);
+        return stat != null;
+    }
+
+    public void remove(String path) throws Exception {
+        if (exists(path)) {
+            client.delete().guaranteed().deletingChildrenIfNeeded().forPath(path);
+        }
+    }
+
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         if (StringUtils.isEmpty(kafkaMonitorProperty.getZookeeper())) {
             throw new BusinessException(ResultCode.ZOOKEEPER_CONFIG_IS_NULL);
         }
@@ -61,5 +71,6 @@ public class KafkaZkService implements InitializingBean, DisposableBean {
             CloseableUtils.closeQuietly(this.client);
         }
     }
+
 
 }

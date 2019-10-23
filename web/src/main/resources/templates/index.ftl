@@ -57,7 +57,7 @@
 
                     <li data-name="dashboard" class="layui-nav-item">
                         <a href="javascript:;" lay-href="${ctx}/cluster/tolist" lay-tips="主题" lay-direction="2">
-                            <i class="layui-icon layui-icon-dialogue"></i>
+                            <i class="layui-icon layui-icon-share"></i>
                             <cite>集群</cite>
                         </a>
                     </li>
@@ -73,6 +73,13 @@
                         <a href="javascript:;" lay-href="${ctx}/consumer/tolist" lay-tips="消费者" lay-direction="2">
                             <i class="layui-icon layui-icon-group"></i>
                             <cite>消费者</cite>
+                        </a>
+                    </li>
+
+                    <li data-name="consumer" class="layui-nav-item">
+                        <a href="javascript:;" lay-href="${ctx}/message/tolist" lay-tips="消息" lay-direction="2">
+                            <i class="layui-icon layui-icon-list"></i>
+                            <cite>消息</cite>
                         </a>
                     </li>
                 </ul>

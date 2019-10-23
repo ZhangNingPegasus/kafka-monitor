@@ -9,10 +9,12 @@ import java.io.Serializable;
 @Data
 @JsonSerialize
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class OffsetInfo implements Serializable {
-    private Integer partitionId;
-    private Long logSize;
-    private Long offset;
-    private Long lag;
-    private String consumerId;
+public class KafkaBrokerInfo implements Serializable {
+    private String name;
+    private String host;
+    private String port;
+    private String jmxPort;
+    private String endpoints;
+    private String version;
+    private String createTime;
 }

@@ -1,7 +1,7 @@
 package com.pegasus.kafka.service.core;
 
 import com.pegasus.kafka.common.utils.JMXFactoryUtils;
-import com.pegasus.kafka.entity.vo.BrokerVo;
+import com.pegasus.kafka.entity.vo.KafkaBrokerInfo;
 import org.springframework.stereotype.Service;
 
 import javax.management.MBeanServerConnection;
@@ -14,14 +14,20 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class KafkaJmxService {
-    private static final String JMX_URL = "service:jmx:rmi:///jndi/rmi://%s/jmxrmi";
+    private static final String JMX_URL;
 
-    public String getData(BrokerVo brokerVo, String name, String attribute) throws Exception {
+    static {
+        JMX_URL = "service:jmx:rmi:///jndi/rmi://%s/jmxrmi";
+    }
+
+    private static final Integer TIME_OUT = 10;
+
+    public String getData(KafkaBrokerInfo brokerVo, String name, String attribute) throws Exception {
         String result;
         JMXConnector connector = null;
         try {
-            JMXServiceURL jmxSeriverUrl = new JMXServiceURL(String.format(JMX_URL, brokerVo.getHost() + ":" + brokerVo.getJmxPort()));
-            connector = JMXFactoryUtils.connectWithTimeout(jmxSeriverUrl, 30, TimeUnit.SECONDS);
+            JMXServiceURL jmxSeriverUrl = new JMXServiceURL(String.format(JMX_URL, String.format("%s:%s", brokerVo.getHost(), brokerVo.getJmxPort())));
+            connector = JMXFactoryUtils.connectWithTimeout(jmxSeriverUrl, TIME_OUT, TimeUnit.SECONDS);
             MBeanServerConnection mbeanConnection = connector.getMBeanServerConnection();
             result = mbeanConnection.getAttribute(ObjectName.getInstance(name), attribute).toString();
         } finally {
@@ -32,12 +38,12 @@ public class KafkaJmxService {
         return result;
     }
 
-    public String[] getData(BrokerVo brokerVo, String[] names, String[] attributes) throws Exception {
+    public String[] getData(KafkaBrokerInfo brokerVo, String[] names, String[] attributes) throws Exception {
         List<String> results = new ArrayList<>(names.length);
         JMXConnector connector = null;
         try {
-            JMXServiceURL jmxSeriverUrl = new JMXServiceURL(String.format(JMX_URL, brokerVo.getHost() + ":" + brokerVo.getJmxPort()));
-            connector = JMXFactoryUtils.connectWithTimeout(jmxSeriverUrl, 30, TimeUnit.SECONDS);
+            JMXServiceURL jmxSeriverUrl = new JMXServiceURL(String.format(JMX_URL, String.format("%s:%s", brokerVo.getHost(), brokerVo.getJmxPort())));
+            connector = JMXFactoryUtils.connectWithTimeout(jmxSeriverUrl, TIME_OUT, TimeUnit.SECONDS);
             MBeanServerConnection mbeanConnection = connector.getMBeanServerConnection();
             for (int i = 0; i < names.length; i++) {
                 results.add(mbeanConnection.getAttribute(ObjectName.getInstance(names[i]), attributes[i]).toString());

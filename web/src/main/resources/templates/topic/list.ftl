@@ -24,6 +24,57 @@
 
         <div class="layui-card-body">
             <table id="grid" lay-filter="grid"></table>
+
+            <script type="text/html" id="colTopicName">
+                {{#  if(d.error || d.logSize < 0){ }}
+                <a title="{{ d.error }}" href="javascript:void(0)" class="topicName layui-table-link">
+                    <a href="javascript:void(0)" class="topicName layui-table-link"><span class="layui-badge">{{ d.topicName }}</span></a>
+                </a>
+                {{#  } else { }}
+                <a href="javascript:void(0)" class="topicName layui-table-link">{{ d.topicName }}</a>
+                {{#  } }}
+            </script>
+
+            <script type="text/html" id="colLogSize">
+                {{#  if(d.error || d.logSize < 0){ }}
+                <span title="{{ d.error }}" class="layui-badge">{{ d.logSize }}</span>
+                {{#  } else { }}
+                {{ d.logSize }}
+                {{#  } }}
+            </script>
+
+            <script type="text/html" id="colPartitionNum">
+                {{#  if(d.error || d.logSize < 0){ }}
+                <span title="{{ d.error }}" class="layui-badge">{{ d.partitionNum }}</span>
+                {{#  } else { }}
+                {{ d.partitionNum }}
+                {{#  } }}
+            </script>
+
+            <script type="text/html" id="colPartitionIndex">
+                {{#  if(d.error || d.logSize < 0){ }}
+                <span title="{{ d.error }}" class="layui-badge">{{ d.partitionIndex }}</span>
+                {{#  } else { }}
+                {{ d.partitionIndex }}
+                {{#  } }}
+            </script>
+
+            <script type="text/html" id="colCreateTime">
+                {{#  if(d.error || d.logSize < 0){ }}
+                <span title="{{ d.error }}" class="layui-badge">{{ d.createTime }}</span>
+                {{#  } else { }}
+                {{ d.createTime }}
+                {{#  } }}
+            </script>
+
+            <script type="text/html" id="colModifyTime">
+                {{#  if(d.error || d.logSize < 0){ }}
+                <span title="{{ d.error }}" class="layui-badge">{{ d.modifyTime }}</span>
+                {{#  } else { }}
+                {{ d.modifyTime }}
+                {{#  } }}
+            </script>
+
             <script type="text/html" id="grid-toolbar">
                 <div class="layui-btn-container">
                     <button class="layui-btn layui-btn-sm layuiadmin-btn-admin" lay-event="add">创建</button>
@@ -31,6 +82,8 @@
             </script>
 
             <script type="text/html" id="grid-bar">
+                <a class="layui-btn layui-btn-xs" lay-event="sendMsg"><i
+                            class="layui-icon layui-icon-dialogue"></i>发送消息</a>
                 <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i
                             class="layui-icon layui-icon-edit"></i>编辑</a>
                 <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i
@@ -42,7 +95,7 @@
 
 <script>
     layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table'], function () {
-        var admin = layui.admin, form = layui.form, table = layui.table;
+        var admin = layui.admin, $ = layui.$, form = layui.form, table = layui.table;
         form.on('submit(search)', function (data) {
             var field = data.field;
             table.reload('grid', {where: field});
@@ -62,14 +115,19 @@
             },
             cols: [[
                 {type: 'numbers', title: '序号', width: 50},
-                {field: 'name', title: '主题名称'},
-                {field: 'logSize', title: '消息数量', width: 150},
-                {field: 'partitionNum', title: '分区数', width: 150},
-                {field: 'partitionIndex', title: '分区索引', width: 400},
-                {field: 'createTime', title: '创建时间', width: 180},
-                {field: 'modifyTime', title: '修改时间', width: 180},
-                {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 150}
-            ]]
+                {field: 'topicName', title: '主题名称', templet: '#colTopicName'},
+                {field: 'logSize', title: '消息数量', templet: '#colLogSize', width: 150},
+                {field: 'partitionNum', title: '分区数', templet: '#colPartitionNum', width: 150},
+                {field: 'partitionIndex', title: '分区索引', templet: '#colPartitionIndex', width: 400},
+                {field: 'createTime', title: '创建时间', templet: '#colCreateTime', width: 180},
+                {field: 'modifyTime', title: '修改时间', templet: '#colModifyTime', width: 180},
+                {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 235}
+            ]],
+            done: function () {
+                $("a[class='topicName layui-table-link']").click(function () {
+                    showDetail($(this).text());
+                });
+            }
         });
 
         table.on('toolbar(grid)', function (obj) {
@@ -104,16 +162,16 @@
             var data = obj.data;
             if (obj.event === 'del') {
                 layer.confirm(admin.DEL_QUESTION, function (index) {
-                    admin.post("del", {topicName: data.name}, function () {
+                    admin.post("del", {topicName: data.topicName}, function () {
                         table.reload('grid');
                         layer.close(index);
                     });
                 });
-            } else if (obj.event = 'edit') {
+            } else if (obj.event === 'edit') {
                 layer.open({
                     type: 2,
                     title: '编辑主题',
-                    content: 'toedit/' + data.name,
+                    content: 'toedit/' + data.topicName,
                     area: ['880px', '400px'],
                     btn: admin.BUTTONS,
                     resize: false,
@@ -132,8 +190,43 @@
                         submit.trigger('click');
                     }
                 });
+            } else if (obj.event === 'sendMsg') {
+                layer.open({
+                    type: 2,
+                    title: '发送消息, 主题名称: ' + data.topicName,
+                    content: 'tosendmsg/' + data.topicName,
+                    area: ['880px', '400px'],
+                    btn: admin.BUTTONS,
+                    resize: false,
+                    yes: function (index, layero) {
+                        var iframeWindow = window['layui-layer-iframe' + index], submitID = 'btn_confirm',
+                            submit = layero.find('iframe').contents().find('#' + submitID);
+                        iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
+                            var field = data.field;
+                            admin.post('sendmsg', field, function () {
+                                table.reload('grid');
+                                layer.close(index);
+                            }, function (result) {
+                                admin.error(admin.OPT_FAILURE, result.error);
+                            });
+                        });
+                        submit.trigger('click');
+                    }
+                });
             }
         });
+
+        function showDetail(topicName) {
+            layer.open({
+                type: 2,
+                title: '主题详细信息',
+                shadeClose: true,
+                shade: 0.8,
+                area: ['90%', '90%'],
+                content: 'todetail/' + topicName
+            });
+        }
+
     });
 </script>
 

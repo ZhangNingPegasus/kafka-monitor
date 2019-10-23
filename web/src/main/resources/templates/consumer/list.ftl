@@ -16,6 +16,10 @@
                             class="layui-icon layui-icon-delete"></i>删除</a>
             </script>
 
+            <script type="text/html" id="colGroupId">
+                <a href="javascript:void(0)" class="groupid layui-table-link" data="{{ d.groupId }}">{{ d.groupId }}</a>
+            </script>
+
             <script type="text/html" id="topicCount">
                 {{#  if(d.topicCount > 0){ }}
                 <span class="layui-badge layui-bg-green">{{ d.topicCount }}</span>
@@ -43,33 +47,28 @@
                     <div><i class="layui-icon layui-icon-loading1 layadmin-loading"></i></div>
                 </div>
             </div>
-
         </div>
     </div>
-
 </div>
 
-<script>
+<script type="text/javascript">
     layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table', 'carousel', 'echarts'], function () {
-        var admin = layui.admin, table = layui.table, $ = layui.$, carousel = layui.carousel, echarts = layui.echarts;
+        var admin = layui.admin, table = layui.table, $ = layui.$, echarts = layui.echarts;
         //区块轮播切换
         layui.use(['carousel'], function () {
-            var $ = layui.$
-                , carousel = layui.carousel
-                , element = layui.element
-                , device = layui.device();
+            var $ = layui.$, carousel = layui.carousel, element = layui.element, device = layui.device();
 
             //轮播切换
             $('.layadmin-carousel').each(function () {
                 var othis = $(this);
                 carousel.render({
-                    elem: this
-                    , width: '100%'
-                    , arrow: 'none'
-                    , interval: othis.data('interval')
-                    , autoplay: othis.data('autoplay') === true
-                    , trigger: (device.ios || device.android) ? 'click' : 'hover'
-                    , anim: othis.data('anim')
+                    elem: this,
+                    width: '100%',
+                    arrow: 'none',
+                    interval: othis.data('interval'),
+                    autoplay: othis.data('autoplay') === true,
+                    trigger: (device.ios || device.android) ? 'click' : 'hover',
+                    anim: othis.data('anim')
                 });
             });
             element.render('progress');
@@ -87,13 +86,16 @@
             },
             cols: [[
                 {type: 'numbers', title: '序号', width: 50},
-                {field: 'groupId', title: '组名称', width: 500},
+                {field: 'groupId', title: '组名称', templet: "#colGroupId", width: 500},
                 {field: 'node', title: '节点', width: 300},
                 {title: '订阅主题数', sort: true, templet: "#topicCount", width: 150},
                 {title: '活跃主题', sort: true, templet: "#activeTopicCount", width: 150},
                 {fixed: 'right', title: '操作', toolbar: '#grid-bar'}
             ]],
             done: function () {
+                $("a[class='groupid layui-table-link']").click(function () {
+                    showDetail($(this).attr("data"));
+                });
                 admin.post("getChartData", {}, function (data) {
                     var echnormline = [], elemnormline = $('#activeTopics').children('div'),
                         rendernormline = function (index) {
@@ -153,16 +155,21 @@
                     });
                 });
             } else if (obj.event === 'getDetail') {
-                layer.open({
-                    type: 2,
-                    title: '消费组详细信息',
-                    shadeClose: true,
-                    shade: 0.8,
-                    area: ['90%', '90%'],
-                    content: 'todetail/' + data.groupId
-                });
+                showDetail(data.groupId);
             }
         });
+
+        function showDetail(groupId) {
+            layer.open({
+                type: 2,
+                title: '消费组详细信息',
+                shadeClose: true,
+                shade: 0.8,
+                area: ['90%', '90%'],
+                content: 'todetail/' + groupId
+            });
+        }
+
     });
 </script>
 

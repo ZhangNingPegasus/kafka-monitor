@@ -48,4 +48,5 @@
     </logger>
 
     <logger name="org.apache.kafka" level="off"/>
+    <logger name="org.apache.curator.framework.imps.EnsembleTracker" level="off"/>
 </configuration>

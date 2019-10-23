@@ -1,6 +1,6 @@
 package com.pegasus.kafka.service.kafka;
 
-import com.pegasus.kafka.entity.vo.BrokerVo;
+import com.pegasus.kafka.entity.vo.KafkaBrokerInfo;
 import com.pegasus.kafka.service.core.KafkaService;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +14,7 @@ public class KafkaClusterService {
         this.kafkaService = kafkaService;
     }
 
-    public List<BrokerVo> getAllBrokers() throws Exception {
+    public List<KafkaBrokerInfo> getAllBrokers() throws Exception {
         return kafkaService.listBrokerInfos();
     }
 

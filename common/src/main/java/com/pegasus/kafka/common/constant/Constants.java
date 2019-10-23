@@ -11,9 +11,17 @@ public class Constants {
      * topic的partion路径，参数1: topicName
      */
     public static final String ZK_BROKERS_TOPICS_PARTITION_PATH = Constants.ZK_BROKERS_TOPICS_PATH + "/%s/partitions";
+    public static final String KAFKA_COMPRESS_TYPE = "lz4";
 
-    public static final String KAFKA_MONITOR_SYSTEM_PREFIX = "KAFKA_MONITOR_SYSTEM_";
-    public static final String KAFKA_MONITOR_SYSTEM_GROUP_NAME = KAFKA_MONITOR_SYSTEM_PREFIX + "CONSUMER_GROUP_NAME";
+    public static final String KAFKA_MONITOR_SYSTEM_PREFIX = "kafka_monitor_system_";
+    public static final String KAFKA_MONITOR_SYSTEM_GROUP_NAME = KAFKA_MONITOR_SYSTEM_PREFIX + "consumer_group_name";
+
+    /**
+     * 分区[%s]不可用，参数1: partition_id
+     */
+    public static final String PARTITION_NOT_AVAIABLE = "分区[%s]不可用";
+
+    public static final String HOST_NOT_AVAIABLE = "主机不可用，请检查";
 
 
 }

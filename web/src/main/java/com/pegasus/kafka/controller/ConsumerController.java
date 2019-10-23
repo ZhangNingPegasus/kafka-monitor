@@ -35,6 +35,7 @@ public class ConsumerController {
 
     @RequestMapping("todetail/{groupId}")
     public String toDetail(Model model, @PathVariable(name = "groupId", required = true) String groupId) {
+        groupId = groupId.trim();
         model.addAttribute("groupId", groupId);
         return "consumer/detail";
     }
@@ -93,6 +94,7 @@ public class ConsumerController {
     @RequestMapping("todetail/listConsumerDetails/{groupId}")
     @ResponseBody
     public Result<List<KafkaTopicInfo>> listConsumerDetails(@PathVariable(required = true, name = "groupId") String groupId) throws Exception {
+        groupId = groupId.trim();
         List<KafkaTopicInfo> result = new ArrayList<>();
         List<KafkaConsumerInfo> kafkaConsumerInfos = kafkaConsumerService.listKafkaConsumers(groupId);
 
@@ -114,11 +116,16 @@ public class ConsumerController {
         for (KafkaTopicInfo kafkaTopicInfo : result) {
             Long lag = 0L;
             List<OffsetInfo> offsetInfos = kafkaConsumerService.listOffsetInfo(groupId, kafkaTopicInfo.getTopicName());
+
             for (OffsetInfo offsetInfo : offsetInfos) {
-                if (offsetInfo.getLag() != null) {
+                if (offsetInfo.getLag() != null && offsetInfo.getLag() > 0) {
                     lag += offsetInfo.getLag();
                 }
+                if (offsetInfo.getLogSize() < 0L) {
+                    kafkaTopicInfo.setError(offsetInfo.getConsumerId());
+                }
             }
+
             kafkaTopicInfo.setLag(lag);
         }
 
@@ -129,13 +136,16 @@ public class ConsumerController {
     @ResponseBody
     public Result<List<OffsetInfo>> listOffsetInfo(@PathVariable(required = true, name = "groupId") String groupId,
                                                    @PathVariable(required = true, name = "topicName") String topicName) throws Exception {
+        groupId = groupId.trim();
+        topicName = topicName.trim();
         return Result.success(kafkaConsumerService.listOffsetInfo(groupId, topicName));
     }
 
     @RequestMapping("del")
     @ResponseBody
-    public Result<?> del(@RequestParam(required = true, name = "consumerGroupId") String consumerGroupId) throws Exception {
-        kafkaConsumerService.delete(consumerGroupId);
+    public Result<?> del(@RequestParam(required = true, name = "consumerGroupId") String consumerGroupId) {
+        consumerGroupId = consumerGroupId.trim();
+        kafkaConsumerService.delete(consumerGroupId.trim());
         return Result.success();
     }
 }
