@@ -40,8 +40,11 @@
             </script>
 
             <script type="text/html" id="grid-bar">
+                {{#  if(d.lag >= 0){ }}
                 <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="getOffset"><i
                             class="layui-icon layui-icon-read"></i>查看偏移量</a>
+                {{#  } }}
+
             </script>
         </div>
     </div>
@@ -97,7 +100,7 @@
 
 <script>
     layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table', 'carousel', 'echarts'], function () {
-        var admin = layui.admin, table = layui.table, $ = layui.$;
+        const table = layui.table, $ = layui.$;
         table.render({
             elem: '#grid',
             url: 'listConsumerDetails/${groupId}',
@@ -148,13 +151,16 @@
                     {field: 'consumerId', templet: "#colConsumerId", title: '消费者ID'}
                 ]],
                 done: function (res) {
-                    var logsize = 0, offset = 0, lag = 0;
-                    var cls = "";
-                    for (var i = 0; i < res.data.length; i++) {
+                    if (!res.data) {
+                        return;
+                    }
+                    let logsize = 0, offset = 0, lag = 0;
+                    let cls = "";
+                    for (let i = 0; i < res.data.length; i++) {
                         if (res.data[i].logSize && res.data[i].logSize >= 0) logsize += res.data[i].logSize;
                         if (res.data[i].offset && res.data[i].offset >= 0) offset += res.data[i].offset;
                         if (res.data[i].lag && res.data[i].lag >= 0) lag += res.data[i].lag;
-                        if (res.data[i].consumerId == "") {
+                        if (res.data[i].consumerId === "") {
                             cls = "";
                         } else if (lag >= 100) {
                             cls = "layui-bg-orange";
@@ -164,11 +170,11 @@
                     }
                     $("#divGridOffsetHeader").html("主题：" + topicName + ", 分区数:" + res.data.length + " - 总共消息" + logsize + "条, 已消费" + offset + "条。" + "  当前有<span class='layui-badge " + cls + "'><b><i>" + lag + "</i></b></span>条信息堆积");
                     $("td[data-field=topicName]").each(function (a, td) {
-                        if ($(td).find("div").html() === topicName) {
+                        if ($.trim(topicName) === $.trim($(td).find("div").text())) {
                             $(td).siblings("td[data-field=lag]").find("div > span").attr("class", "layui-badge " + cls);
+
                             $(td).siblings("td[data-field=lag]").find("div > span").html(lag);
                         }
-
                     });
 
                 }

@@ -22,9 +22,20 @@
 
                 <div class="layui-inline">分区号</div>
                 <div class="layui-inline" style="width:200px">
-                    <select name="partitionNum" lay-verify="required" lay-search>
+                    <select name="partitionId" lay-verify="required" lay-search>
                         <option value="">所有分区</option>
                     </select>
+                </div>
+
+                <div class="layui-inline">消息Key</div>
+                <div class="layui-inline" style="width:300px">
+                    <input type="text" name="key" placeholder="请输入消息Key" autocomplete="off" class="layui-input">
+                </div>
+
+                <div class="layui-inline">时间范围</div>
+                <div class="layui-inline" style="width:300px">
+                    <input type="text" id="createTimeRange" name="createTimeRange" lay-verify="required"
+                           class="layui-input" placeholder="请选择创建时间范围">
                 </div>
 
                 <div class="layui-inline">
@@ -40,31 +51,42 @@
             <script type="text/html" id="grid-bar">
                 <a class="layui-btn layui-btn-xs" lay-event="sendMsg"><i
                             class="layui-icon layui-icon-dialogue"></i>重发消息</a>
+                <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="showDetails"><i
+                            class="layui-icon layui-icon-login-wechat" style="color:white"></i>消息详情</a>
             </script>
         </div>
     </div>
 </div>
 
 <script>
-    layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table'], function () {
-        var admin = layui.admin, $ = layui.$, form = layui.form, table = layui.table;
+    layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table', 'laydate'], function () {
+        const admin = layui.admin, laydate = layui.laydate, $ = layui.$, form = layui.form, table = layui.table;
+
+        laydate.render({elem: '#createTimeRange', type: 'datetime', range: true});
+
+        const now = new Date();
+        now.setDate(now.getDate() + 1);
+        const to = now.format('yyyy-MM-dd' + ' 00:00:00');
+        now.setDate(now.getDate() - 1);
+        now.setMinutes(now.getMinutes() - 15);
+        const from = now.format('yyyy-MM-dd HH:mm:ss');
+        $("#createTimeRange").val(from + ' - ' + to);
 
         form.on('select(topicName)', function (data) {
             admin.post('listTopicPartitions', {'topicName': data.value}, function (res) {
-                $("select[name=partitionNum]").html(" <option value=\"-1\">所有分区</option>");
+                $("select[name=partitionId]").html(" <option value=\"-1\">所有分区</option>");
                 $.each(res.data, function (key, val) {
-                    var option = $("<option>").val(val.partitionId).text(val.partitionId);
-                    $("select[name=partitionNum]").append(option);
+                    const option = $("<option>").val(val.partitionId).text(val.partitionId);
+                    $("select[name=partitionId]").append(option);
                     form.render('select');
                 });
-                $("select[name=partitionNum]").get(0).selectedIndex = 0;
+                $("select[name=partitionId]").get(0).selectedIndex = 0;
             });
         });
 
-
         form.on('submit(search)', function (data) {
-            var field = data.field;
-            table.reload('grid', {where: field});
+            const field = data.field;
+            table.reload('grid', {where: field, page: 1});
         });
 
         table.render({
@@ -88,34 +110,29 @@
                 {field: 'key', title: '消息Key', width: 150},
                 {field: 'createTime', title: '创建时间', width: 180},
                 {field: 'value', title: '消息体'},
-                {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 105}
+                {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 195}
             ]]
         });
 
         table.on('tool(grid)', function (obj) {
-            var data = obj.data;
+            const data = obj.data;
             if (obj.event === 'sendMsg') {
+                layer.confirm('确定要重发消息吗?', function (index) {
+                    admin.post('resend', data, function () {
+                        layer.close(index);
+                        layer.msg('发送成功');
+                    }, function (result) {
+                        admin.error(admin.OPT_FAILURE, result.error);
+                    });
+                });
+            } else if (obj.event === 'showDetails') {
                 layer.open({
                     type: 2,
-                    title: '发送消息, 主题名称: ' + data.topicName,
-                    content: 'tosendmsg/' + data.topicName,
-                    area: ['880px', '400px'],
-                    btn: admin.BUTTONS,
-                    resize: false,
-                    yes: function (index, layero) {
-                        var iframeWindow = window['layui-layer-iframe' + index], submitID = 'btn_confirm',
-                            submit = layero.find('iframe').contents().find('#' + submitID);
-                        iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
-                            var field = data.field;
-                            admin.post('sendmsg', field, function () {
-                                table.reload('grid');
-                                layer.close(index);
-                            }, function (result) {
-                                admin.error(admin.OPT_FAILURE, result.error);
-                            });
-                        });
-                        submit.trigger('click');
-                    }
+                    title: '消息详情',
+                    content: 'todetail?topicName=' + data.topicName + '&partitionId=' + data.partitionId + '&offset=' + data.offset + '&key=' + data.key,
+                    shadeClose: true,
+                    shade: 0.8,
+                    area: ['880px', '800px']
                 });
             }
         });

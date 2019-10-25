@@ -1,5 +1,6 @@
 package com.pegasus.kafka.controller;
 
+import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.response.Result;
 import com.pegasus.kafka.entity.vo.KafkaTopicInfo;
 import com.pegasus.kafka.entity.vo.KafkaTopicPartitionInfo;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("topic")
@@ -75,8 +77,10 @@ public class TopicController {
         if (!StringUtils.isEmpty(topicName)) {
             topicName = topicName.trim();
         }
+        pageNum = Math.min(pageNum, Constants.MAX_PAGE_NUM);
         List<KafkaTopicInfo> topicInfoList = kafkaTopicService.listTopicNames(topicName, KafkaTopicService.SearchType.LIKE);
-        return Result.success(topicInfoList, topicInfoList.size());
+        return Result.success(topicInfoList.stream().skip(pageSize * (pageNum - 1))
+                .limit(pageSize).collect(Collectors.toList()), topicInfoList.size());
     }
 
     @RequestMapping("sendmsg")

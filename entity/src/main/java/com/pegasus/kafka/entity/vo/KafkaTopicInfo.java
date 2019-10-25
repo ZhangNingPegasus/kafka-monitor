@@ -18,6 +18,8 @@ public class KafkaTopicInfo implements Serializable {
     private String partitionIndex;
     private String createTime;
     private String modifyTime;
+    private Long createTimeLong;
+    private Long modifyTimeLong;
     private String error;
 
     public KafkaTopicInfo(String topicName, Integer consumerStatus) {

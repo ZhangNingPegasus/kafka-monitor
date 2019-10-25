@@ -2,6 +2,7 @@ package com.pegasus.kafka.service.core;
 
 import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.constant.JMX;
+import com.pegasus.kafka.common.ehcache.EhcacheService;
 import com.pegasus.kafka.common.exception.BusinessException;
 import com.pegasus.kafka.common.response.ResultCode;
 import com.pegasus.kafka.common.utils.Common;
@@ -25,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -36,11 +36,13 @@ public class KafkaService {
     private final KafkaZkService kafkaZkService;
     private final KafkaJmxService kafkaJmxService;
     private final MBeanService mBeanService;
+    private final EhcacheService ehcacheService;
 
-    public KafkaService(KafkaZkService kafkaZkService, KafkaJmxService kafkaJmxService, MBeanService mBeanService) {
+    public KafkaService(KafkaZkService kafkaZkService, KafkaJmxService kafkaJmxService, MBeanService mBeanService, EhcacheService ehcacheService) {
         this.kafkaZkService = kafkaZkService;
         this.kafkaJmxService = kafkaJmxService;
         this.mBeanService = mBeanService;
+        this.ehcacheService = ehcacheService;
     }
 
     public void createTopics(String topicName, Integer partitionNumber, Integer replicationNumber) throws Exception {
@@ -51,8 +53,12 @@ public class KafkaService {
         });
     }
 
-    public void sendMessage(String topicName, String content) throws Exception {
-        kafkaProducerDo(kafkaProducer -> kafkaProducer.send(new ProducerRecord(topicName, content), (metadata, exception) -> {
+    public void sendMessage(String topicName, String value) throws Exception {
+        sendMessage(topicName, null, value);
+    }
+
+    public void sendMessage(String topicName, String key, String value) throws Exception {
+        kafkaProducerDo(kafkaProducer -> kafkaProducer.send(new ProducerRecord(topicName, key, value), (metadata, exception) -> {
             if (exception != null) {
                 throw new BusinessException(exception);
             }
@@ -72,7 +78,6 @@ public class KafkaService {
         kafkaAdminClientDo(adminClient -> {
             DeleteTopicsResult deleteTopicsResult = adminClient.deleteTopics(Collections.singletonList(topicName));
             deleteTopicsResult.all().get();
-            kafkaZkService.remove(String.format("%s/%s", Constants.ZK_BROKERS_TOPICS_PATH, topicName));
         });
     }
 
@@ -148,7 +153,7 @@ public class KafkaService {
                 }
                 Set<String> hasOwnerTopics = new HashSet<>();
                 String groupId = consumerGroupListing.groupId();
-                if (!groupId.startsWith(Constants.KAFKA_MONITOR_SYSTEM_PREFIX)) {
+                if (!groupId.startsWith(Constants.KAFKA_MONITOR_PEGASUS_SYSTEM_PREFIX)) {
                     DescribeConsumerGroupsResult describeConsumerGroupsResult = adminClient.describeConsumerGroups(Collections.singletonList(groupId));
 
                     Node coordinator = describeConsumerGroupsResult.all().get().get(groupId).coordinator();
@@ -378,13 +383,18 @@ public class KafkaService {
     }
 
     public List<KafkaBrokerInfo> listBrokerInfos() throws Exception {
-        List<String> brokerList = this.listBrokerNames();
-        List<KafkaBrokerInfo> result = new ArrayList<>(brokerList.size());
-        for (String brokerName : brokerList) {
-            KafkaBrokerInfo brokerInfo = this.getBrokerInfo(brokerName);
-            brokerInfo.setName(brokerName);
-            brokerInfo.setVersion(getKafkaVersion(brokerInfo));
-            result.add(brokerInfo);
+        List result = ehcacheService.get(Constants.EHCACHE_KAFKA_BROKER_INFOS, List.class);
+        if (result == null || result.size() < 1) {
+            List<String> brokerList = this.listBrokerNames();
+            List<KafkaBrokerInfo> kafkaBrokerInfoList = new ArrayList<>(brokerList.size());
+            for (String brokerName : brokerList) {
+                KafkaBrokerInfo brokerInfo = this.getBrokerInfo(brokerName);
+                brokerInfo.setName(brokerName);
+                brokerInfo.setVersion(getKafkaVersion(brokerInfo));
+                kafkaBrokerInfoList.add(brokerInfo);
+            }
+            ehcacheService.set(Constants.EHCACHE_KAFKA_BROKER_INFOS, kafkaBrokerInfoList);
+            result = kafkaBrokerInfoList;
         }
         return result;
     }
@@ -524,18 +534,24 @@ public class KafkaService {
     }
 
     public String getKafkaBrokerServer() throws Exception {
-        StringBuilder kafkaUrls = new StringBuilder();
-        List<KafkaBrokerInfo> brokerInfoList = this.listBrokerInfos();
-        if (brokerInfoList == null || brokerInfoList.size() < 1) {
-            throw new BusinessException(ResultCode.KAFKA_NOT_RUNNING);
+        String result = ehcacheService.get(Constants.EHCACHE_KAFKA_BROKER_SERVER, String.class);
+        if (StringUtils.isEmpty(result)) {
+
+            StringBuilder kafkaUrls = new StringBuilder();
+            List<KafkaBrokerInfo> brokerInfoList = this.listBrokerInfos();
+            if (brokerInfoList == null || brokerInfoList.size() < 1) {
+                throw new BusinessException(ResultCode.KAFKA_NOT_RUNNING);
+            }
+            for (KafkaBrokerInfo brokerInfo : brokerInfoList) {
+                kafkaUrls.append(String.format("%s:%s,", brokerInfo.getHost(), brokerInfo.getPort()));
+            }
+            if (kafkaUrls.length() > 0) {
+                kafkaUrls.delete(kafkaUrls.length() - 1, kafkaUrls.length());
+            }
+            result = kafkaUrls.toString();
+            ehcacheService.set(Constants.EHCACHE_KAFKA_BROKER_SERVER, result);
         }
-        for (KafkaBrokerInfo brokerInfo : brokerInfoList) {
-            kafkaUrls.append(String.format("%s:%s,", brokerInfo.getHost(), brokerInfo.getPort()));
-        }
-        if (kafkaUrls.length() > 0) {
-            kafkaUrls.delete(kafkaUrls.length() - 1, kafkaUrls.length());
-        }
-        return kafkaUrls.toString();
+        return result;
     }
 
     private void kafkaAdminClientDo(KafkaAdminClientAction kafkaAdminClientAction) throws Exception {
@@ -575,7 +591,7 @@ public class KafkaService {
         try {
             Properties props = new Properties();
             props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, getKafkaBrokerServer());
-            props.put(ConsumerConfig.GROUP_ID_CONFIG, Constants.KAFKA_MONITOR_SYSTEM_GROUP_NAME);
+            props.put(ConsumerConfig.GROUP_ID_CONFIG, Constants.KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_MONITOR);
             props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, Constants.KAFKA_COMPRESS_TYPE);
             props.setProperty("enable.auto.commit", "true");
             props.setProperty("auto.commit.interval.ms", "1000");

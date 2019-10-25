@@ -9,7 +9,7 @@ import java.io.Serializable;
 @Data
 @JsonSerialize
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class KafkaMessageInfo implements Serializable {
+public class KafkaTopicRecordInfo implements Serializable {
 
     private String topicName;
     private String partitionId;

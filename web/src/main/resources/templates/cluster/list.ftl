@@ -15,7 +15,7 @@
 
 <script>
     layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table'], function () {
-        var admin = layui.admin, form = layui.form, table = layui.table;
+        const table = layui.table;
         table.render({
             elem: '#grid',
             url: 'list',

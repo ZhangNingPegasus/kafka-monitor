@@ -115,15 +115,19 @@ public class ConsumerController {
 
         for (KafkaTopicInfo kafkaTopicInfo : result) {
             Long lag = 0L;
-            List<OffsetInfo> offsetInfos = kafkaConsumerService.listOffsetInfo(groupId, kafkaTopicInfo.getTopicName());
+            try {
+                List<OffsetInfo> offsetInfos = kafkaConsumerService.listOffsetInfo(groupId, kafkaTopicInfo.getTopicName());
 
-            for (OffsetInfo offsetInfo : offsetInfos) {
-                if (offsetInfo.getLag() != null && offsetInfo.getLag() > 0) {
-                    lag += offsetInfo.getLag();
+                for (OffsetInfo offsetInfo : offsetInfos) {
+                    if (offsetInfo.getLag() != null && offsetInfo.getLag() > 0) {
+                        lag += offsetInfo.getLag();
+                    }
+                    if (offsetInfo.getLogSize() < 0L) {
+                        kafkaTopicInfo.setError(offsetInfo.getConsumerId());
+                    }
                 }
-                if (offsetInfo.getLogSize() < 0L) {
-                    kafkaTopicInfo.setError(offsetInfo.getConsumerId());
-                }
+            } catch (Exception ignored) {
+                lag = -1L;
             }
 
             kafkaTopicInfo.setLag(lag);
@@ -138,7 +142,11 @@ public class ConsumerController {
                                                    @PathVariable(required = true, name = "topicName") String topicName) throws Exception {
         groupId = groupId.trim();
         topicName = topicName.trim();
-        return Result.success(kafkaConsumerService.listOffsetInfo(groupId, topicName));
+        try {
+            return Result.success(kafkaConsumerService.listOffsetInfo(groupId, topicName));
+        } catch (Exception ignored) {
+            return Result.success();
+        }
     }
 
     @RequestMapping("del")

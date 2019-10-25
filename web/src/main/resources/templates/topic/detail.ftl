@@ -104,7 +104,7 @@
 
 <script>
     layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table', 'carousel', 'echarts'], function () {
-        var admin = layui.admin, table = layui.table, $ = layui.$;
+        const admin = layui.admin, table = layui.table, $ = layui.$;
         table.render({
             elem: '#grid',
             url: 'listTopicDetails/${topicName}',
@@ -122,8 +122,8 @@
                 {field: "strIsr", title: '同步副本', templet: '#colIsr'}
             ]],
             done: function (res) {
-                var logsize = 0;
-                for (var i = 0; i < res.data.length; i++) {
+                let logsize = 0;
+                for (let i = 0; i < res.data.length; i++) {
                     if (res.data[i].logsize) {
                         logsize += res.data[i].logsize;
                     }

@@ -7,6 +7,6 @@ import org.springframework.stereotype.Service;
 @Data
 @Service
 public class KafkaMonitorProperty {
-    @Value("${kafka.monitor.zookeeper}")
+    @Value("${zookeeper.connect}")
     private String zookeeper;
 }

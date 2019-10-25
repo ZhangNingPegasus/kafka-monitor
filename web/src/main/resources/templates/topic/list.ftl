@@ -95,10 +95,10 @@
 
 <script>
     layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table'], function () {
-        var admin = layui.admin, $ = layui.$, form = layui.form, table = layui.table;
+        const admin = layui.admin, $ = layui.$, form = layui.form, table = layui.table;
         form.on('submit(search)', function (data) {
-            var field = data.field;
-            table.reload('grid', {where: field});
+            const field = data.field;
+            table.reload('grid', {where: field, page: 1});
         });
         table.render({
             elem: '#grid',
@@ -140,10 +140,10 @@
                     btn: admin.BUTTONS,
                     resize: false,
                     yes: function (index, layero) {
-                        var iframeWindow = window['layui-layer-iframe' + index], submitID = 'btn_confirm',
+                        const iframeWindow = window['layui-layer-iframe' + index], submitID = 'btn_confirm',
                             submit = layero.find('iframe').contents().find('#' + submitID);
                         iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
-                            var field = data.field;
+                            const field = data.field;
                             admin.post('add', field, function () {
                                 table.reload('grid');
                                 layer.close(index);
@@ -159,7 +159,7 @@
         });
 
         table.on('tool(grid)', function (obj) {
-            var data = obj.data;
+            const data = obj.data;
             if (obj.event === 'del') {
                 layer.confirm(admin.DEL_QUESTION, function (index) {
                     admin.post("del", {topicName: data.topicName}, function () {
@@ -176,10 +176,10 @@
                     btn: admin.BUTTONS,
                     resize: false,
                     yes: function (index, layero) {
-                        var iframeWindow = window['layui-layer-iframe' + index], submitID = 'btn_confirm',
+                        const iframeWindow = window['layui-layer-iframe' + index], submitID = 'btn_confirm',
                             submit = layero.find('iframe').contents().find('#' + submitID);
                         iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
-                            var field = data.field;
+                            const field = data.field;
                             admin.post('edit', field, function () {
                                 table.reload('grid');
                                 layer.close(index);
@@ -199,10 +199,10 @@
                     btn: admin.BUTTONS,
                     resize: false,
                     yes: function (index, layero) {
-                        var iframeWindow = window['layui-layer-iframe' + index], submitID = 'btn_confirm',
+                        const iframeWindow = window['layui-layer-iframe' + index], submitID = 'btn_confirm',
                             submit = layero.find('iframe').contents().find('#' + submitID);
                         iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
-                            var field = data.field;
+                            const field = data.field;
                             admin.post('sendmsg', field, function () {
                                 table.reload('grid');
                                 layer.close(index);

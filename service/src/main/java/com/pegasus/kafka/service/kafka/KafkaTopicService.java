@@ -1,12 +1,15 @@
 package com.pegasus.kafka.service.kafka;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.exception.BusinessException;
 import com.pegasus.kafka.common.response.ResultCode;
 import com.pegasus.kafka.common.utils.Common;
+import com.pegasus.kafka.entity.dto.TopicRecord;
 import com.pegasus.kafka.entity.po.Out;
 import com.pegasus.kafka.entity.vo.*;
 import com.pegasus.kafka.service.core.KafkaService;
+import com.pegasus.kafka.service.dto.TopicRecordService;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -26,9 +29,11 @@ import java.util.stream.Collectors;
 @Service
 public class KafkaTopicService {
     private final KafkaService kafkaService;
+    private final TopicRecordService topicRecordService;
 
-    public KafkaTopicService(KafkaService kafkaService) {
+    public KafkaTopicService(KafkaService kafkaService, TopicRecordService topicRecordService) {
         this.kafkaService = kafkaService;
+        this.topicRecordService = topicRecordService;
     }
 
     public List<KafkaTopicInfo> listTopicNames(String searchTopicName, SearchType searchType) throws Exception {
@@ -56,6 +61,8 @@ public class KafkaTopicService {
             topicInfo.setTopicName(topicName);
             topicInfo.setPartitionNum(partitionList.size());
             topicInfo.setPartitionIndex(partitionList.toString());
+            topicInfo.setCreateTimeLong(stat.getCtime());
+            topicInfo.setModifyTimeLong(stat.getMtime());
             topicInfo.setCreateTime(Common.format(new Date(stat.getCtime())));
             topicInfo.setModifyTime(Common.format(new Date(stat.getMtime())));
             try {
@@ -66,6 +73,8 @@ public class KafkaTopicService {
             topicInfo.setError(out.getError());
             topicInfoList.add(topicInfo);
         }
+
+        topicInfoList.sort((o1, o2) -> (int) (o2.getCreateTimeLong() - o1.getCreateTimeLong()));
         return topicInfoList;
     }
 
@@ -140,34 +149,65 @@ public class KafkaTopicService {
         return kafkaService.listTopicSize(topicName);
     }
 
+    public void sendMessage(String topicName, String key, String content) throws Exception {
+        kafkaService.sendMessage(topicName, key, content);
+    }
+
     public void sendMessage(String topicName, String content) throws Exception {
         kafkaService.sendMessage(topicName, content);
     }
 
-    public long getLogsize(String topicName) throws Exception {
+    public long getLogsize(String topicName, String partitionId) throws Exception {
         Long result = 0L;
         List<KafkaTopicPartitionInfo> topicDetails = listTopicDetails(topicName);
         for (KafkaTopicPartitionInfo topicDetail : topicDetails) {
-            result += topicDetail.getLogsize();
+            if (StringUtils.isEmpty(partitionId)) {
+                result += topicDetail.getLogsize();
+            } else if (partitionId.equals(topicDetail.getPartitionId())) {
+                result += topicDetail.getLogsize();
+            }
         }
         return result;
     }
 
-    public List<KafkaMessageInfo> listMessages(String topicName, Integer[] partitionNums, Integer pageNum, Integer pageSize) throws Exception {
-        List<KafkaMessageInfo> result = new ArrayList<>(pageSize * partitionNums.length);
+    public long getLogsize(String topicName) throws Exception {
+        return getLogsize(topicName, null);
+    }
+
+    public List<KafkaTopicRecordInfo> listMessages(IPage page, String topicName, Integer partitionNum, String key, Date from, Date to) {
+        List<TopicRecord> topicRecordList = topicRecordService.listMessages(page, topicName, partitionNum, key, from, to);
+        List<KafkaTopicRecordInfo> result = new ArrayList<>(topicRecordList.size());
+
+        for (TopicRecord topicRecord : topicRecordList) {
+            result.add(topicRecord.toVo());
+        }
+
+        return result;
+    }
+
+    public List<KafkaTopicRecordInfo> listMessages(String topicName, Integer partitionNum, Integer pageNum, Integer pageSize) throws Exception {
+        List<Integer> partitionNumList = new ArrayList<>();
+        if (partitionNum < 0) {
+            List<KafkaTopicPartitionInfo> topicDetails = this.listTopicDetails(topicName);
+            partitionNumList.addAll(topicDetails.stream().map(p -> Integer.parseInt(p.getPartitionId())).collect(Collectors.toList()));
+        } else {
+            partitionNumList.add(partitionNum);
+        }
+
+        List<KafkaTopicRecordInfo> result = new ArrayList<>(pageSize * partitionNumList.size());
 
         Properties props = new Properties();
         props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, kafkaService.getKafkaBrokerServer());
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, Constants.KAFKA_MONITOR_SYSTEM_GROUP_NAME);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, Constants.KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_MONITOR);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getCanonicalName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getCanonicalName());
 
         KafkaConsumer<String, String> consumer = null;
         try {
             consumer = new KafkaConsumer<>(props);
-            List<TopicPartition> topics = new ArrayList<>(partitionNums.length);
-            for (int i = 0; i < partitionNums.length; i++) {
-                TopicPartition tp = new TopicPartition(topicName, partitionNums[i]);
+            List<TopicPartition> topics = new ArrayList<>(partitionNumList.size());
+            for (Integer partitionId : partitionNumList) {
+                TopicPartition tp = new TopicPartition(topicName, partitionId);
                 topics.add(tp);
             }
             consumer.assign(topics);
@@ -187,7 +227,7 @@ public class KafkaTopicService {
             while (flag) {
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
                 for (ConsumerRecord<String, String> record : records) {
-                    KafkaMessageInfo kafkaMessageInfo = new KafkaMessageInfo();
+                    KafkaTopicRecordInfo kafkaMessageInfo = new KafkaTopicRecordInfo();
                     kafkaMessageInfo.setTopicName(record.topic());
                     kafkaMessageInfo.setPartitionId(String.valueOf(record.partition()));
                     kafkaMessageInfo.setOffset(String.valueOf(record.offset()));

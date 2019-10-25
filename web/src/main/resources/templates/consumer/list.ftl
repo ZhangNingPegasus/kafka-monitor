@@ -53,14 +53,13 @@
 
 <script type="text/javascript">
     layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table', 'carousel', 'echarts'], function () {
-        var admin = layui.admin, table = layui.table, $ = layui.$, echarts = layui.echarts;
+        const admin = layui.admin, table = layui.table, $ = layui.$, echarts = layui.echarts;
         //区块轮播切换
         layui.use(['carousel'], function () {
-            var $ = layui.$, carousel = layui.carousel, element = layui.element, device = layui.device();
-
+            const $ = layui.$, carousel = layui.carousel, element = layui.element, device = layui.device();
             //轮播切换
             $('.layadmin-carousel').each(function () {
-                var othis = $(this);
+                const othis = $(this);
                 carousel.render({
                     elem: this,
                     width: '100%',
@@ -97,7 +96,7 @@
                     showDetail($(this).attr("data"));
                 });
                 admin.post("getChartData", {}, function (data) {
-                    var echnormline = [], elemnormline = $('#activeTopics').children('div'),
+                    const echnormline = [], elemnormline = $('#activeTopics').children('div'),
                         rendernormline = function (index) {
                             echnormline[index] = echarts.init(elemnormline[index], layui.echartsTheme);
                             echnormline[index].setOption({
@@ -146,7 +145,7 @@
         });
 
         table.on('tool(grid)', function (obj) {
-            var data = obj.data;
+            const data = obj.data;
             if (obj.event === 'del') {
                 layer.confirm(admin.DEL_QUESTION, function (index) {
                     admin.post("del", {consumerGroupId: data.groupId}, function () {
