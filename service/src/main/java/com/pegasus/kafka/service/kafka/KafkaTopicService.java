@@ -1,6 +1,7 @@
 package com.pegasus.kafka.service.kafka;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.pegasus.kafka.common.annotation.TranSave;
 import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.exception.BusinessException;
 import com.pegasus.kafka.common.response.ResultCode;
@@ -9,6 +10,7 @@ import com.pegasus.kafka.entity.dto.TopicRecord;
 import com.pegasus.kafka.entity.po.Out;
 import com.pegasus.kafka.entity.vo.*;
 import com.pegasus.kafka.service.core.KafkaService;
+import com.pegasus.kafka.service.dto.SysLagService;
 import com.pegasus.kafka.service.dto.TopicRecordService;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -30,10 +32,12 @@ import java.util.stream.Collectors;
 public class KafkaTopicService {
     private final KafkaService kafkaService;
     private final TopicRecordService topicRecordService;
+    private final SysLagService sysLagService;
 
-    public KafkaTopicService(KafkaService kafkaService, TopicRecordService topicRecordService) {
+    public KafkaTopicService(KafkaService kafkaService, TopicRecordService topicRecordService, SysLagService sysLagService) {
         this.kafkaService = kafkaService;
         this.topicRecordService = topicRecordService;
+        this.sysLagService = sysLagService;
     }
 
     public List<KafkaTopicInfo> listTopicNames(String searchTopicName, SearchType searchType) throws Exception {
@@ -55,23 +59,27 @@ public class KafkaTopicService {
                 }
             }
             Out out = new Out();
-            Stat stat = kafkaService.getTopicStat(topicName);
-            List<String> partitionList = kafkaService.listPartitionIds(topicName);
-            KafkaTopicInfo topicInfo = new KafkaTopicInfo();
-            topicInfo.setTopicName(topicName);
-            topicInfo.setPartitionNum(partitionList.size());
-            topicInfo.setPartitionIndex(partitionList.toString());
-            topicInfo.setCreateTimeLong(stat.getCtime());
-            topicInfo.setModifyTimeLong(stat.getMtime());
-            topicInfo.setCreateTime(Common.format(new Date(stat.getCtime())));
-            topicInfo.setModifyTime(Common.format(new Date(stat.getMtime())));
             try {
-                topicInfo.setLogSize(kafkaService.getLogSize(topicName, out));
+                Stat stat = kafkaService.getTopicStat(topicName);
+                List<String> partitionList = kafkaService.listPartitionIds(topicName);
+                KafkaTopicInfo topicInfo = new KafkaTopicInfo();
+                topicInfo.setTopicName(topicName);
+                topicInfo.setPartitionNum(partitionList.size());
+                topicInfo.setPartitionIndex(partitionList.toString());
+                topicInfo.setCreateTimeLong(stat.getCtime());
+                topicInfo.setModifyTimeLong(stat.getMtime());
+                topicInfo.setCreateTime(Common.format(new Date(stat.getCtime())));
+                topicInfo.setModifyTime(Common.format(new Date(stat.getMtime())));
+                try {
+                    topicInfo.setLogSize(kafkaService.getLogSize(topicName, out));
+                } catch (Exception e) {
+                    topicInfo.setLogSize(-1L);
+                }
+                topicInfo.setError(out.getError());
+                topicInfoList.add(topicInfo);
             } catch (Exception e) {
-                topicInfo.setLogSize(-1L);
+                continue;
             }
-            topicInfo.setError(out.getError());
-            topicInfoList.add(topicInfo);
         }
 
         topicInfoList.sort((o1, o2) -> (int) (o2.getCreateTimeLong() - o1.getCreateTimeLong()));
@@ -135,6 +143,7 @@ public class KafkaTopicService {
         }
     }
 
+    @TranSave
     public void delete(String topicName) throws Exception {
         List<KafkaConsumerInfo> kafkaConsumerInfos = kafkaService.listKafkaConsumers();
         for (KafkaConsumerInfo kafkaConsumerInfo : kafkaConsumerInfos) {
@@ -142,7 +151,10 @@ public class KafkaTopicService {
                 throw new BusinessException(ResultCode.TOPIC_IS_RUNNING);
             }
         }
-        kafkaService.deleteTopics(topicName);
+        kafkaService.deleteTopic(topicName);
+        topicRecordService.dropTable(topicName);
+        sysLagService.deleteTopic(topicName);
+        Thread.sleep(1000);
     }
 
     public String listTopicSize(String topicName) throws Exception {

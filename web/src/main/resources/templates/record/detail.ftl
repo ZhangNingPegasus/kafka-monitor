@@ -82,7 +82,7 @@
         });
 
         $("#btnJson").click(function () {
-            $("#json").html(JSON.stringify(JSON.parse($("#json").html()), null, 2));
+            $("#json").html(JSON.stringify(JSON.parse($("#json").html()), null, 4));
         });
 
         $("#btnRefresh").click(function () {

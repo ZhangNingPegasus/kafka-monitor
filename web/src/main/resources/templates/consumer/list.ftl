@@ -96,6 +96,9 @@
                     showDetail($(this).attr("data"));
                 });
                 admin.post("getChartData", {}, function (data) {
+                    if (!data.data) {
+                        return;
+                    }
                     const echnormline = [], elemnormline = $('#activeTopics').children('div'),
                         rendernormline = function (index) {
                             echnormline[index] = echarts.init(elemnormline[index], layui.echartsTheme);

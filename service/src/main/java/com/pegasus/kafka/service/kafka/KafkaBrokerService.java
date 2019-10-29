@@ -7,10 +7,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class KafkaClusterService {
+public class KafkaBrokerService {
     private final KafkaService kafkaService;
 
-    public KafkaClusterService(KafkaService kafkaService) {
+    public KafkaBrokerService(KafkaService kafkaService) {
         this.kafkaService = kafkaService;
     }
 

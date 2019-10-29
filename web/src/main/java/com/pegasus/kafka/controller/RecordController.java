@@ -72,25 +72,20 @@ public class RecordController {
         key = key.trim();
         createTimeRange = createTimeRange.trim();
         pageNum = Math.min(pageNum, Constants.MAX_PAGE_NUM);
-        if (StringUtils.isEmpty(topicName)) {
-            return Result.success();
-        }
-        Date from = null, to = null;
-        if (!StringUtils.isEmpty(createTimeRange)) {
-            String[] createTimeRanges = createTimeRange.split(" - ");
-            from = Common.parse(createTimeRanges[0]);
-            to = Common.parse(createTimeRanges[1]);
-        }
         if (StringUtils.isEmpty(topicName) || partitionId == null) {
             return Result.success();
         }
-
-
         if (StringUtils.isEmpty(key) && StringUtils.isEmpty(createTimeRange)) {
             return Result.success(kafkaTopicService.listMessages(topicName, partitionId, pageNum, pageSize), kafkaTopicService.getLogsize(topicName, (partitionId < 0) ? null : partitionId.toString()));
         } else {
             IPage page = new Page(pageNum, pageSize);
-            return Result.success(kafkaTopicService.listMessages(page, topicName, partitionId, key, from, to), page.getTotal());
+            try {
+                Common.TimeRange timeRange = Common.splitTime(createTimeRange);
+                Date from = timeRange.getStart(), to = timeRange.getEnd();
+                return Result.success(kafkaTopicService.listMessages(page, topicName, partitionId, key, from, to), page.getTotal());
+            } catch (Exception e) {
+                return Result.success();
+            }
         }
     }
 

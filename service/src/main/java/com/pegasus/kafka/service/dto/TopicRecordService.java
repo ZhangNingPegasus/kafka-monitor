@@ -41,9 +41,9 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
         this.baseMapper.createTableIfNotExists(tableNames);
     }
 
-    @TranSave
-    public void createDatabaseIfNotExists() {
-        this.baseMapper.createDatabaseIfNotExists();
+    @TranRead
+    public void dropTable(String tableName) {
+        this.baseMapper.dropTable(tableName);
     }
 
     private Map<String, List<TopicRecord>> analyse(List<TopicRecord> topicRecordList) {
@@ -70,4 +70,6 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
     public TopicRecord findMessage(String topicName, Integer partitionId, Long offset, String key) {
         return this.baseMapper.findMessage(topicName, partitionId, offset, key);
     }
+
+
 }

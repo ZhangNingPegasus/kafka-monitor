@@ -1,6 +1,9 @@
 package com.pegasus.kafka.common.utils;
 
 
+import lombok.Data;
+import org.springframework.util.StringUtils;
+
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -43,5 +46,26 @@ public class Common {
     public static double numberic(String number) {
         DecimalFormat formatter = new DecimalFormat("###.##");
         return Double.parseDouble(formatter.format(Double.valueOf(number)));
+    }
+
+    public static TimeRange splitTime(String timeRange) throws ParseException {
+        if (timeRange == null) {
+            return null;
+        }
+        timeRange = timeRange.trim();
+        if (StringUtils.isEmpty(timeRange)) {
+            return null;
+        }
+        TimeRange result = new TimeRange();
+        String[] createTimeRanges = timeRange.split(" - ");
+        result.setStart(Common.parse(createTimeRanges[0]));
+        result.setEnd(Common.parse(createTimeRanges[1]));
+        return result;
+    }
+
+    @Data
+    public static class TimeRange {
+        private Date start;
+        private Date end;
     }
 }

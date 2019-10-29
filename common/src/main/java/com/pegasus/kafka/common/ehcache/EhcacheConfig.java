@@ -14,7 +14,7 @@ public class EhcacheConfig {
     public CacheManager cacheManager() {
         CacheConfiguration config = new CacheConfiguration();
         config.setName(Constants.EHCACHE_CONFIG_NAME);
-        config.setMaxEntriesLocalHeap(0);
+        config.setMaxEntriesLocalHeap(2000);
         config.setEternal(false);//是否永不过期，false则过期, 需要通过timeToIdleSeconds，timeToLiveSeconds判断
         config.setMemoryStoreEvictionPolicy("LFU");//最少使用
         config.setTimeToIdleSeconds(30);

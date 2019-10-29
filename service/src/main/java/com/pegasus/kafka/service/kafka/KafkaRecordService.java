@@ -38,7 +38,7 @@ public class KafkaRecordService implements SmartLifecycle {
 
     public KafkaRecordService(KafkaService kafkaService, TopicRecordService topicRecordService) {
         this.kafkaService = kafkaService;
-        this.topicRecords = new ArrayBlockingQueue<>(BATCH_SIZE * 1000);
+        this.topicRecords = new ArrayBlockingQueue<>(BATCH_SIZE * 1024);
         this.discardCount = new AtomicLong(0L);
         this.topicRecordService = topicRecordService;
     }
@@ -48,7 +48,6 @@ public class KafkaRecordService implements SmartLifecycle {
     public void start() {
         if (!this.isRunning()) {
             new Thread(() -> {
-                topicRecordService.createDatabaseIfNotExists();
                 KafkaConsumer<String, String> consumer = null;
                 try {
                     Properties properties = new Properties();
@@ -64,13 +63,11 @@ public class KafkaRecordService implements SmartLifecycle {
                     consumer = new KafkaConsumer<>(properties);
                     consumer.subscribe(Pattern.compile("([\\w\\W]*)"));
                     setRunning(true);
-
                     this.worker = new Thread(new AsyncRunnable(), "Kafka_Monitor_Trace_Record_Thread-" + UUID.randomUUID().toString());
                     this.worker.setDaemon(true);
                     this.worker.start();
-
                     while (isRunning()) {
-                        ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+                        ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
                         for (ConsumerRecord<String, String> record : records) {
                             TopicRecord topicRecord = new TopicRecord();
                             topicRecord.setTopicName(record.topic());
@@ -99,6 +96,8 @@ public class KafkaRecordService implements SmartLifecycle {
     @Override
     public void stop() {
         setRunning(false);
+
+
     }
 
     @Override
@@ -115,7 +114,6 @@ public class KafkaRecordService implements SmartLifecycle {
         @Override
         public void run() {
             while (true) {
-
                 List<TopicRecord> topicRecordList = new ArrayList<>(BATCH_SIZE);
                 for (Integer i = 0; i < BATCH_SIZE; i++) {
                     TopicRecord topicRecord = null;
@@ -137,7 +135,7 @@ public class KafkaRecordService implements SmartLifecycle {
                     }
                 }
 
-                if (isRunning() == false && topicRecords.size() < 1) {
+                if (!isRunning() && topicRecords.size() < 1) {
                     break;
                 }
 

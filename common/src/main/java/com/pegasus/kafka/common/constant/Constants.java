@@ -2,7 +2,7 @@ package com.pegasus.kafka.common.constant;
 
 
 public class Constants {
-    public static final String DATABASE_NAME = "kafka_monitor";
+    public static final String DATABASE_NAME = "`kafka_monitor`";
     public static final Integer MAX_PAGE_NUM = 10000;
 
     public static final String EHCACHE_CONFIG_NAME = "EHCACHE_CONFIG_NAME";

@@ -15,8 +15,6 @@ import java.util.Set;
 public interface TopicRecordMapper extends BaseMapper<TopicRecord> {
     void createTableIfNotExists(@Param(value = "tableNames") Set<String> tableNames);
 
-    void createDatabaseIfNotExists();
-
     void batchSave(@Param(value = "tableName") String tableName,
                    @Param(value = "topicRecords") List<TopicRecord> topicRecords);
 
@@ -32,4 +30,6 @@ public interface TopicRecordMapper extends BaseMapper<TopicRecord> {
                             @Param(value = "offset") Long offset,
                             @Param(value = "key") String key
     );
+
+    void dropTable(@Param(value = "tableName") String tableName);
 }

@@ -74,7 +74,7 @@ public class KafkaService {
     }
 
 
-    public void deleteTopics(String topicName) throws Exception {
+    public void deleteTopic(String topicName) throws Exception {
         kafkaAdminClientDo(adminClient -> {
             DeleteTopicsResult deleteTopicsResult = adminClient.deleteTopics(Collections.singletonList(topicName));
             deleteTopicsResult.all().get();

@@ -12,7 +12,7 @@ import java.util.Date;
 @Data
 public abstract class BaseDto implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
-    protected Long id;
+    public Long id;
     @TableField(value = "create_time")
-    protected Date createTime;
+    public Date createTime;
 }

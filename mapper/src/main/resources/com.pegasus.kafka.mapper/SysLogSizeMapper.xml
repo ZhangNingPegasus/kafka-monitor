@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pegasus.kafka.mapper.SysLogSizeMapper">
+    <select id="getTopicRank" resultType="com.pegasus.kafka.entity.dto.SysLogSize">
+	SELECT
+	b.*
+	FROM
+	(
+		SELECT
+		topic_name,
+		MAX(create_time) create_time
+		FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_log_size`
+		GROUP BY topic_name
+	) a
+	LEFT OUTER JOIN ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_log_size` b ON a.topic_name = b.topic_name AND a.create_time = b.create_time
+	ORDER BY log_size DESC
+	LIMIT #{rank}
+    </select>
+</mapper>

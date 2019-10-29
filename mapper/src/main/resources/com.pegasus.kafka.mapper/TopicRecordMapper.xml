@@ -3,7 +3,7 @@
 
 <mapper namespace="com.pegasus.kafka.mapper.TopicRecordMapper">
     <insert id="batchSave">
-        INSERT INTO `${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}`.`${tableName}`
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}`
         (
         `topic_name`,
         `partition_id`,
@@ -29,7 +29,7 @@
         <foreach collection="tableNames" item="tableName">
             SET NAMES utf8mb4;
             SET FOREIGN_KEY_CHECKS = 0;
-            CREATE TABLE IF NOT EXISTS `${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}`.`${tableName}` (
+            CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}` (
             `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
             `topic_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT
             '主题名称',
@@ -48,14 +48,14 @@
         </foreach>
     </update>
 
-    <update id="createDatabaseIfNotExists">
-        CREATE DATABASE IF NOT EXISTS `${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}` CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';
-    </update>
+    <delete id="dropTable">
+        DROP TABLE IF EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}`;
+    </delete>
 
     <select id="listMessages" resultType="com.pegasus.kafka.entity.dto.TopicRecord">
         SELECT
         *
-        FROM `${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}`.`${tableName}`
+        FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}`
         WHERE 1 = 1
         <if test="partitionId >= 0">
             AND partition_id = #{partitionId}
@@ -73,7 +73,7 @@
     <select id="findMessage" resultType="com.pegasus.kafka.entity.dto.TopicRecord">
         SELECT
         *
-        FROM `${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}`.`${tableName}`
+        FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}`
         WHERE `partition_id` = #{partitionId}
         AND   `offset` = #{offset}
         AND   `key` = #{key}

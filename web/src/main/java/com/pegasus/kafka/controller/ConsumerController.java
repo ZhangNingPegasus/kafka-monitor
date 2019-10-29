@@ -42,10 +42,14 @@ public class ConsumerController {
 
     @RequestMapping("list")
     @ResponseBody
-    public Result<List<KafkaConsumerInfo>> list(HttpSession httpSession) throws Exception {
-        List<KafkaConsumerInfo> kafkaConsumerInfos = kafkaConsumerService.listKafkaConsumers();
-        httpSession.setAttribute(Constants.SESSION_KAFKA_CONSUMER_INFO, kafkaConsumerInfos);
-        return Result.success(kafkaConsumerInfos);
+    public Result<List<KafkaConsumerInfo>> list(HttpSession httpSession) {
+        try {
+            List<KafkaConsumerInfo> kafkaConsumerInfos = kafkaConsumerService.listKafkaConsumers();
+            httpSession.setAttribute(Constants.SESSION_KAFKA_CONSUMER_INFO, kafkaConsumerInfos);
+            return Result.success(kafkaConsumerInfos);
+        } catch (Exception e) {
+            return Result.success();
+        }
     }
 
     @RequestMapping("getChartData")
@@ -87,8 +91,11 @@ public class ConsumerController {
             }
             root.setChildren(consuerGroupTreeInfoList);
         }
-
-        return Result.success(root);
+        if (root.getChildren() != null && root.getChildren().size() > 0) {
+            return Result.success(root);
+        } else {
+            return Result.success();
+        }
     }
 
     @RequestMapping("todetail/listConsumerDetails/{groupId}")
@@ -139,7 +146,7 @@ public class ConsumerController {
     @RequestMapping("todetail/listOffsetInfo/{groupId}/{topicName}")
     @ResponseBody
     public Result<List<OffsetInfo>> listOffsetInfo(@PathVariable(required = true, name = "groupId") String groupId,
-                                                   @PathVariable(required = true, name = "topicName") String topicName) throws Exception {
+                                                   @PathVariable(required = true, name = "topicName") String topicName) {
         groupId = groupId.trim();
         topicName = topicName.trim();
         try {
