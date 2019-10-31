@@ -84,7 +84,8 @@
 
                         <div class="layui-inline">时间范围</div>
                         <div class="layui-inline" style="width:300px">
-                            <input type="text" id="lagCreateTimeRange" name="lagCreateTimeRange" lay-verify="required"
+                            <input type="text" id="lagCreateTimeRange" name="lagCreateTimeRange"
+                                   lay-verify="required"
                                    class="layui-input" placeholder="请选择时间范围" autocomplete="off">
                         </div>
                         <button id="btnLagRefresh" type="button" class="layui-btn layui-btn-xs"
@@ -153,49 +154,60 @@
             });
             element.render('progress');
 
-            function refreshTopicChart() {
+            function refreshTopicTpsChart() {
                 const tpsTopicName = $.trim($("#tpsTopicName").siblings().find("dd[class='layui-this']").html());
                 const topicCreateTimeRange = $.trim($("#topicCreateTimeRange").val());
                 if (tpsTopicName == null || tpsTopicName === '' || topicCreateTimeRange == null || topicCreateTimeRange === '') {
                     return;
                 }
-                $('#topicChart').children('div').removeAttr("_echarts_instance_").empty();
+
                 admin.post("getTopicChart?topicName=" + tpsTopicName + "&createTimeRange=" + topicCreateTimeRange, {}, function (data) {
-                    const ele = $('#topicChart').children('div')[0];
-                    const echart = echarts.init(ele, layui.echartsTheme);
-                    echart.setOption(topicChart(data.data));
-                    window.onresize = echart.resize;
+                    _init(data.data);
                 });
+
+                function _init(data) {
+                    const ele = $('#topicChart').children('div');
+                    ele.removeAttr("_echarts_instance_").empty();
+                    const echart = echarts.init(ele[0], layui.echartsTheme);
+                    echart.setOption(topicChart(data));
+                    window.onresize = echart.resize;
+                }
             }
 
             function refreshLagChart() {
                 const consumerId = $.trim($("#consumerName").siblings().find("dd[class='layui-this']").html());
                 const lagCreateTimeRange = $.trim($("#lagCreateTimeRange").val());
                 if (consumerId == null || consumerId === '' || lagCreateTimeRange == null || lagCreateTimeRange === '') {
-                    const ele = $('#lagChart').children('div')[0];
-                    const echart = echarts.init(ele, layui.echartsTheme);
-                    echart.setOption(lagChart({topicNames: [], times: [], series: []}));
-                    window.onresize = echart.resize;
+                    _init({topicNames: [], times: [], series: []});
                     return;
                 }
-                $('#lagChart').children('div').removeAttr("_echarts_instance_").empty();
+
                 admin.post("getLagChart?groupId=" + consumerId + "&createTimeRange=" + lagCreateTimeRange, {}, function (data) {
-                    const ele = $('#lagChart').children('div')[0];
-                    const echart = echarts.init(ele, layui.echartsTheme);
-                    echart.setOption(lagChart(data.data));
-                    window.onresize = echart.resize;
+                    _init(data.data);
                 });
+
+                function _init(data) {
+                    const ele = $('#lagChart').children('div');
+                    ele.removeAttr("_echarts_instance_").empty();
+                    const echart = echarts.init(ele[0], layui.echartsTheme);
+                    echart.setOption(lagChart(data));
+                    window.onresize = echart.resize;
+                }
             }
 
             function refreshTopicRankChart() {
                 const rankCreateTimeRange = $.trim($("#rankCreateTimeRange").val());
-                $('#topicRankChart').children('div').removeAttr("_echarts_instance_").empty();
                 admin.post("getTopicRankChart?createTimeRange=" + rankCreateTimeRange, {}, function (data) {
-                    const ele = $('#topicRankChart').children('div')[0];
-                    const echart = echarts.init(ele, layui.echartsTheme);
-                    echart.setOption(topicRankChart(data.data));
-                    window.onresize = echart.resize;
+                    _init(data.data);
                 });
+
+                function _init(data) {
+                    const ele = $('#topicRankChart').children('div');
+                    ele.removeAttr("_echarts_instance_").empty();
+                    const echart = echarts.init(ele[0], layui.echartsTheme);
+                    echart.setOption(topicRankChart(data));
+                    window.onresize = echart.resize;
+                }
             }
 
             function refreshTopicHistoryChart() {
@@ -203,13 +215,17 @@
                 if (hisTopicName == null || hisTopicName === '') {
                     return;
                 }
-                $('#topicHistoryChart').children('div').removeAttr("_echarts_instance_").empty();
                 admin.post("getTopicHistoryChart?topicName=" + hisTopicName, {}, function (data) {
-                    const ele = $('#topicHistoryChart').children('div')[0];
-                    const echart = echarts.init(ele, layui.echartsTheme);
-                    echart.setOption(topicHistoryChart(data.data));
-                    window.onresize = echart.resize;
+                    _init(data.data);
                 });
+
+                function _init(data) {
+                    const ele = $('#topicHistoryChart').children('div');
+                    ele.removeAttr("_echarts_instance_").empty();
+                    const echart = echarts.init(ele[0], layui.echartsTheme);
+                    echart.setOption(topicHistoryChart(data));
+                    window.onresize = echart.resize;
+                }
             }
 
             laydate.render({
@@ -226,7 +242,7 @@
                 type: 'datetime',
                 range: true,
                 done: function () {
-                    refreshTopicChart();
+                    refreshTopicTpsChart();
                 }
             });
 
@@ -245,9 +261,7 @@
             now.setDate(now.getDate() - 1);
             now.setMinutes(now.getMinutes() - 30);
             const from = now.format('yyyy-MM-dd HH:mm' + ':00');
-            $("#lagCreateTimeRange").val(from + ' - ' + to);
-            $("#topicCreateTimeRange").val(from + ' - ' + to);
-            $("#rankCreateTimeRange").val(from + ' - ' + to);
+            $("#lagCreateTimeRange,#topicCreateTimeRange,#rankCreateTimeRange").val(from + ' - ' + to);
 
             form.on('select(consumerName)', function () {
                 refreshLagChart();
@@ -262,15 +276,15 @@
             });
 
             form.on('select(tpsTopicName)', function () {
-                refreshTopicChart();
+                refreshTopicTpsChart();
             });
 
             $("#topicCreateTimeRange").change(function () {
-                refreshTopicChart();
+                refreshTopicTpsChart();
             });
 
             $("#btnTopicRefresh").click(function () {
-                refreshTopicChart();
+                refreshTopicTpsChart();
             });
 
             $("#btnTopicRankRefresh").click(function () {
@@ -290,14 +304,12 @@
             $('#hisTopicName option:eq(1)').attr('selected', 'selected');
             layui.form.render('select');
 
-            refreshTopicChart();
+            refreshTopicTpsChart();
             refreshLagChart();
             refreshTopicRankChart();
             refreshTopicHistoryChart();
         });
     });
 </script>
-
-
 </body>
 </html>

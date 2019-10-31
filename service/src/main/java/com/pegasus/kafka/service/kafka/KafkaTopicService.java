@@ -106,15 +106,19 @@ public class KafkaTopicService {
                         topicInfo.setYesterdayLogSize(day1 - day2);
                         topicInfo.setTdbyLogSize(day2 - day3);
                     }
-
                 }
-
                 topicInfoList.add(topicInfo);
             } catch (Exception ignored) {
             }
         }
 
-        topicInfoList.sort((o1, o2) -> (int) (o2.getCreateTimeLong() - o1.getCreateTimeLong()));
+        topicInfoList.sort((o1, o2) -> {
+            if (o2.getCreateTimeLong() == null || o1.getCreateTimeLong() == null) {
+                return o2.getTopicName().compareTo(o1.getTopicName());
+            } else {
+                return (int) (o2.getCreateTimeLong() - o1.getCreateTimeLong());
+            }
+        });
         return topicInfoList;
     }
 

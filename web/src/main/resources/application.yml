@@ -2,7 +2,7 @@ zookeeper:
   connect: ${zookeeper_connect:192.168.6.166:2181,192.168.6.167:2181}
 
 server:
-  port: 80
+  port: ${kafka_monitor_port:80}
   tomcat:
     uri-encoding: UTF-8
   compression:

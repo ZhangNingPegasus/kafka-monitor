@@ -17,7 +17,8 @@
             </script>
 
             <script type="text/html" id="colGroupId">
-                <a href="javascript:void(0)" class="groupid layui-table-link" data="{{ d.groupId }}">{{ d.groupId }}</a>
+                <a href="javascript:void(0)" class="groupid layui-table-link" data="{{ d.groupId }}">{{ d.groupId
+                    }}</a>
             </script>
 
             <script type="text/html" id="topicCount">
