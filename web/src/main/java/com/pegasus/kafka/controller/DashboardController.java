@@ -47,7 +47,7 @@ public class DashboardController {
     @RequestMapping("index")
     public String index(Model model) throws Exception {
         model.addAttribute("consumers", kafkaConsumerService.listKafkaConsumers());
-        model.addAttribute("topics", kafkaTopicService.listTopics());
+        model.addAttribute("topics", kafkaTopicService.listTopics(false, false, false, false, false));
         return "dashboard/index";
     }
 

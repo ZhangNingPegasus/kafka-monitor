@@ -58,7 +58,6 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
                     sysLagList.add(sysLag);
                     sysLogSizeMap.put(topicName, logSize);
                 } catch (Exception ignored) {
-                    continue;
                 }
             }
         }
@@ -72,7 +71,7 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
                 sysLogSizeList.add(sysLogSize);
             }
         } else {
-            List<KafkaTopicInfo> kafkaTopicInfoList = kafkaTopicService.listTopics();
+            List<KafkaTopicInfo> kafkaTopicInfoList = kafkaTopicService.listTopics(false, false, false, true, false);
             for (KafkaTopicInfo kafkaTopicInfo : kafkaTopicInfoList) {
                 SysLogSize sysLogSize = new SysLogSize();
                 sysLogSize.setTopicName(kafkaTopicInfo.getTopicName());

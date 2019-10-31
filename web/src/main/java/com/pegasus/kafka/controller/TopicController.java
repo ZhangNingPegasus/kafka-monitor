@@ -37,11 +37,11 @@ public class TopicController {
     }
 
     @RequestMapping("toadd")
-    public String toAdd(Model model) throws Exception {
-        int brokerSize = 3;
+    public String toAdd(Model model) {
+        int brokerSize = 1;
         try {
             brokerSize = kafkaBrokerService.listAllBrokers().size();
-        } catch (Exception ingored) {
+        } catch (Exception ignored) {
         }
         model.addAttribute("brokerSize", brokerSize);
         return "topic/add";
@@ -50,7 +50,7 @@ public class TopicController {
     @RequestMapping("toedit/{topicName}")
     public String toAdd(Model model, @PathVariable(name = "topicName", required = true) String topicName) throws Exception {
         topicName = topicName.trim();
-        List<KafkaTopicInfo> topicInfoList = kafkaTopicService.listTopics(topicName, KafkaTopicService.SearchType.EQUALS);
+        List<KafkaTopicInfo> topicInfoList = kafkaTopicService.listTopics(topicName, KafkaTopicService.SearchType.EQUALS, false, true, false, false, false);
         if (topicInfoList != null && topicInfoList.size() > 0) {
             KafkaTopicInfo topicVo = topicInfoList.get(0);
             List<KafkaTopicPartitionInfo> topicDetails = kafkaTopicService.listTopicDetails(topicName);
@@ -88,7 +88,7 @@ public class TopicController {
             topicName = topicName.trim();
         }
         pageNum = Math.min(pageNum, Constants.MAX_PAGE_NUM);
-        List<KafkaTopicInfo> topicInfoList = kafkaTopicService.listTopics(topicName, KafkaTopicService.SearchType.LIKE);
+        List<KafkaTopicInfo> topicInfoList = kafkaTopicService.listTopics(topicName, KafkaTopicService.SearchType.LIKE, true, true, true, true, true);
         return Result.success(topicInfoList.stream().skip(pageSize * (pageNum - 1))
                 .limit(pageSize).collect(Collectors.toList()), topicInfoList.size());
     }

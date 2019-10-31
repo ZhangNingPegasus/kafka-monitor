@@ -38,7 +38,7 @@ public class RecordController {
 
     @RequestMapping("tolist")
     public String toList(Model model) throws Exception {
-        List<KafkaTopicInfo> kafkaTopicInfoList = kafkaTopicService.listTopics();
+        List<KafkaTopicInfo> kafkaTopicInfoList = kafkaTopicService.listTopics(false, false, false, false, false);
         model.addAttribute("topics", kafkaTopicInfoList);
         return "record/list";
     }
@@ -72,21 +72,15 @@ public class RecordController {
         key = key.trim();
         createTimeRange = createTimeRange.trim();
         pageNum = Math.min(pageNum, Constants.MAX_PAGE_NUM);
-        if (StringUtils.isEmpty(topicName) || partitionId == null) {
+        if (StringUtils.isEmpty(topicName)) {
             return Result.success();
         }
-        if (StringUtils.isEmpty(key) && StringUtils.isEmpty(createTimeRange)) {
-            return Result.success(kafkaTopicService.listMessages(topicName, partitionId, pageNum, pageSize), kafkaTopicService.getLogsize(topicName, (partitionId < 0) ? null : partitionId.toString()));
-        } else {
-            IPage page = new Page(pageNum, pageSize);
-            try {
-                Common.TimeRange timeRange = Common.splitTime(createTimeRange);
-                Date from = timeRange.getStart(), to = timeRange.getEnd();
-                return Result.success(kafkaTopicService.listMessages(page, topicName, partitionId, key, from, to), page.getTotal());
-            } catch (Exception e) {
-                return Result.success();
-            }
-        }
+
+        IPage page = new Page(pageNum, pageSize);
+
+        Common.TimeRange timeRange = Common.splitTime(createTimeRange);
+        Date from = timeRange.getStart(), to = timeRange.getEnd();
+        return Result.success(kafkaTopicService.listMessages(page, topicName, partitionId, key, from, to), page.getTotal());
     }
 
     @RequestMapping("resend")

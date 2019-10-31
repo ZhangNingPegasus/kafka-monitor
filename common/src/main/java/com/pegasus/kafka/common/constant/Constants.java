@@ -5,6 +5,7 @@ public class Constants {
     public static final String DATABASE_NAME = "`kafka_monitor`";
     public static final Integer MAX_PAGE_NUM = 10000;
 
+
     public static final String EHCACHE_CONFIG_NAME = "EHCACHE_CONFIG_NAME";
     public static final String EHCACHE_KAFKA_BROKER_SERVER = "EHCACHE_KAFKA_BROKER_SERVER";
     public static final String EHCACHE_KAFKA_BROKER_INFOS = "EHCACHE_KAFKA_BROKER_INFOS";
@@ -21,6 +22,7 @@ public class Constants {
     public static final String ZK_BROKERS_TOPICS_PARTITION_PATH = Constants.ZK_BROKERS_TOPICS_PATH + "/%s/partitions";
     public static final String KAFKA_COMPRESS_TYPE = "lz4";
 
+    public final static String KAFKA_CONSUMER_OFFSETS = "__consumer_offsets";
     public static final String KAFKA_MONITOR_PEGASUS_SYSTEM_PREFIX = "kafka_monitor_pegasus_system_";
     public static final String KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_MONITOR = KAFKA_MONITOR_PEGASUS_SYSTEM_PREFIX + "consumer_group_name_for_monitor";
     public static final String KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_MESSAGE = KAFKA_MONITOR_PEGASUS_SYSTEM_PREFIX + "consumer_group_name_for_message";

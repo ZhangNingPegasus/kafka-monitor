@@ -2,7 +2,6 @@ package com.pegasus.kafka.service.core;
 
 import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.constant.JMX;
-import com.pegasus.kafka.common.ehcache.EhcacheService;
 import com.pegasus.kafka.common.exception.BusinessException;
 import com.pegasus.kafka.common.response.ResultCode;
 import com.pegasus.kafka.common.utils.Common;
@@ -36,13 +35,11 @@ public class KafkaService {
     private final KafkaZkService kafkaZkService;
     private final KafkaJmxService kafkaJmxService;
     private final MBeanService mBeanService;
-    private final EhcacheService ehcacheService;
 
-    public KafkaService(KafkaZkService kafkaZkService, KafkaJmxService kafkaJmxService, MBeanService mBeanService, EhcacheService ehcacheService) {
+    public KafkaService(KafkaZkService kafkaZkService, KafkaJmxService kafkaJmxService, MBeanService mBeanService) {
         this.kafkaZkService = kafkaZkService;
         this.kafkaJmxService = kafkaJmxService;
         this.mBeanService = mBeanService;
-        this.ehcacheService = ehcacheService;
     }
 
     public void createTopics(String topicName, Integer partitionNumber, Integer replicationNumber) throws Exception {
@@ -80,7 +77,7 @@ public class KafkaService {
         });
     }
 
-    public List<KafkaTopicPartitionInfo> listTopicDetails(String topicName) throws Exception {
+    public List<KafkaTopicPartitionInfo> listTopicDetails(String topicName, boolean needLogsize) throws Exception {
         final List<KafkaTopicPartitionInfo> result = new ArrayList<>();
         AtomicReference<DescribeTopicsResult> describeTopicsResult = new AtomicReference<>();
 
@@ -130,26 +127,25 @@ public class KafkaService {
             }
         }
 
-        kafkaConsumerDo(kafkaConsumer -> {
-            for (KafkaTopicPartitionInfo topicPartitionVo : result) {
-                if (topicPartitionVo.getLeader() != null) {
-                    topicPartitionVo.setLogsize(listLogSize(kafkaConsumer, topicPartitionVo.getTopicName(), Integer.valueOf(topicPartitionVo.getPartitionId())));
+        if (needLogsize) {
+            kafkaConsumerDo(kafkaConsumer -> {
+                for (KafkaTopicPartitionInfo topicPartitionVo : result) {
+                    if (topicPartitionVo.getLeader() != null) {
+                        topicPartitionVo.setLogsize(listLogSize(kafkaConsumer, topicPartitionVo.getTopicName(), Integer.valueOf(topicPartitionVo.getPartitionId())));
+                    }
                 }
-            }
-        });
+            });
+        }
         return result;
     }
 
     private Long listLogSize(KafkaConsumer kafkaConsumer, String topicName, Integer partitionId) {
-        Long result;
         TopicPartition tp = new TopicPartition(topicName, partitionId);
         kafkaConsumer.assign(Collections.singleton(tp));
         Map<TopicPartition, Long> endLogSize = kafkaConsumer.endOffsets(Collections.singleton(tp));
         Map<TopicPartition, Long> startLogSize = kafkaConsumer.beginningOffsets(Collections.singleton(tp));
-        result = endLogSize.get(tp) - startLogSize.get(tp);
-        return result;
+        return endLogSize.get(tp) - startLogSize.get(tp);
     }
-
 
     public List<KafkaConsumerInfo> listKafkaConsumers(String searchGroupId) throws Exception {
         List<KafkaConsumerInfo> result = new ArrayList<>();
@@ -189,8 +185,6 @@ public class KafkaService {
                         meta.setTopicSubscriberList(topicSubscriberList);
                         metaList.add(meta);
                     }
-
-
                     KafkaConsumerInfo.Meta noActiveMeta = new KafkaConsumerInfo.Meta();
                     List<KafkaConsumerInfo.TopicSubscriber> noActivetopicSubscriberList = new ArrayList<>();
                     noActiveMeta.setConsumerId("");
@@ -214,7 +208,6 @@ public class KafkaService {
                 }
             }
         });
-
 
         for (KafkaConsumerInfo kafkaConsumerInfo : result) {
             Set<String> topicNameSet = new HashSet<>();
@@ -287,18 +280,18 @@ public class KafkaService {
                 result.add(offsetInfo);
             }
         }
-
         return result;
     }
 
     private String getConsumerId(List<KafkaConsumerInfo> kafkaConsumerInfoList, String topicName, Integer partitionId) {
-        if (kafkaConsumerInfoList != null) {
-            for (KafkaConsumerInfo kafkaConsumerInfo : kafkaConsumerInfoList) {
-                for (KafkaConsumerInfo.Meta meta : kafkaConsumerInfo.getMetaList()) {
-                    for (KafkaConsumerInfo.TopicSubscriber topicSubscriber : meta.getTopicSubscriberList()) {
-                        if (topicSubscriber.getTopicName().equals(topicName) && topicSubscriber.getPartitionId().equals(partitionId)) {
-                            return meta.getConsumerId();
-                        }
+        if (kafkaConsumerInfoList == null) {
+            return null;
+        }
+        for (KafkaConsumerInfo kafkaConsumerInfo : kafkaConsumerInfoList) {
+            for (KafkaConsumerInfo.Meta meta : kafkaConsumerInfo.getMetaList()) {
+                for (KafkaConsumerInfo.TopicSubscriber topicSubscriber : meta.getTopicSubscriberList()) {
+                    if (topicSubscriber.getTopicName().equals(topicName) && topicSubscriber.getPartitionId().equals(partitionId)) {
+                        return meta.getConsumerId();
                     }
                 }
             }
@@ -328,7 +321,7 @@ public class KafkaService {
 
     private Map<TopicPartition, Long> listLogSize(String topicName, List<String> partitionIds) throws Exception {
         Map<TopicPartition, Long> result = new HashMap<>();
-        List<KafkaTopicPartitionInfo> topicDetails = this.listTopicDetails(topicName);
+        List<KafkaTopicPartitionInfo> topicDetails = this.listTopicDetails(topicName, false);
 
         kafkaConsumerDo(kafkaConsumer -> {
             Set<TopicPartition> tps = new HashSet<>();
@@ -356,13 +349,12 @@ public class KafkaService {
     }
 
     public void deleteConsumerGroups(String consumerGroupdId) throws Exception {
-        kafkaAdminClientDo(adminClient ->
-                adminClient.deleteConsumerGroups(Collections.singletonList(consumerGroupdId)).all().get());
+        kafkaAdminClientDo(adminClient -> adminClient.deleteConsumerGroups(Collections.singletonList(consumerGroupdId)).all().get());
     }
 
     public String listTopicSize(String topicName) throws Exception {
         long totalSize = 0L;
-        List<KafkaTopicPartitionInfo> topicDetails = listTopicDetails(topicName);
+        List<KafkaTopicPartitionInfo> topicDetails = listTopicDetails(topicName, false);
         List<KafkaBrokerInfo> brokerVoList = listBrokerInfos();
 
         for (KafkaTopicPartitionInfo topicDetail : topicDetails) {
@@ -377,23 +369,17 @@ public class KafkaService {
                 totalSize += Long.parseLong(size);
             }
         }
-
         return Common.convertSize(totalSize);
     }
 
     public List<KafkaBrokerInfo> listBrokerInfos() throws Exception {
-        List result = ehcacheService.get(Constants.EHCACHE_KAFKA_BROKER_INFOS);
-        if (result == null || result.size() < 1) {
-            List<String> brokerList = this.listBrokerNames();
-            List<KafkaBrokerInfo> kafkaBrokerInfoList = new ArrayList<>(brokerList.size());
-            for (String brokerName : brokerList) {
-                KafkaBrokerInfo brokerInfo = this.getBrokerInfo(brokerName);
-                brokerInfo.setName(brokerName);
-                brokerInfo.setVersion(getKafkaVersion(brokerInfo));
-                kafkaBrokerInfoList.add(brokerInfo);
-            }
-            ehcacheService.set(Constants.EHCACHE_KAFKA_BROKER_INFOS, kafkaBrokerInfoList);
-            result = kafkaBrokerInfoList;
+        List<String> brokerList = this.listBrokerNames();
+        List<KafkaBrokerInfo> result = new ArrayList<>(brokerList.size());
+        for (String brokerName : brokerList) {
+            KafkaBrokerInfo brokerInfo = this.getBrokerInfo(brokerName);
+            brokerInfo.setName(brokerName);
+            brokerInfo.setVersion(getKafkaVersion(brokerInfo));
+            result.add(brokerInfo);
         }
         return result;
     }
@@ -466,10 +452,9 @@ public class KafkaService {
     public Long getLogSize(String topicName, Out out) throws Exception {
         Long result = 0L;
         List<String> listPartitionNames = listPartitionIds(topicName);
-        List<KafkaTopicPartitionInfo> topicDetails = listTopicDetails(topicName);
+        List<KafkaTopicPartitionInfo> topicDetails = listTopicDetails(topicName, false);
         for (String listPartitionName : listPartitionNames) {
             Optional<KafkaTopicPartitionInfo> first = topicDetails.stream().filter(p -> listPartitionName.equals(p.getPartitionId())).findFirst();
-            topicDetails.stream().filter(p -> p.getPartitionId().equals(listPartitionName)).findFirst();
             if (!first.isPresent()) {
                 continue;
             }
@@ -497,7 +482,7 @@ public class KafkaService {
     }
 
     public List<String> listTopicNames() throws Exception {
-        return kafkaZkService.getChildren(Constants.ZK_BROKERS_TOPICS_PATH).stream().filter(p -> !"__consumer_offsets".equals(p)).collect(Collectors.toList());
+        return kafkaZkService.getChildren(Constants.ZK_BROKERS_TOPICS_PATH).stream().filter(p -> !Constants.KAFKA_CONSUMER_OFFSETS.equals(p)).collect(Collectors.toList());
     }
 
     public Stat getTopicStat(String topicName) throws Exception {
@@ -533,24 +518,18 @@ public class KafkaService {
     }
 
     public String getKafkaBrokerServer() throws Exception {
-        String result = ehcacheService.get(Constants.EHCACHE_KAFKA_BROKER_SERVER);
-        if (StringUtils.isEmpty(result)) {
-
-            StringBuilder kafkaUrls = new StringBuilder();
-            List<KafkaBrokerInfo> brokerInfoList = this.listBrokerInfos();
-            if (brokerInfoList == null || brokerInfoList.size() < 1) {
-                throw new BusinessException(ResultCode.KAFKA_NOT_RUNNING);
-            }
-            for (KafkaBrokerInfo brokerInfo : brokerInfoList) {
-                kafkaUrls.append(String.format("%s:%s,", brokerInfo.getHost(), brokerInfo.getPort()));
-            }
-            if (kafkaUrls.length() > 0) {
-                kafkaUrls.delete(kafkaUrls.length() - 1, kafkaUrls.length());
-            }
-            result = kafkaUrls.toString();
-            ehcacheService.set(Constants.EHCACHE_KAFKA_BROKER_SERVER, result);
+        StringBuilder kafkaUrls = new StringBuilder();
+        List<KafkaBrokerInfo> brokerInfoList = this.listBrokerInfos();
+        if (brokerInfoList == null || brokerInfoList.size() < 1) {
+            throw new BusinessException(ResultCode.KAFKA_NOT_RUNNING);
         }
-        return result;
+        for (KafkaBrokerInfo brokerInfo : brokerInfoList) {
+            kafkaUrls.append(String.format("%s:%s,", brokerInfo.getHost(), brokerInfo.getPort()));
+        }
+        if (kafkaUrls.length() > 0) {
+            kafkaUrls.delete(kafkaUrls.length() - 1, kafkaUrls.length());
+        }
+        return kafkaUrls.toString();
     }
 
     private void kafkaAdminClientDo(KafkaAdminClientAction kafkaAdminClientAction) throws Exception {

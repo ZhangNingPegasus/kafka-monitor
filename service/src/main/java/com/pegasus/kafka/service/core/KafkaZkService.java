@@ -18,6 +18,7 @@ import java.util.List;
 @Service
 public class KafkaZkService implements InitializingBean, DisposableBean {
 
+    private final String CHARSET_NAME = "gbk";
     private final KafkaMonitorProperty kafkaMonitorProperty;
     private CuratorFramework client;
 
@@ -30,11 +31,11 @@ public class KafkaZkService implements InitializingBean, DisposableBean {
     }
 
     public String getData(String path) throws Exception {
-        return new String(client.getData().forPath(path), "gbk");
+        return new String(client.getData().forPath(path), CHARSET_NAME);
     }
 
     public String getData(String path, Stat stat) throws Exception {
-        return new String(client.getData().storingStatIn(stat).forPath(path), "gbk");
+        return new String(client.getData().storingStatIn(stat).forPath(path), CHARSET_NAME);
     }
 
     public boolean exists(String path) throws Exception {
@@ -47,7 +48,6 @@ public class KafkaZkService implements InitializingBean, DisposableBean {
             client.delete().guaranteed().deletingChildrenIfNeeded().forPath(path);
         }
     }
-
 
     @Override
     public void afterPropertiesSet() {
@@ -71,6 +71,4 @@ public class KafkaZkService implements InitializingBean, DisposableBean {
             CloseableUtils.closeQuietly(this.client);
         }
     }
-
-
 }
