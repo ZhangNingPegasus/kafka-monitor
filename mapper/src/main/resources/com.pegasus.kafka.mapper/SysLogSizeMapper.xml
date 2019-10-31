@@ -3,18 +3,34 @@
 
 <mapper namespace="com.pegasus.kafka.mapper.SysLogSizeMapper">
     <select id="getTopicRank" resultType="com.pegasus.kafka.entity.dto.SysLogSize">
-	SELECT
-	b.*
-	FROM
-	(
-		SELECT
-		topic_name,
-		MAX(create_time) create_time
-		FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_log_size`
-		GROUP BY topic_name
-	) a
-	LEFT OUTER JOIN ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_log_size` b ON a.topic_name = b.topic_name AND a.create_time = b.create_time
-	ORDER BY log_size DESC
-	LIMIT #{rank}
+        SELECT
+        b.*
+        FROM
+        (
+        SELECT
+        topic_name,
+        MAX(create_time) create_time
+        FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_log_size`
+        WHERE 1 = 1
+        <if test="from!=null and to !=null">
+            AND create_time &gt;= #{from}
+            AND create_time &lt;= #{to}
+        </if>
+        GROUP BY topic_name
+        ) a
+        LEFT OUTER JOIN ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_log_size` b ON a.topic_name =
+        b.topic_name AND a.create_time = b.create_time
+        ORDER BY log_size DESC
+        LIMIT #{rank}
+    </select>
+
+    <select id="getHistoryLogSize" resultType="java.lang.Long">
+        SELECT
+        `log_size`
+        FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_log_size`
+        WHERE `create_time` &gt;= #{from}
+        AND   `create_time` &lt; #{to}
+        ORDER BY `create_time` DESC
+        LIMIT 1
     </select>
 </mapper>

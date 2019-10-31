@@ -115,8 +115,8 @@
             text: {none: '暂无相关数据'},
             cols: [[
                 {field: 'topicName', title: '主题名称', templet: '#colTopicName', width: 200},
-                {field: "partitionId", title: '分区号', templet: '#colHost', width: 150},
-                {field: "logsize", title: '消息数量', templet: '#colLogsize', width: 150},
+                {field: "partitionId", title: '分区号', templet: '#colHost', width: 100},
+                {field: "logsize", title: '消息数量', templet: '#colLogsize', width: 100},
                 {field: "strLeader", title: '分区Leader', templet: '#colLeader'},
                 {field: "strReplicas", title: '分区副本', templet: '#colReplicas'},
                 {field: "strIsr", title: '同步副本', templet: '#colIsr'}

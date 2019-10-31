@@ -14,7 +14,7 @@ public class KafkaBrokerService {
         this.kafkaService = kafkaService;
     }
 
-    public List<KafkaBrokerInfo> getAllBrokers() throws Exception {
+    public List<KafkaBrokerInfo> listAllBrokers() throws Exception {
         return kafkaService.listBrokerInfos();
     }
 

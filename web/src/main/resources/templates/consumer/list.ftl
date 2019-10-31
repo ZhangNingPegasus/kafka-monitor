@@ -22,17 +22,17 @@
 
             <script type="text/html" id="topicCount">
                 {{#  if(d.topicCount > 0){ }}
-                <span class="layui-badge layui-bg-green">{{ d.topicCount }}</span>
+                <span class="layui-badge layui-bg-green">{{ d.topicCount }} ({{ d.topicNames }})</span>
                 {{#  } else { }}
-                <span class="layui-badge layui-bg-orange">{{ d.topicCount }}</span>
+                <span class="layui-badge layui-bg-orange">{{ d.topicCount }} ({{ d.topicNames }})</span>
                 {{#  } }}
             </script>
 
             <script type="text/html" id="activeTopicCount">
                 {{#  if(d.activeTopicCount > 0){ }}
-                <span class="layui-badge layui-bg-green">{{ d.activeTopicCount }}</span>
+                <span class="layui-badge layui-bg-green">{{ d.activeTopicCount }} ({{ d.activeTopicNames }})</span>
                 {{#  } else { }}
-                <span class="layui-badge layui-bg-orange">{{ d.activeTopicCount }}</span>
+                <span class="layui-badge layui-bg-orange">{{ d.activeTopicCount }} ({{ d.activeTopicNames }})</span>
                 {{#  } }}
             </script>
         </div>
@@ -85,11 +85,11 @@
             },
             cols: [[
                 {type: 'numbers', title: '序号', width: 50},
-                {field: 'groupId', title: '组名称', templet: "#colGroupId", width: 500},
+                {field: 'groupId', title: '组名称', templet: "#colGroupId"},
                 {field: 'node', title: '节点', width: 300},
-                {title: '订阅主题数', sort: true, templet: "#topicCount", width: 150},
-                {title: '活跃主题', sort: true, templet: "#activeTopicCount", width: 150},
-                {fixed: 'right', title: '操作', toolbar: '#grid-bar'}
+                {title: '订阅主题数', sort: true, templet: "#topicCount", width: 400},
+                {title: '活跃主题', sort: true, templet: "#activeTopicCount", width: 400},
+                {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 160}
             ]],
             done: function () {
                 $("a[class='groupid layui-table-link']").click(function () {

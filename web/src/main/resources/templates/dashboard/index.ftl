@@ -2,6 +2,7 @@
 <html lang="zh-CN">
 <head>
     <#include "../common/layui.ftl">
+    <script src="${ctx}/js/dashboard.js"></script>
 </head>
 <body>
 
@@ -13,7 +14,7 @@
                     <div class="layui-form-item">
                         <div class="layui-inline">主题名称</div>
                         <div class="layui-inline" style="width:265px">
-                            <select id="topicName" name="topicName" lay-filter="topicName"
+                            <select id="tpsTopicName" name="tpsTopicName" lay-filter="tpsTopicName"
                                     lay-verify="required" lay-search>
                                 <option value="所有主题">所有主题</option>
                                 <#list topics as topic>
@@ -26,9 +27,11 @@
                         <div class="layui-inline" style="width:300px">
                             <input type="text" id="topicCreateTimeRange" name="topicCreateTimeRange"
                                    lay-verify="required"
-                                   class="layui-input" placeholder="请选择创建时间范围" autocomplete="off">
+                                   class="layui-input" placeholder="请选择时间范围" autocomplete="off">
                         </div>
-                        <button id="btnTopicRefresh" type="button" class="layui-btn layui-btn-xs">刷 新</button>
+                        <button id="btnTopicRefresh" type="button" class="layui-btn layui-btn-xs"
+                                style="float: right;margin-top: 10px">刷 新
+                        </button>
                     </div>
                 </div>
                 <div class="layui-card-body">
@@ -41,10 +44,18 @@
                 </div>
             </div>
             <div class="layui-card">
-                <div class="layui-card-header">主题前5排行榜
-                    <button id="btnTopicRankRefresh" type="button" class="layui-btn layui-btn-xs"
-                            style="float: right;margin-top: 10px">刷 新
-                    </button>
+                <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">时间范围</div>
+                        <div class="layui-inline" style="width:300px">
+                            <input type="text" id="rankCreateTimeRange" name="rankCreateTimeRange"
+                                   lay-verify="required"
+                                   class="layui-input" placeholder="请选择时间范围" autocomplete="off">
+                        </div>
+                        <button id="btnTopicRankRefresh" type="button" class="layui-btn layui-btn-xs"
+                                style="float: right;margin-top: 10px">刷 新
+                        </button>
+                    </div>
                 </div>
                 <div class="layui-card-body">
                     <div class="layui-carousel layadmin-carousel layadmin-dataview" data-anim="fade"
@@ -53,7 +64,6 @@
                             <div><i class="layui-icon layui-icon-loading1 layadmin-loading"></i></div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -75,9 +85,11 @@
                         <div class="layui-inline">时间范围</div>
                         <div class="layui-inline" style="width:300px">
                             <input type="text" id="lagCreateTimeRange" name="lagCreateTimeRange" lay-verify="required"
-                                   class="layui-input" placeholder="请选择创建时间范围" autocomplete="off">
+                                   class="layui-input" placeholder="请选择时间范围" autocomplete="off">
                         </div>
-                        <button id="btnLagRefresh" type="button" class="layui-btn layui-btn-xs">刷 新</button>
+                        <button id="btnLagRefresh" type="button" class="layui-btn layui-btn-xs"
+                                style="float: right;margin-top: 10px">刷 新
+                        </button>
                     </div>
                 </div>
                 <div class="layui-card-body">
@@ -90,16 +102,30 @@
                 </div>
             </div>
             <div class="layui-card">
-                <div class="layui-card-header">暂定</div>
+                <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">主题名称</div>
+                        <div class="layui-inline" style="width:265px">
+                            <select id="hisTopicName" name="hisTopicName" lay-filter="hisTopicName"
+                                    lay-verify="required" lay-search>
+                                <option value="">请选择主题</option>
+                                <#list topics as topic>
+                                    <option value="${topic.topicName}">${topic.topicName}</option>
+                                </#list>
+                            </select>
+                        </div>
+                        <button id="btnTopicHisRefresh" type="button" class="layui-btn layui-btn-xs"
+                                style="float: right;margin-top: 10px">刷 新
+                        </button>
+                    </div>
+                </div>
                 <div class="layui-card-body">
-
                     <div class="layui-carousel layadmin-carousel layadmin-dataview" data-anim="fade"
-                         lay-filter="LAY-index-heapbar">
-                        <div carousel-item id="LAY-index-heapbar">
+                         lay-filter="LAY-index-heapcol">
+                        <div carousel-item id="topicHistoryChart">
                             <div><i class="layui-icon layui-icon-loading1 layadmin-loading"></i></div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -108,7 +134,7 @@
 
 <script>
     layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table', 'laydate', 'carousel', 'echarts'], function () {
-        const admin = layui.admin, form = layui.form, laydate = layui.laydate, $ = layui.$, echarts = layui.echarts;
+        const admin = layui.admin, form = layui.form, laydate = layui.laydate, echarts = layui.echarts;
         //区块轮播切换
         layui.use(['carousel'], function () {
             const $ = layui.$, carousel = layui.carousel, element = layui.element, device = layui.device();
@@ -127,217 +153,62 @@
             });
             element.render('progress');
 
+            function refreshTopicChart() {
+                const tpsTopicName = $.trim($("#tpsTopicName").siblings().find("dd[class='layui-this']").html());
+                const topicCreateTimeRange = $.trim($("#topicCreateTimeRange").val());
+                if (tpsTopicName == null || tpsTopicName === '' || topicCreateTimeRange == null || topicCreateTimeRange === '') {
+                    return;
+                }
+                $('#topicChart').children('div').removeAttr("_echarts_instance_").empty();
+                admin.post("getTopicChart?topicName=" + tpsTopicName + "&createTimeRange=" + topicCreateTimeRange, {}, function (data) {
+                    const ele = $('#topicChart').children('div')[0];
+                    const echart = echarts.init(ele, layui.echartsTheme);
+                    echart.setOption(topicChart(data.data));
+                    window.onresize = echart.resize;
+                });
+            }
+
             function refreshLagChart() {
                 const consumerId = $.trim($("#consumerName").siblings().find("dd[class='layui-this']").html());
                 const lagCreateTimeRange = $.trim($("#lagCreateTimeRange").val());
                 if (consumerId == null || consumerId === '' || lagCreateTimeRange == null || lagCreateTimeRange === '') {
+                    const ele = $('#lagChart').children('div')[0];
+                    const echart = echarts.init(ele, layui.echartsTheme);
+                    echart.setOption(lagChart({topicNames: [], times: [], series: []}));
+                    window.onresize = echart.resize;
                     return;
                 }
                 $('#lagChart').children('div').removeAttr("_echarts_instance_").empty();
                 admin.post("getLagChart?groupId=" + consumerId + "&createTimeRange=" + lagCreateTimeRange, {}, function (data) {
-                    data = data.data;
-                    const echnormline = [], elemnormline = $('#lagChart').children('div'),
-                        rendernormline = function (index) {
-                            echnormline[index] = echarts.init(elemnormline[index], layui.echartsTheme);
-                            echnormline[index].setOption({
-                                title: {
-                                    text: '消息堆积图'
-                                },
-                                grid: {
-                                    left: '4%',
-                                    right: '9%',
-                                    bottom: 35,
-                                    containLabel: true
-                                },
-                                toolbox: {
-                                    feature: {
-                                        dataZoom: {
-                                            yAxisIndex: 'none'
-                                        },
-                                        restore: {},
-                                        saveAsImage: {}
-                                    }
-                                },
-                                tooltip: {
-                                    trigger: 'axis',
-                                    axisPointer: {
-                                        type: 'cross',
-                                        animation: false,
-                                        label: {
-                                            backgroundColor: '#505765'
-                                        }
-                                    }
-                                },
-                                dataZoom: [
-                                    {
-                                        show: true,
-                                        realtime: true,
-                                        start: 0,
-                                        end: 100
-                                    },
-                                    {
-                                        type: 'inside',
-                                        realtime: true,
-                                        start: 0,
-                                        end: 100
-                                    }
-                                ],
-                                yAxis: {
-                                    type: 'value'
-                                },
-                                legend: {
-                                    data: data.topicNames,
-                                    x: 'center'
-                                },
-                                xAxis: {
-                                    type: 'category',
-                                    boundaryGap: false,
-                                    axisLine: {onZero: false},
-                                    data: data.times.map(function (str) {
-                                        return str.replace(' ', '\n')
-                                    })
-                                },
-                                series: data.series
-                            });
-                            window.onresize = echnormline[index].resize;
-                        };
-                    if (!elemnormline[0]) return;
-                    rendernormline(0);
-                });
-            }
-
-            function refreshTopicChart() {
-                const topicName = $.trim($("#topicName").siblings().find("dd[class='layui-this']").html());
-                const topicCreateTimeRange = $.trim($("#topicCreateTimeRange").val());
-                if (topicName == null || topicName === '' || topicCreateTimeRange == null || topicCreateTimeRange === '') {
-                    return;
-                }
-                $('#topicChart').children('div').removeAttr("_echarts_instance_").empty();
-                admin.post("getTopicChart?topicName=" + topicName + "&createTimeRange=" + topicCreateTimeRange, {}, function (data) {
-                    data = data.data;
-                    const echnormline = [], elemnormline = $('#topicChart').children('div'),
-                        rendernormline = function (index) {
-                            echnormline[index] = echarts.init(elemnormline[index], layui.echartsTheme);
-                            echnormline[index].setOption({
-                                title: {
-                                    text: '消息产生总量图'
-                                },
-                                grid: {
-                                    left: '4%',
-                                    right: '9%',
-                                    bottom: 35,
-                                    containLabel: true
-                                },
-                                toolbox: {
-                                    feature: {
-                                        dataZoom: {
-                                            yAxisIndex: 'none'
-                                        },
-                                        restore: {},
-                                        saveAsImage: {}
-                                    }
-                                },
-                                tooltip: {
-                                    trigger: 'axis',
-                                    axisPointer: {
-                                        type: 'cross',
-                                        animation: false,
-                                        label: {
-                                            backgroundColor: '#505765'
-                                        }
-                                    }
-                                },
-                                dataZoom: [
-                                    {
-                                        show: true,
-                                        realtime: true,
-                                        start: 0,
-                                        end: 100
-                                    },
-                                    {
-                                        type: 'inside',
-                                        realtime: true,
-                                        start: 0,
-                                        end: 100
-                                    }
-                                ],
-                                yAxis: {
-                                    type: 'value'
-                                },
-                                legend: {
-                                    data: data.topicNames,
-                                    x: 'center'
-                                },
-                                xAxis: {
-                                    type: 'category',
-                                    boundaryGap: false,
-                                    axisLine: {onZero: false},
-                                    data: data.times.map(function (str) {
-                                        return str.replace(' ', '\n')
-                                    })
-                                },
-                                series: data.series
-                            });
-                            window.onresize = echnormline[index].resize;
-                        };
-                    if (!elemnormline[0]) return;
-                    rendernormline(0);
+                    const ele = $('#lagChart').children('div')[0];
+                    const echart = echarts.init(ele, layui.echartsTheme);
+                    echart.setOption(lagChart(data.data));
+                    window.onresize = echart.resize;
                 });
             }
 
             function refreshTopicRankChart() {
+                const rankCreateTimeRange = $.trim($("#rankCreateTimeRange").val());
                 $('#topicRankChart').children('div').removeAttr("_echarts_instance_").empty();
-                admin.post("getTopicRankChart", {}, function (data) {
-                    data = data.data;
-                    const echnormline = [], elemnormline = $('#topicRankChart').children('div'),
-                        rendernormline = function (index) {
-                            echnormline[index] = echarts.init(elemnormline[index], layui.echartsTheme);
-                            echnormline[index].setOption({
-                                grid: {
-                                    left: '4%',
-                                    right: '9%',
-                                    bottom: 35,
-                                    containLabel: true
-                                },
-                                toolbox: {
-                                    feature: {
-                                        dataZoom: {
-                                            yAxisIndex: 'none'
-                                        },
-                                        restore: {},
-                                        saveAsImage: {}
-                                    }
-                                },
-                                tooltip: {
-                                    trigger: 'axis',
-                                    axisPointer: {
-                                        type: 'cross',
-                                        animation: false,
-                                        label: {
-                                            backgroundColor: '#505765'
-                                        }
-                                    }
-                                },
-                                xAxis: {
-                                    type: 'category',
-                                    nameTextStyle: {fontSize: 2},
-                                    data: data.topicNames.map(function (str) {
-                                        if (str.length > 15) {
-                                            return str.substr(0, 15) + '...'
-                                        } else {
-                                            return str;
-                                        }
-                                    })
-                                },
-                                yAxis: {
-                                    type: 'value'
-                                },
-                                series: data.series
-                            });
-                            window.onresize = echnormline[index].resize;
-                        };
-                    if (!elemnormline[0]) return;
-                    rendernormline(0);
+                admin.post("getTopicRankChart?createTimeRange=" + rankCreateTimeRange, {}, function (data) {
+                    const ele = $('#topicRankChart').children('div')[0];
+                    const echart = echarts.init(ele, layui.echartsTheme);
+                    echart.setOption(topicRankChart(data.data));
+                    window.onresize = echart.resize;
+                });
+            }
+
+            function refreshTopicHistoryChart() {
+                const hisTopicName = $.trim($("#hisTopicName").siblings().find("dd[class='layui-this']").html());
+                if (hisTopicName == null || hisTopicName === '') {
+                    return;
+                }
+                $('#topicHistoryChart').children('div').removeAttr("_echarts_instance_").empty();
+                admin.post("getTopicHistoryChart?topicName=" + hisTopicName, {}, function (data) {
+                    const ele = $('#topicHistoryChart').children('div')[0];
+                    const echart = echarts.init(ele, layui.echartsTheme);
+                    echart.setOption(topicHistoryChart(data.data));
+                    window.onresize = echart.resize;
                 });
             }
 
@@ -359,15 +230,24 @@
                 }
             });
 
+            laydate.render({
+                elem: '#rankCreateTimeRange',
+                type: 'datetime',
+                range: true,
+                done: function () {
+                    refreshTopicRankChart();
+                }
+            });
+
             const now = new Date();
             now.setDate(now.getDate() + 1);
             const to = now.format('yyyy-MM-dd' + ' 00:00:00');
             now.setDate(now.getDate() - 1);
-            now.setMinutes(now.getMinutes() - 60);
+            now.setMinutes(now.getMinutes() - 30);
             const from = now.format('yyyy-MM-dd HH:mm' + ':00');
             $("#lagCreateTimeRange").val(from + ' - ' + to);
             $("#topicCreateTimeRange").val(from + ' - ' + to);
-
+            $("#rankCreateTimeRange").val(from + ' - ' + to);
 
             form.on('select(consumerName)', function () {
                 refreshLagChart();
@@ -381,7 +261,7 @@
                 refreshLagChart();
             });
 
-            form.on('select(topicName)', function () {
+            form.on('select(tpsTopicName)', function () {
                 refreshTopicChart();
             });
 
@@ -397,13 +277,23 @@
                 refreshTopicRankChart();
             });
 
+            form.on('select(hisTopicName)', function () {
+                refreshTopicHistoryChart();
+            });
+
+            $("#btnTopicHisRefresh").click(function () {
+                refreshTopicHistoryChart();
+            });
+
 
             $('#consumerName option:eq(1)').attr('selected', 'selected');
+            $('#hisTopicName option:eq(1)').attr('selected', 'selected');
             layui.form.render('select');
 
             refreshTopicChart();
             refreshLagChart();
             refreshTopicRankChart();
+            refreshTopicHistoryChart();
         });
     });
 </script>

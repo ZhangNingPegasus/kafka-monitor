@@ -35,11 +35,27 @@
                 {{#  } }}
             </script>
 
-            <script type="text/html" id="colLogSize">
+            <script type="text/html" id="colTodayLogSize">
                 {{#  if(d.error || d.logSize < 0){ }}
-                <span title="{{ d.error }}" class="layui-badge">{{ d.logSize }}</span>
+                <span title="{{ d.error }}" class="layui-badge">{{ d.todayLogSize }}</span>
                 {{#  } else { }}
-                {{ d.logSize }}
+                {{ d.todayLogSize }}
+                {{#  } }}
+            </script>
+
+            <script type="text/html" id="colYesterdayLogSize">
+                {{#  if(d.error || d.logSize < 0){ }}
+                <span title="{{ d.error }}" class="layui-badge">{{ d.yesterdayLogSize }}</span>
+                {{#  } else { }}
+                {{ d.yesterdayLogSize }}
+                {{#  } }}
+            </script>
+
+            <script type="text/html" id="colTdbyLogSize">
+                {{#  if(d.error || d.logSize < 0){ }}
+                <span title="{{ d.error }}" class="layui-badge">{{ d.tdbyLogSize }}</span>
+                {{#  } else { }}
+                {{ d.tdbyLogSize }}
                 {{#  } }}
             </script>
 
@@ -72,6 +88,14 @@
                 <span title="{{ d.error }}" class="layui-badge">{{ d.modifyTime }}</span>
                 {{#  } else { }}
                 {{ d.modifyTime }}
+                {{#  } }}
+            </script>
+
+            <script type="text/html" id="subscribeNums">
+                {{#  if(d.error || d.logSize < 0){ }}
+                <span title="{{ d.error }}" class="layui-badge">{{ d.subscribeNums }}</span>
+                {{#  } else { }}
+                <span title="{{ d.subscribeGroupIds }}" style="cursor: pointer">{{ d.subscribeNums }}</span>
                 {{#  } }}
             </script>
 
@@ -116,12 +140,15 @@
             cols: [[
                 {type: 'numbers', title: '序号', width: 50},
                 {field: 'topicName', title: '主题名称', templet: '#colTopicName'},
-                {field: 'logSize', title: '消息数量', templet: '#colLogSize', width: 150},
-                {field: 'partitionNum', title: '分区数', templet: '#colPartitionNum', width: 150},
-                {field: 'partitionIndex', title: '分区索引', templet: '#colPartitionIndex', width: 400},
+                {field: 'todayLogSize', title: '今天消息数量', templet: '#colTodayLogSize', width: 150},
+                {field: 'yesterdayLogSize', title: '昨天消息数量', templet: '#colYesterdayLogSize', width: 150},
+                {field: 'tdbyLogSize', title: '前天消息数量', templet: '#colTdbyLogSize', width: 150},
+                {field: 'subscribeNums', title: '被订阅数', templet: '#subscribeNums', width: 100},
+                {field: 'partitionNum', title: '分区数', templet: '#colPartitionNum', width: 100},
+                {field: 'partitionIndex', title: '分区索引', templet: '#colPartitionIndex', width: 120},
                 {field: 'createTime', title: '创建时间', templet: '#colCreateTime', width: 180},
                 {field: 'modifyTime', title: '修改时间', templet: '#colModifyTime', width: 180},
-                {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 235}
+                {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 250}
             ]],
             done: function () {
                 $("a[class='topicName layui-table-link']").click(function () {
@@ -163,7 +190,17 @@
             if (obj.event === 'del') {
                 layer.confirm(admin.DEL_QUESTION, function (index) {
                     admin.post("del", {topicName: data.topicName}, function () {
-                        table.reload('grid');
+                        if (table.cache.grid.length < 2) {
+                            const curPage = $(".layui-laypage-skip").find("input").val();
+                            let page = parseInt(curPage) - 1;
+                            if (page < 1) {
+                                page = 1;
+                            }
+                            $(".layui-laypage-skip").find("input").val(page);
+                            $(".layui-laypage-btn").click();
+                        } else {
+                            table.reload('grid');
+                        }
                         layer.close(index);
                     });
                 });

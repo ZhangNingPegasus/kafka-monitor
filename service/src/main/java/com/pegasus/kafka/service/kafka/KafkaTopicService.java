@@ -1,6 +1,7 @@
 package com.pegasus.kafka.service.kafka;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.pegasus.kafka.common.annotation.TranRead;
 import com.pegasus.kafka.common.annotation.TranSave;
 import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.exception.BusinessException;
@@ -11,6 +12,7 @@ import com.pegasus.kafka.entity.po.Out;
 import com.pegasus.kafka.entity.vo.*;
 import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.dto.SysLagService;
+import com.pegasus.kafka.service.dto.SysLogSizeService;
 import com.pegasus.kafka.service.dto.TopicRecordService;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -20,6 +22,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.zookeeper.data.Stat;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -33,16 +36,23 @@ public class KafkaTopicService {
     private final KafkaService kafkaService;
     private final TopicRecordService topicRecordService;
     private final SysLagService sysLagService;
+    private final SysLogSizeService sysLogSizeService;
+    private final KafkaConsumerService kafkaConsumerService;
 
-    public KafkaTopicService(KafkaService kafkaService, TopicRecordService topicRecordService, SysLagService sysLagService) {
+    public KafkaTopicService(KafkaService kafkaService, TopicRecordService topicRecordService, SysLagService sysLagService, @Lazy SysLogSizeService sysLogSizeService, KafkaConsumerService kafkaConsumerService) {
         this.kafkaService = kafkaService;
         this.topicRecordService = topicRecordService;
         this.sysLagService = sysLagService;
+        this.sysLogSizeService = sysLogSizeService;
+        this.kafkaConsumerService = kafkaConsumerService;
     }
 
-    public List<KafkaTopicInfo> listTopicNames(String searchTopicName, SearchType searchType) throws Exception {
+    @TranRead
+    public List<KafkaTopicInfo> listTopics(String searchTopicName, SearchType searchType) throws Exception {
         List<KafkaTopicInfo> topicInfoList = new ArrayList<>();
         List<String> topicNameList = kafkaService.listTopicNames();
+        List<KafkaConsumerInfo> kafkaConsumerInfoList = kafkaConsumerService.listKafkaConsumers();
+
         for (String topicName : topicNameList) {
             if (!StringUtils.isEmpty(searchTopicName)) {
                 boolean isContinue = false;
@@ -58,6 +68,8 @@ public class KafkaTopicService {
                     continue;
                 }
             }
+
+            List<String> SubscribeGroupIdList = kafkaConsumerInfoList.stream().filter(p -> p.getTopicNames().contains(topicName)).map(p -> p.getGroupId()).distinct().collect(Collectors.toList());
             Out out = new Out();
             try {
                 Stat stat = kafkaService.getTopicStat(topicName);
@@ -68,17 +80,30 @@ public class KafkaTopicService {
                 topicInfo.setPartitionIndex(partitionList.toString());
                 topicInfo.setCreateTimeLong(stat.getCtime());
                 topicInfo.setModifyTimeLong(stat.getMtime());
+                topicInfo.setSubscribeNums(SubscribeGroupIdList.size());
+                topicInfo.setSubscribeGroupIds(SubscribeGroupIdList.toArray(new String[]{}));
                 topicInfo.setCreateTime(Common.format(new Date(stat.getCtime())));
                 topicInfo.setModifyTime(Common.format(new Date(stat.getMtime())));
                 try {
                     topicInfo.setLogSize(kafkaService.getLogSize(topicName, out));
+
+
+                    Long day1 = sysLogSizeService.getHistoryLogSize(1);
+                    Long day2 = sysLogSizeService.getHistoryLogSize(2);
+                    Long day3 = sysLogSizeService.getHistoryLogSize(3);
+
+                    topicInfo.setTodayLogSize(topicInfo.getLogSize() - day1);
+                    topicInfo.setYesterdayLogSize(day1 - day2);
+                    topicInfo.setTdbyLogSize(day2 - day3);
+
                 } catch (Exception e) {
                     topicInfo.setLogSize(-1L);
                 }
+
+
                 topicInfo.setError(out.getError());
                 topicInfoList.add(topicInfo);
-            } catch (Exception e) {
-                continue;
+            } catch (Exception ignored) {
             }
         }
 
@@ -86,8 +111,8 @@ public class KafkaTopicService {
         return topicInfoList;
     }
 
-    public List<KafkaTopicInfo> listTopicNames() throws Exception {
-        return listTopicNames(null, null);
+    public List<KafkaTopicInfo> listTopics() throws Exception {
+        return listTopics(null, null);
     }
 
     public List<KafkaTopicPartitionInfo> listTopicDetails(String topicName) throws Exception {
@@ -130,7 +155,7 @@ public class KafkaTopicService {
     }
 
     public void edit(String topicName, Integer partitionNumber) throws Exception {
-        List<KafkaTopicInfo> topicInfoList = listTopicNames(topicName, SearchType.EQUALS);
+        List<KafkaTopicInfo> topicInfoList = listTopics(topicName, SearchType.EQUALS);
         if (topicInfoList != null && topicInfoList.size() > 0) {
             KafkaTopicInfo topicInfo = topicInfoList.get(0);
             if (partitionNumber > topicInfo.getPartitionNum()) {
@@ -152,9 +177,13 @@ public class KafkaTopicService {
             }
         }
         kafkaService.deleteTopic(topicName);
-        topicRecordService.dropTable(topicName);
+        try {
+            topicRecordService.dropTable(topicName);
+        } catch (Exception ignored) {
+        }
         sysLagService.deleteTopic(topicName);
-        Thread.sleep(1000);
+        sysLogSizeService.deleteTopic(topicName);
+        Thread.sleep(500);
     }
 
     public String listTopicSize(String topicName) throws Exception {
@@ -185,6 +214,7 @@ public class KafkaTopicService {
     public long getLogsize(String topicName) throws Exception {
         return getLogsize(topicName, null);
     }
+
 
     public List<KafkaTopicRecordInfo> listMessages(IPage page, String topicName, Integer partitionNum, String key, Date from, Date to) {
         List<TopicRecord> topicRecordList = topicRecordService.listMessages(page, topicName, partitionNum, key, from, to);

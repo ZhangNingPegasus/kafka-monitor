@@ -14,7 +14,12 @@ public class KafkaTopicInfo implements Serializable {
     private Integer consumerStatus;
     private Long lag;
     private Long logSize;
+    private Long todayLogSize;
+    private Long yesterdayLogSize;
+    private Long tdbyLogSize;
     private Integer partitionNum;
+    private Integer subscribeNums;
+    private String[] subscribeGroupIds;
     private String partitionIndex;
     private String createTime;
     private String modifyTime;

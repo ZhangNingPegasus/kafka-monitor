@@ -35,7 +35,7 @@
                 <div class="layui-inline">时间范围</div>
                 <div class="layui-inline" style="width:300px">
                     <input type="text" id="createTimeRange" name="createTimeRange" lay-verify="required"
-                           class="layui-input" placeholder="请选择创建时间范围">
+                           class="layui-input" placeholder="请选择时间范围">
                 </div>
 
                 <div class="layui-inline">
@@ -73,8 +73,12 @@
         $("#createTimeRange").val(from + ' - ' + to);
 
         form.on('select(topicName)', function (data) {
+            $("select[name=partitionId]").html(" <option value=\"-1\">所有分区</option>");
+            form.render('select');
+            if ($.trim(data.value) === '') {
+                return;
+            }
             admin.post('listTopicPartitions', {'topicName': data.value}, function (res) {
-                $("select[name=partitionId]").html(" <option value=\"-1\">所有分区</option>");
                 $.each(res.data, function (key, val) {
                     const option = $("<option>").val(val.partitionId).text(val.partitionId);
                     $("select[name=partitionId]").append(option);
@@ -96,8 +100,8 @@
             method: 'post',
             cellMinWidth: 80,
             page: true,
-            limit: 15,
-            limits: [15],
+            limit: 18,
+            limits: [18],
             even: true,
             text: {
                 none: '暂无相关数据'
@@ -110,7 +114,7 @@
                 {field: 'key', title: '消息Key', width: 150},
                 {field: 'createTime', title: '创建时间', width: 180},
                 {field: 'value', title: '消息体'},
-                {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 195}
+                {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 220}
             ]]
         });
 

@@ -4,30 +4,38 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pegasus.kafka.common.annotation.TranRead;
+import com.pegasus.kafka.common.annotation.TranSave;
 import com.pegasus.kafka.entity.dto.SysLag;
 import com.pegasus.kafka.entity.dto.SysLogSize;
 import com.pegasus.kafka.entity.vo.KafkaConsumerInfo;
+import com.pegasus.kafka.entity.vo.KafkaTopicInfo;
 import com.pegasus.kafka.entity.vo.OffsetInfo;
 import com.pegasus.kafka.mapper.SysLogSizeMapper;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
+import com.pegasus.kafka.service.kafka.KafkaRecordService;
+import com.pegasus.kafka.service.kafka.KafkaTopicService;
 import lombok.Data;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 @Service
 public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize> {
     private final KafkaConsumerService kafkaConsumerService;
+    private final KafkaTopicService kafkaTopicService;
 
-    public SysLogSizeService(KafkaConsumerService kafkaConsumerService) {
+    public SysLogSizeService(KafkaConsumerService kafkaConsumerService, KafkaTopicService kafkaTopicService) {
         this.kafkaConsumerService = kafkaConsumerService;
+        this.kafkaTopicService = kafkaTopicService;
     }
 
     public Matrix collect() throws Exception {
         Matrix result = new Matrix();
-        List<SysLag> sysLagList = new ArrayList<>();
-        Map<String, Long> sysLogSizeMap = new HashMap<>();
+        List<SysLag> sysLagList = new ArrayList<>(KafkaRecordService.BATCH_SIZE);
+        Map<String, Long> sysLogSizeMap = new HashMap<>(KafkaRecordService.BATCH_SIZE);
         List<KafkaConsumerInfo> kafkaConsumerInfos = kafkaConsumerService.listKafkaConsumers();
 
         for (KafkaConsumerInfo kafkaConsumerInfo : kafkaConsumerInfos) {
@@ -55,12 +63,22 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
             }
         }
 
-        List<SysLogSize> sysLogSizeList = new ArrayList<>();
-        for (Map.Entry<String, Long> entry : sysLogSizeMap.entrySet()) {
-            SysLogSize sysLogSize = new SysLogSize();
-            sysLogSize.setTopicName(entry.getKey());
-            sysLogSize.setLogSize(entry.getValue());
-            sysLogSizeList.add(sysLogSize);
+        List<SysLogSize> sysLogSizeList = new ArrayList<>(KafkaRecordService.BATCH_SIZE);
+        if (sysLogSizeMap.size() > 0) {
+            for (Map.Entry<String, Long> entry : sysLogSizeMap.entrySet()) {
+                SysLogSize sysLogSize = new SysLogSize();
+                sysLogSize.setTopicName(entry.getKey());
+                sysLogSize.setLogSize(entry.getValue());
+                sysLogSizeList.add(sysLogSize);
+            }
+        } else {
+            List<KafkaTopicInfo> kafkaTopicInfoList = kafkaTopicService.listTopics();
+            for (KafkaTopicInfo kafkaTopicInfo : kafkaTopicInfoList) {
+                SysLogSize sysLogSize = new SysLogSize();
+                sysLogSize.setTopicName(kafkaTopicInfo.getTopicName());
+                sysLogSize.setLogSize(kafkaTopicInfo.getLogSize());
+                sysLogSizeList.add(sysLogSize);
+            }
         }
         result.setSysLagList(sysLagList);
         result.setSysLogSizeList(sysLogSizeList);
@@ -81,8 +99,33 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
     }
 
     @TranRead
-    public List<SysLogSize> getTopicRank(Integer rank) {
-        return this.baseMapper.getTopicRank(rank);
+    public List<SysLogSize> getTopicRank(Integer rank, @Nullable Date from, @Nullable Date to) {
+        return this.baseMapper.getTopicRank(rank, from, to);
+    }
+
+    @TranSave
+    public boolean deleteTopic(String topicName) {
+        QueryWrapper<SysLogSize> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(SysLogSize::getTopicName, topicName);
+        return this.remove(queryWrapper);
+    }
+
+    @TranRead
+    public Long getHistoryLogSize(int days) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DATE),
+                0,
+                0,
+                0);
+        Date now = calendar.getTime();
+
+        Date from = DateUtils.addDays(now, -days);
+        Date to = DateUtils.addDays(from, 1);
+
+        Long result = this.baseMapper.getHistoryLogSize(from, to);
+        return result == null ? 0L : result;
     }
 
     @Data

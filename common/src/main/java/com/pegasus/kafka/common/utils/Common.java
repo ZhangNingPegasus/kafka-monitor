@@ -48,6 +48,11 @@ public class Common {
         return Double.parseDouble(formatter.format(Double.valueOf(number)));
     }
 
+    public static double numberic(Double number) {
+        DecimalFormat formatter = new DecimalFormat("###.##");
+        return Double.parseDouble(formatter.format(number));
+    }
+
     public static TimeRange splitTime(String timeRange) throws ParseException {
         if (timeRange == null) {
             return null;

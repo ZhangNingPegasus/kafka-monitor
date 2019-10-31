@@ -5,6 +5,7 @@ import com.pegasus.kafka.common.response.Result;
 import com.pegasus.kafka.entity.vo.KafkaTopicInfo;
 import com.pegasus.kafka.entity.vo.KafkaTopicPartitionInfo;
 import com.pegasus.kafka.entity.vo.MBeanInfo;
+import com.pegasus.kafka.service.kafka.KafkaBrokerService;
 import com.pegasus.kafka.service.kafka.KafkaTopicService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,9 +23,12 @@ import java.util.stream.Collectors;
 public class TopicController {
 
     private final KafkaTopicService kafkaTopicService;
+    private final KafkaBrokerService kafkaBrokerService;
 
-    public TopicController(KafkaTopicService kafkaTopicService) {
+
+    public TopicController(KafkaTopicService kafkaTopicService, KafkaBrokerService kafkaBrokerService) {
         this.kafkaTopicService = kafkaTopicService;
+        this.kafkaBrokerService = kafkaBrokerService;
     }
 
     @RequestMapping("tolist")
@@ -33,14 +37,20 @@ public class TopicController {
     }
 
     @RequestMapping("toadd")
-    public String toAdd() {
+    public String toAdd(Model model) throws Exception {
+        int brokerSize = 3;
+        try {
+            brokerSize = kafkaBrokerService.listAllBrokers().size();
+        } catch (Exception ingored) {
+        }
+        model.addAttribute("brokerSize", brokerSize);
         return "topic/add";
     }
 
     @RequestMapping("toedit/{topicName}")
     public String toAdd(Model model, @PathVariable(name = "topicName", required = true) String topicName) throws Exception {
         topicName = topicName.trim();
-        List<KafkaTopicInfo> topicInfoList = kafkaTopicService.listTopicNames(topicName, KafkaTopicService.SearchType.EQUALS);
+        List<KafkaTopicInfo> topicInfoList = kafkaTopicService.listTopics(topicName, KafkaTopicService.SearchType.EQUALS);
         if (topicInfoList != null && topicInfoList.size() > 0) {
             KafkaTopicInfo topicVo = topicInfoList.get(0);
             List<KafkaTopicPartitionInfo> topicDetails = kafkaTopicService.listTopicDetails(topicName);
@@ -78,7 +88,7 @@ public class TopicController {
             topicName = topicName.trim();
         }
         pageNum = Math.min(pageNum, Constants.MAX_PAGE_NUM);
-        List<KafkaTopicInfo> topicInfoList = kafkaTopicService.listTopicNames(topicName, KafkaTopicService.SearchType.LIKE);
+        List<KafkaTopicInfo> topicInfoList = kafkaTopicService.listTopics(topicName, KafkaTopicService.SearchType.LIKE);
         return Result.success(topicInfoList.stream().skip(pageSize * (pageNum - 1))
                 .limit(pageSize).collect(Collectors.toList()), topicInfoList.size());
     }

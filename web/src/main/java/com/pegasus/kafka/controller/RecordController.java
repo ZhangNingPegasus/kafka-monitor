@@ -38,7 +38,7 @@ public class RecordController {
 
     @RequestMapping("tolist")
     public String toList(Model model) throws Exception {
-        List<KafkaTopicInfo> kafkaTopicInfoList = kafkaTopicService.listTopicNames();
+        List<KafkaTopicInfo> kafkaTopicInfoList = kafkaTopicService.listTopics();
         model.addAttribute("topics", kafkaTopicInfoList);
         return "record/list";
     }

@@ -27,23 +27,23 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
         }
 
         Set<String> topicNames = topicRecordMap.keySet();
-        checkTableExists(topicNames);
+        createTableIfNotExists(topicNames);
 
         for (Map.Entry<String, List<TopicRecord>> entry : topicRecordMap.entrySet()) {
             String topicName = entry.getKey();
             List<TopicRecord> topicRecordList = entry.getValue();
-            this.baseMapper.batchSave(topicName, topicRecordList);
+            this.baseMapper.batchSave(convertToTableName(topicName), topicRecordList);
         }
     }
 
     @TranSave
-    public void checkTableExists(Set<String> tableNames) {
-        this.baseMapper.createTableIfNotExists(tableNames);
+    public void createTableIfNotExists(Set<String> topicNames) {
+        this.baseMapper.createTableIfNotExists(convertToTableName(topicNames));
     }
 
     @TranRead
-    public void dropTable(String tableName) {
-        this.baseMapper.dropTable(tableName);
+    public void dropTable(String topicName) {
+        this.baseMapper.dropTable(convertToTableName(topicName));
     }
 
     private Map<String, List<TopicRecord>> analyse(List<TopicRecord> topicRecordList) {
@@ -62,14 +62,24 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
     }
 
     @TranRead
-    public List<TopicRecord> listMessages(IPage page, String tableName, Integer partitionId, String key, Date from, Date to) {
-        return this.baseMapper.listMessages(page, tableName, partitionId, key, from, to);
+    public List<TopicRecord> listMessages(IPage page, String topicName, Integer partitionId, String key, Date from, Date to) {
+        return this.baseMapper.listMessages(page, convertToTableName(topicName), partitionId, key, from, to);
     }
 
     @TranRead
     public TopicRecord findMessage(String topicName, Integer partitionId, Long offset, String key) {
-        return this.baseMapper.findMessage(topicName, partitionId, offset, key);
+        return this.baseMapper.findMessage(convertToTableName(topicName), partitionId, offset, key);
     }
 
+    private String convertToTableName(String topicName) {
+        return String.format("topic_%s", topicName);
+    }
 
+    private Set<String> convertToTableName(Set<String> topicNames) {
+        Set<String> result = new HashSet<>(topicNames.size());
+        for (String topicName : topicNames) {
+            result.add(convertToTableName(topicName));
+        }
+        return result;
+    }
 }

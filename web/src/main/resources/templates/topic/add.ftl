@@ -21,8 +21,9 @@
         <div class="layui-input-inline" style="width:700px">
             <input type="number" name="partitionNumber" lay-verify="required|number" placeholder="请填写主题的分区数量"
                    autocomplete="off"
-                   class="layui-input" value="3">
-            <span class="layui-bg-blue"><i class="layui-icon layui-icon-about"></i>&nbsp;主题的主分片数量，建议是集群数量的整数倍</span>
+                   class="layui-input" value="${brokerSize}">
+            <span class="layui-bg-blue"><i
+                        class="layui-icon layui-icon-about"></i>&nbsp;主题的主分片数量，建议是集群数量(目前集群拥有<i>${brokerSize}</i>个节点)的整数倍</span>
         </div>
     </div>
 

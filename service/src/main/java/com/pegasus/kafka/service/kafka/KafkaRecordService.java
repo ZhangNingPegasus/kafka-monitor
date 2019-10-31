@@ -26,8 +26,9 @@ import java.util.regex.Pattern;
 
 @Service
 public class KafkaRecordService implements SmartLifecycle {
+    public static final Integer BATCH_SIZE = 2048;
     private static final Logger log = LoggerFactory.getLogger(KafkaRecordService.class);
-    private static final Integer BATCH_SIZE = 1024;
+    private static final Integer durationTimeout = 1000;
     private final KafkaService kafkaService;
     private final TopicRecordService topicRecordService;
     private ArrayBlockingQueue<TopicRecord> topicRecords;
@@ -38,7 +39,7 @@ public class KafkaRecordService implements SmartLifecycle {
 
     public KafkaRecordService(KafkaService kafkaService, TopicRecordService topicRecordService) {
         this.kafkaService = kafkaService;
-        this.topicRecords = new ArrayBlockingQueue<>(BATCH_SIZE * 1024);
+        this.topicRecords = new ArrayBlockingQueue<>(BATCH_SIZE * 2048);
         this.discardCount = new AtomicLong(0L);
         this.topicRecordService = topicRecordService;
     }
@@ -67,7 +68,7 @@ public class KafkaRecordService implements SmartLifecycle {
                     this.worker.setDaemon(true);
                     this.worker.start();
                     while (isRunning()) {
-                        ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
+                        ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(durationTimeout));
                         for (ConsumerRecord<String, String> record : records) {
                             TopicRecord topicRecord = new TopicRecord();
                             topicRecord.setTopicName(record.topic());
@@ -96,8 +97,6 @@ public class KafkaRecordService implements SmartLifecycle {
     @Override
     public void stop() {
         setRunning(false);
-
-
     }
 
     @Override

@@ -29,7 +29,7 @@ public class ClusterController {
     @RequestMapping("list")
     @ResponseBody
     public Result<List<KafkaBrokerInfo>> list() throws Exception {
-        return Result.success(kafkaClusterService.getAllBrokers());
+        return Result.success(kafkaClusterService.listAllBrokers());
     }
 
     @RequestMapping("getChartData")
@@ -37,7 +37,7 @@ public class ClusterController {
     public Result<TreeInfo> getChartData() throws Exception {
         TreeInfo root = new TreeInfo("Kafka集群");
 
-        List<KafkaBrokerInfo> allBrokers = kafkaClusterService.getAllBrokers();
+        List<KafkaBrokerInfo> allBrokers = kafkaClusterService.listAllBrokers();
 
         List<TreeInfo> children = new ArrayList<>(allBrokers.size());
         for (KafkaBrokerInfo broker : allBrokers) {

@@ -28,8 +28,18 @@ public class EhcacheService {
         cache.put(element);
     }
 
+    public void set(String key, Object value, Integer expiredInSeconds) {
+        Cache cache = cacheManager.getCache(Constants.EHCACHE_CONFIG_NAME);
+        Element element = new Element(
+                key,
+                value,
+                expiredInSeconds,
+                DEFAULT_LIVE_SECOND);
+        cache.put(element);
+    }
 
-    public <T> T get(String key, Class<T> cls) {
+
+    public <T> T get(String key) {
         Cache cache = cacheManager.getCache(Constants.EHCACHE_CONFIG_NAME);
         Element element = cache.get(key);
         if (element == null) {
@@ -37,6 +47,11 @@ public class EhcacheService {
         }
         Object value = element.getObjectValue();
         return (T) value;
+    }
+
+    public boolean remove(String key) {
+        Cache cache = cacheManager.getCache(Constants.EHCACHE_CONFIG_NAME);
+        return cache.remove(key);
     }
 
     public void clear() {

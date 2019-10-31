@@ -53,16 +53,16 @@ public class KafkaService {
         });
     }
 
-    public void sendMessage(String topicName, String value) throws Exception {
-        sendMessage(topicName, null, value);
-    }
-
     public void sendMessage(String topicName, String key, String value) throws Exception {
         kafkaProducerDo(kafkaProducer -> kafkaProducer.send(new ProducerRecord(topicName, key, value), (metadata, exception) -> {
             if (exception != null) {
                 throw new BusinessException(exception);
             }
         }));
+    }
+
+    public void sendMessage(String topicName, String value) throws Exception {
+        sendMessage(topicName, null, value);
     }
 
     public void alterTopics(String topicName, Integer partitionNum) throws Exception {
@@ -72,7 +72,6 @@ public class KafkaService {
             adminClient.createPartitions(newPartitionsMap);
         });
     }
-
 
     public void deleteTopic(String topicName) throws Exception {
         kafkaAdminClientDo(adminClient -> {
@@ -138,9 +137,19 @@ public class KafkaService {
                 }
             }
         });
-
         return result;
     }
+
+    private Long listLogSize(KafkaConsumer kafkaConsumer, String topicName, Integer partitionId) {
+        Long result;
+        TopicPartition tp = new TopicPartition(topicName, partitionId);
+        kafkaConsumer.assign(Collections.singleton(tp));
+        Map<TopicPartition, Long> endLogSize = kafkaConsumer.endOffsets(Collections.singleton(tp));
+        Map<TopicPartition, Long> startLogSize = kafkaConsumer.beginningOffsets(Collections.singleton(tp));
+        result = endLogSize.get(tp) - startLogSize.get(tp);
+        return result;
+    }
+
 
     public List<KafkaConsumerInfo> listKafkaConsumers(String searchGroupId) throws Exception {
         List<KafkaConsumerInfo> result = new ArrayList<>();
@@ -342,16 +351,6 @@ public class KafkaService {
     }
 
 
-    private Long listLogSize(KafkaConsumer kafkaConsumer, String topicName, Integer partitionId) {
-        Long result;
-        TopicPartition tp = new TopicPartition(topicName, partitionId);
-        kafkaConsumer.assign(Collections.singleton(tp));
-        Map<TopicPartition, Long> endLogSize = kafkaConsumer.endOffsets(Collections.singleton(tp));
-        Map<TopicPartition, Long> startLogSize = kafkaConsumer.beginningOffsets(Collections.singleton(tp));
-        result = endLogSize.get(tp) - startLogSize.get(tp);
-        return result;
-    }
-
     public List<String> listPartitionIds(String topicName) throws Exception {
         return kafkaZkService.getChildren(String.format(Constants.ZK_BROKERS_TOPICS_PARTITION_PATH, topicName));
     }
@@ -383,7 +382,7 @@ public class KafkaService {
     }
 
     public List<KafkaBrokerInfo> listBrokerInfos() throws Exception {
-        List result = ehcacheService.get(Constants.EHCACHE_KAFKA_BROKER_INFOS, List.class);
+        List result = ehcacheService.get(Constants.EHCACHE_KAFKA_BROKER_INFOS);
         if (result == null || result.size() < 1) {
             List<String> brokerList = this.listBrokerNames();
             List<KafkaBrokerInfo> kafkaBrokerInfoList = new ArrayList<>(brokerList.size());
@@ -534,7 +533,7 @@ public class KafkaService {
     }
 
     public String getKafkaBrokerServer() throws Exception {
-        String result = ehcacheService.get(Constants.EHCACHE_KAFKA_BROKER_SERVER, String.class);
+        String result = ehcacheService.get(Constants.EHCACHE_KAFKA_BROKER_SERVER);
         if (StringUtils.isEmpty(result)) {
 
             StringBuilder kafkaUrls = new StringBuilder();
