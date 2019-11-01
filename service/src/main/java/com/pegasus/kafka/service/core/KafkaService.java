@@ -5,6 +5,7 @@ import com.pegasus.kafka.common.constant.JMX;
 import com.pegasus.kafka.common.exception.BusinessException;
 import com.pegasus.kafka.common.response.ResultCode;
 import com.pegasus.kafka.common.utils.Common;
+import com.pegasus.kafka.entity.dto.SysKpi;
 import com.pegasus.kafka.entity.po.Out;
 import com.pegasus.kafka.entity.vo.*;
 import org.apache.kafka.clients.CommonClientConfigs;
@@ -35,11 +36,13 @@ public class KafkaService {
     private final KafkaZkService kafkaZkService;
     private final KafkaJmxService kafkaJmxService;
     private final MBeanService mBeanService;
+    private final MBeanService mbeanService;
 
-    public KafkaService(KafkaZkService kafkaZkService, KafkaJmxService kafkaJmxService, MBeanService mBeanService) {
+    public KafkaService(KafkaZkService kafkaZkService, KafkaJmxService kafkaJmxService, MBeanService mBeanService, MBeanService mbeanService) {
         this.kafkaZkService = kafkaZkService;
         this.kafkaJmxService = kafkaJmxService;
         this.mBeanService = mBeanService;
+        this.mbeanService = mbeanService;
     }
 
     public void createTopics(String topicName, Integer partitionNumber, Integer replicationNumber) throws Exception {
@@ -489,6 +492,103 @@ public class KafkaService {
         Stat stat = new Stat();
         kafkaZkService.getData(String.format("%s/%s", Constants.ZK_BROKERS_TOPICS_PATH, topicName), stat);
         return stat;
+    }
+
+    public List<SysKpi> kpi(Date now) throws Exception {
+        List<SysKpi> result = new ArrayList<>(SysKpi.KAFKA_KPI.values().length);
+        List<KafkaBrokerInfo> brokers = this.listBrokerInfos();
+
+        for (SysKpi.KAFKA_KPI kpi : SysKpi.KAFKA_KPI.values()) {
+            SysKpi sysKpi = new SysKpi();
+            sysKpi.setKpi(kpi.getCode());
+            sysKpi.setType(SysKpi.Type.KAFKA.getCode());
+            sysKpi.setCreateTime(now);
+            StringBuilder host = new StringBuilder();
+            for (KafkaBrokerInfo broker : brokers) {
+                host.append(broker.getHost()).append(",");
+                switch (kpi) {
+                    case KAFKA_MESSAGES_IN:
+                        MBeanInfo msg = mbeanService.messagesInPerSec(broker);
+                        if (msg != null) {
+                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + Common.numberic(msg.getOneMinute())));
+                        }
+                        break;
+                    case KAFKA_BYTES_IN:
+                        MBeanInfo bin = mbeanService.bytesInPerSec(broker);
+                        if (bin != null) {
+                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + Common.numberic(bin.getOneMinute())));
+                        }
+                        break;
+                    case KAFKA_BYTES_OUT:
+                        MBeanInfo bout = mbeanService.bytesOutPerSec(broker);
+                        if (bout != null) {
+                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + Common.numberic(bout.getOneMinute())));
+                        }
+                        break;
+                    case KAFKA_BYTES_REJECTED:
+                        MBeanInfo bytesRejectedPerSec = mbeanService.bytesRejectedPerSec(broker);
+                        if (bytesRejectedPerSec != null) {
+                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + Common.numberic(bytesRejectedPerSec.getOneMinute())));
+                        }
+                        break;
+                    case KAFKA_FAILED_FETCH_REQUEST:
+                        MBeanInfo failedFetchRequestsPerSec = mbeanService.failedFetchRequestsPerSec(broker);
+                        if (failedFetchRequestsPerSec != null) {
+                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + Common.numberic(failedFetchRequestsPerSec.getOneMinute())));
+                        }
+                        break;
+                    case KAFKA_FAILED_PRODUCE_REQUEST:
+                        MBeanInfo failedProduceRequestsPerSec = mbeanService.failedProduceRequestsPerSec(broker);
+                        if (failedProduceRequestsPerSec != null) {
+                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + Common.numberic(failedProduceRequestsPerSec.getOneMinute())));
+                        }
+                        break;
+                    case KAFKA_TOTAL_FETCH_REQUESTS_PER_SEC:
+                        MBeanInfo totalFetchRequests = mbeanService.totalFetchRequestsPerSec(broker);
+                        if (totalFetchRequests != null) {
+                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + Common.numberic(totalFetchRequests.getOneMinute())));
+                        }
+                        break;
+                    case KAFKA_TOTAL_PRODUCE_REQUESTS_PER_SEC:
+                        MBeanInfo totalProduceRequestsPerSec = mbeanService.totalProduceRequestsPerSec(broker);
+                        if (totalProduceRequestsPerSec != null) {
+                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + Common.numberic(totalProduceRequestsPerSec.getOneMinute())));
+                        }
+                        break;
+                    case KAFKA_REPLICATION_BYTES_IN_PER_SEC:
+                        MBeanInfo replicationBytesInPerSec = mbeanService.replicationBytesInPerSec(broker);
+                        if (replicationBytesInPerSec != null) {
+                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + Common.numberic(replicationBytesInPerSec.getOneMinute())));
+                        }
+                        break;
+                    case KAFKA_REPLICATION_BYTES_OUT_PER_SEC:
+                        MBeanInfo replicationBytesOutPerSec = mbeanService.replicationBytesOutPerSec(broker);
+                        if (replicationBytesOutPerSec != null) {
+                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + Common.numberic(replicationBytesOutPerSec.getOneMinute())));
+                        }
+                        break;
+                    case KAFKA_PRODUCE_MESSAGE_CONVERSIONS:
+                        MBeanInfo produceMessageConv = mbeanService.produceMessageConversionsPerSec(broker);
+                        if (produceMessageConv != null) {
+                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + Common.numberic(produceMessageConv.getOneMinute())));
+                        }
+                        break;
+                    case KAFKA_OS_TOTAL_MEMORY:
+                        long totalMemory = mbeanService.getOsTotalMemory(broker);
+                        sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + totalMemory));
+                        break;
+                    case KAFKA_OS_FREE_MEMORY:
+                        long freeMemory = mbeanService.getOsFreeMemory(broker);
+                        sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + freeMemory));
+                        break;
+                    default:
+                        break;
+                }
+            }
+            sysKpi.setHost(host.length() == 0 ? "unkowns" : host.substring(0, host.length() - 1));
+            result.add(sysKpi);
+        }
+        return result;
     }
 
     private KafkaBrokerInfo getBrokerInfo(String brokerName) throws Exception {

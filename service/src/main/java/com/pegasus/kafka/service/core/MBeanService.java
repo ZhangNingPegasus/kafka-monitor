@@ -105,6 +105,14 @@ public class MBeanService {
         return getMBeanInfo(brokerInfo, JMX.REPLICATION_BYTES_OUT_PER_SEC + ",topic=" + topic);
     }
 
+    public Long getOsTotalMemory(KafkaBrokerInfo brokerInfo) throws Exception {
+        return Long.parseLong(kafkaJmxService.getData(brokerInfo, JMX.OPERATING_SYSTEM, JMX.TOTAL_PHYSICAL_MEMORY_SIZE));
+    }
+
+    public Long getOsFreeMemory(KafkaBrokerInfo brokerInfo) throws Exception {
+        return Long.parseLong(kafkaJmxService.getData(brokerInfo, JMX.OPERATING_SYSTEM, JMX.FREE_PHYSICAL_MEMORY_SIZE));
+    }
+
     private MBeanInfo getMBeanInfo(KafkaBrokerInfo brokerInfo, String name) {
         MBeanInfo mbeanInfo = new MBeanInfo();
         try {

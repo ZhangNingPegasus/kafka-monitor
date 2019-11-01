@@ -53,7 +53,7 @@
                             </a>
                         </li>
                         <li data-name="dashboard" class="layui-nav-item">
-                            <a href="javascript:" lay-href="${ctx}/cluster/tolist" lay-tips="主题" lay-direction="2">
+                            <a href="javascript:" lay-href="${ctx}/cluster/tolist" lay-tips="集群" lay-direction="2">
                                 <i class="layui-icon layui-icon-share"></i>
                                 <cite>集群</cite>
                             </a>
@@ -87,7 +87,7 @@
                             <a href="javascript:" lay-href="${ctx}/performance/tolist" lay-tips="性能监控"
                                lay-direction="2">
                                 <i class="layui-icon layui-icon-console"></i>
-                                <cite>性能监控</cite>
+                                <cite>性能指标</cite>
                             </a>
                         </li>
 

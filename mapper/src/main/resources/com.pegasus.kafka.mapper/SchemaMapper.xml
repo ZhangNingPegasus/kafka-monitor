@@ -11,26 +11,41 @@
     <insert id="createTableIfNotExists">
     SET NAMES utf8mb4;
     SET FOREIGN_KEY_CHECKS = 0;
+
     CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_lag`  (
       `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
-      `consumer_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '消费者名称',
-      `topic_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '消费者订阅的主题名称',
+      `consumer_name` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '消费者名称',
+      `topic_name` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '消费者订阅的主题名称',
       `lag` bigint(10) UNSIGNED NOT NULL COMMENT '消息堆积数量',
       `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
       PRIMARY KEY (`id`) USING BTREE,
       INDEX `idx_sys_lag_create_time`(`create_time`) USING BTREE,
       INDEX `idx_sys_lag_consumer_name_topic_name`(`consumer_name`, `topic_name`) USING BTREE
-    ) ENGINE = InnoDB AUTO_INCREMENT = 7151 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+    ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
 
     CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_log_size`  (
       `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
-      `topic_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '主题名称',
+      `topic_name` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '主题名称',
       `log_size` bigint(20) NOT NULL COMMENT '主题对应的信息数量',
       `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
       PRIMARY KEY (`id`) USING BTREE,
       INDEX `idx_sys_record_create_time`(`create_time`) USING BTREE,
       INDEX `idx_sys_record_topic_name`(`topic_name`) USING BTREE
-    ) ENGINE = InnoDB AUTO_INCREMENT = 7622 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+    ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+    CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_kpi`(
+      `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+      `type` int(10) UNSIGNED NOT NULL COMMENT 'kpi类型(1:zookeeper; 2:kafka)',
+      `host` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'kpi的主机信息',
+      `kpi` int(10) UNSIGNED NOT NULL COMMENT 'kpi指标名称',
+      `value` double UNSIGNED NOT NULL COMMENT 'kpi值',
+      `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
+      PRIMARY KEY (`id`) USING BTREE,
+      INDEX `idx_sys_kpi_create_time`(`create_time`) USING BTREE,
+      INDEX `idx_sys_kpi_create_name`(`kpi`) USING BTREE,
+      INDEX `idx_sys_kpi_type`(`type`) USING BTREE
+    ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
     SET FOREIGN_KEY_CHECKS = 1;
     </insert>
 

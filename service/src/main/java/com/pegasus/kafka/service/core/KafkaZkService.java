@@ -1,8 +1,10 @@
 package com.pegasus.kafka.service.core;
 
-import com.pegasus.kafka.common.ehcache.EhcacheService;
 import com.pegasus.kafka.common.exception.BusinessException;
 import com.pegasus.kafka.common.response.ResultCode;
+import com.pegasus.kafka.common.utils.Common;
+import com.pegasus.kafka.common.utils.ZooKeeperKpiUtils;
+import com.pegasus.kafka.entity.dto.SysKpi;
 import com.pegasus.kafka.entity.vo.ZooKeeperInfo;
 import com.pegasus.kafka.service.property.KafkaMonitorProperty;
 import lombok.Data;
@@ -21,19 +23,17 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
 public class KafkaZkService implements InitializingBean, DisposableBean {
-
     private final String CHARSET_NAME = "gbk";
     private final KafkaMonitorProperty kafkaMonitorProperty;
-    private final EhcacheService ehcacheService;
     private CuratorFramework client;
 
-    public KafkaZkService(KafkaMonitorProperty kafkaMonitorProperty, EhcacheService ehcacheService) {
+    public KafkaZkService(KafkaMonitorProperty kafkaMonitorProperty) {
         this.kafkaMonitorProperty = kafkaMonitorProperty;
-        this.ehcacheService = ehcacheService;
     }
 
     public List<ZooKeeperInfo> listZooKeeperCluster() {
@@ -150,7 +150,7 @@ public class KafkaZkService implements InitializingBean, DisposableBean {
     }
 
     public String execute(String command, String type) throws Exception {
-        String result = "";
+        String result;
         String[] len = command.replaceAll(" ", "").split(type);
         if (len.length == 0) {
             return command + " has error";
@@ -171,9 +171,48 @@ public class KafkaZkService implements InitializingBean, DisposableBean {
         return result;
     }
 
+    public List<SysKpi> kpi(Date now) {
+        List<SysKpi> result = new ArrayList<>(SysKpi.ZK_KPI.values().length);
+        List<ZooKeeperInfo> zooKeeperInfos = this.listZooKeeperCluster();
+        for (SysKpi.ZK_KPI kpi : SysKpi.ZK_KPI.values()) {
+            SysKpi sysKpi = new SysKpi();
+            sysKpi.setKpi(kpi.getCode());
+            sysKpi.setType(SysKpi.Type.ZOOKEEPER.getCode());
+            sysKpi.setCreateTime(now);
+            StringBuilder host = new StringBuilder();
+            for (ZooKeeperInfo zookeeper : zooKeeperInfos) {
+                String ip = zookeeper.getHost();
+                String port = zookeeper.getPort();
+                host.append(String.format("%s,", ip));
+                ZooKeeperKpiUtils.ZooKeeperKpi zooKeeperKpi = ZooKeeperKpiUtils.listKpi(ip, Integer.parseInt(port));
+                switch (kpi) {
+                    case ZK_PACKETS_RECEIVED:
+                        sysKpi.setValue(Common.numberic((sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + Double.parseDouble(zooKeeperKpi.getZkPacketsReceived())));
+                        break;
+                    case ZK_PACKETS_SENT:
+                        sysKpi.setValue(Common.numberic((sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + Double.parseDouble(zooKeeperKpi.getZkPacketsSent())));
+                        break;
+                    case ZK_NUM_ALIVE_CONNECTIONS:
+                        sysKpi.setValue(Common.numberic((sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + Double.parseDouble(zooKeeperKpi.getZkNumAliveConnections())));
+                        break;
+                    case ZK_OUTSTANDING_REQUESTS:
+                        sysKpi.setValue(Common.numberic((sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + Double.parseDouble(zooKeeperKpi.getZkOutstandingRequests())));
+                        break;
+                    default:
+                        break;
+                }
+            }
+            sysKpi.setHost(host.length() == 0 ? "unkowns" : host.substring(0, host.length() - 1));
+            result.add(sysKpi);
+        }
+        return result;
+    }
+
     @Data
     private static class ZkStatus {
         private String mode;
         private String version;
     }
+
+
 }

@@ -32,12 +32,11 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
         this.kafkaTopicService = kafkaTopicService;
     }
 
-    public Matrix collect() throws Exception {
+    public Matrix kpi(Date now) throws Exception {
         Matrix result = new Matrix();
         List<SysLag> sysLagList = new ArrayList<>(KafkaRecordService.BATCH_SIZE);
         Map<String, Long> sysLogSizeMap = new HashMap<>(KafkaRecordService.BATCH_SIZE);
         List<KafkaConsumerInfo> kafkaConsumerInfos = kafkaConsumerService.listKafkaConsumers();
-
         for (KafkaConsumerInfo kafkaConsumerInfo : kafkaConsumerInfos) {
             Set<String> topicNames = kafkaConsumerInfo.getTopicNames();
             for (String topicName : topicNames) {
@@ -55,6 +54,7 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
                     sysLag.setConsumerName(kafkaConsumerInfo.getGroupId());
                     sysLag.setTopicName(topicName);
                     sysLag.setLag(lag);
+                    sysLag.setCreateTime(now);
                     sysLagList.add(sysLag);
                     sysLogSizeMap.put(topicName, logSize);
                 } catch (Exception ignored) {
@@ -68,6 +68,7 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
                 SysLogSize sysLogSize = new SysLogSize();
                 sysLogSize.setTopicName(entry.getKey());
                 sysLogSize.setLogSize(entry.getValue());
+                sysLogSize.setCreateTime(now);
                 sysLogSizeList.add(sysLogSize);
             }
         } else {
@@ -76,6 +77,7 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
                 SysLogSize sysLogSize = new SysLogSize();
                 sysLogSize.setTopicName(kafkaTopicInfo.getTopicName());
                 sysLogSize.setLogSize(kafkaTopicInfo.getLogSize());
+                sysLogSize.setCreateTime(now);
                 sysLogSizeList.add(sysLogSize);
             }
         }

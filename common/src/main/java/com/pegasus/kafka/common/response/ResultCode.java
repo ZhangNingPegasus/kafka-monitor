@@ -1,5 +1,8 @@
 package com.pegasus.kafka.common.response;
 
+import lombok.Getter;
+
+@Getter
 public enum ResultCode {
     SUCCESS(0, true, "success"),
     ERROR(1, false, "error"),
@@ -36,17 +39,5 @@ public enum ResultCode {
             }
         }
         return null;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public Boolean getSuccess() {
-        return this.success;
     }
 }
