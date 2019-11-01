@@ -26,7 +26,7 @@
             data: data,
             cache: false,
             complete: function (xhr) {
-                var result = xhr.responseJSON;
+                const result = xhr.responseJSON;
                 if (result.ok) {
                     if (success) success(result);
                 } else {

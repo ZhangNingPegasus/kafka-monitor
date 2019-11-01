@@ -119,10 +119,13 @@
                     {title: '消费状态', templet: '#colConsumerStatus', width: 300},
                     {fixed: 'right', title: '操作', toolbar: '#grid-bar'}
                 ]],
-                done: function () {
+                done: function (res) {
                     $("a[class='topicName layui-table-link']").click(function () {
                         showOffsetDetails($(this).text());
                     });
+                    if (res.data.length === 1) {
+                        showOffsetDetails(res.data[0].topicName);
+                    }
                 }
             });
 

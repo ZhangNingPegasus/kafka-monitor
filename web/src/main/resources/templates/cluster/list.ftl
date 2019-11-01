@@ -7,8 +7,21 @@
     <body>
     <div class="layui-fluid">
         <div class="layui-card">
+            <div class="layui-card-header">ZooKeeper集群</div>
+            <div class="layui-card-body">
+                <table id="zkGrid" lay-filter="zkGrid"></table>
+                <script type="text/html" id="colMode">
+                    <span class="layui-badge layui-bg-green">{{ d.mode }}</span>
+                </script>
+            </div>
+        </div>
+        <div class="layui-card">
+            <div class="layui-card-header">Kafka集群</div>
             <div class="layui-card-body">
                 <table id="grid" lay-filter="grid"></table>
+                <script type="text/html" id="colVersion">
+                    <span class="layui-badge layui-bg-green">{{ d.version }}</span>
+                </script>
             </div>
         </div>
         <div class="layui-card">
@@ -45,9 +58,27 @@
             });
 
             table.render({
+                elem: '#zkGrid',
+                url: 'listZk',
+                method: 'post',
+                cellMinWidth: 80,
+                page: false,
+                even: true,
+                text: {
+                    none: '暂无相关数据'
+                },
+                cols: [[
+                    {type: 'numbers', title: '序号', width: 200},
+                    {field: 'host', title: '地址'},
+                    {field: 'port', title: '端口', width: 275},
+                    {field: 'version', title: '版本', templet: '#colVersion', width: 275},
+                    {field: 'mode', title: '模式', templet: '#colMode', width: 250}
+                ]]
+            });
+
+            table.render({
                 elem: '#grid',
                 url: 'list',
-                toolbar: '#grid-toolbar',
                 method: 'post',
                 cellMinWidth: 80,
                 page: false,
@@ -58,10 +89,10 @@
                 cols: [[
                     {field: 'name', title: '编号', width: 200},
                     {field: 'host', title: '地址'},
-                    {field: 'port', title: '端口', width: 100},
-                    {field: 'jmxPort', title: 'JMX端口', width: 100},
+                    {field: 'port', title: '端口', width: 225},
+                    {field: 'jmxPort', title: 'JMX端口', width: 225},
                     {field: 'createTime', title: '创建时间', width: 200},
-                    {field: 'version', title: '版本', width: 100}
+                    {field: 'version', title: '版本', templet: '#colVersion', width: 150}
                 ]],
                 done: function () {
                     admin.post("getChartData", {}, function (data) {
@@ -80,7 +111,7 @@
                                             top: '1%',
                                             left: '7%',
                                             bottom: '1%',
-                                            right: '27%',
+                                            right: '12%',
                                             symbolSize: 7,
                                             label: {
                                                 normal: {

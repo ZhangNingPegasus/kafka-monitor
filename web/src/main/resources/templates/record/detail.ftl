@@ -44,7 +44,7 @@
             <label class="layui-form-label">消息体</label>
             <div class="layui-input-inline" style="width:700px">
             <textarea id="json" placeholder="请输入" class="layui-textarea"
-                      rows="8" readonly="readonly">${record.value}</textarea>
+                      rows="18" readonly="readonly">${record.value}</textarea>
                 <button id="btnJson" type="button" class="layui-btn layui-btn-primary layui-btn-xs">json化</button>
                 <button id="btnRefresh" type="button" class="layui-btn layui-btn-primary layui-btn-xs">刷新</button>
             </div>

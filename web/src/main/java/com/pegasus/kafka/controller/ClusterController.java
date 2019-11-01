@@ -3,6 +3,8 @@ package com.pegasus.kafka.controller;
 import com.pegasus.kafka.common.response.Result;
 import com.pegasus.kafka.entity.echarts.TreeInfo;
 import com.pegasus.kafka.entity.vo.KafkaBrokerInfo;
+import com.pegasus.kafka.entity.vo.ZooKeeperInfo;
+import com.pegasus.kafka.service.core.KafkaZkService;
 import com.pegasus.kafka.service.kafka.KafkaBrokerService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,9 +18,11 @@ import java.util.List;
 @RequestMapping("cluster")
 public class ClusterController {
     private final KafkaBrokerService kafkaClusterService;
+    private final KafkaZkService kafkaZkService;
 
-    public ClusterController(KafkaBrokerService kafkaClusterService) {
+    public ClusterController(KafkaBrokerService kafkaClusterService, KafkaZkService kafkaZkService) {
         this.kafkaClusterService = kafkaClusterService;
+        this.kafkaZkService = kafkaZkService;
     }
 
     @RequestMapping("tolist")
@@ -30,6 +34,12 @@ public class ClusterController {
     @ResponseBody
     public Result<List<KafkaBrokerInfo>> list() throws Exception {
         return Result.success(kafkaClusterService.listAllBrokers());
+    }
+
+    @RequestMapping("listZk")
+    @ResponseBody
+    public Result<List<ZooKeeperInfo>> listZk() {
+        return Result.success(kafkaZkService.listZooKeeperCluster());
     }
 
     @RequestMapping("getChartData")

@@ -48,7 +48,7 @@
                         lay-filter="layadmin-system-side-menu">
                         <li data-name="dashboard" class="layui-nav-item">
                             <a href="javascript:" lay-href="${ctx}/dashboard/index" lay-tips="仪表盘" lay-direction="2">
-                                <i class="layui-icon layui-icon-console"></i>
+                                <i class="layui-icon layui-icon-engine"></i>
                                 <cite>仪表盘</cite>
                             </a>
                         </li>
@@ -70,12 +70,27 @@
                                 <cite>消费者</cite>
                             </a>
                         </li>
-                        <li data-name="consumer" class="layui-nav-item">
+                        <li data-name="recordTrack" class="layui-nav-item">
                             <a href="javascript:" lay-href="${ctx}/record/tolist" lay-tips="消息跟踪" lay-direction="2">
                                 <i class="layui-icon layui-icon-list"></i>
                                 <cite>消息跟踪</cite>
                             </a>
                         </li>
+                        <li data-name="zkCli" class="layui-nav-item">
+                            <a href="javascript:" lay-href="${ctx}/zkCli/tolist" lay-tips="zookeeper客户端"
+                               lay-direction="2">
+                                <i class="layui-icon layui-icon-component"></i>
+                                <cite>ZooKeeper客户端</cite>
+                            </a>
+                        </li>
+                        <li data-name="performance" class="layui-nav-item">
+                            <a href="javascript:" lay-href="${ctx}/performance/tolist" lay-tips="性能监控"
+                               lay-direction="2">
+                                <i class="layui-icon layui-icon-console"></i>
+                                <cite>性能监控</cite>
+                            </a>
+                        </li>
+
                     </ul>
                 </div>
             </div>
