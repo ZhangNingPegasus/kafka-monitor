@@ -499,9 +499,11 @@ public class KafkaService {
         List<KafkaBrokerInfo> brokers = this.listBrokerInfos();
 
         for (SysKpi.KAFKA_KPI kpi : SysKpi.KAFKA_KPI.values()) {
+            if (StringUtils.isEmpty(kpi.getName())) {
+                continue;
+            }
             SysKpi sysKpi = new SysKpi();
             sysKpi.setKpi(kpi.getCode());
-            sysKpi.setType(SysKpi.Type.KAFKA.getCode());
             sysKpi.setCreateTime(now);
             StringBuilder host = new StringBuilder();
             for (KafkaBrokerInfo broker : brokers) {
@@ -585,9 +587,27 @@ public class KafkaService {
                         break;
                 }
             }
+            if (sysKpi.getValue() == null) {
+                continue;
+            }
             sysKpi.setHost(host.length() == 0 ? "unkowns" : host.substring(0, host.length() - 1));
             result.add(sysKpi);
         }
+
+        Optional<SysKpi> firstOsFree = result.stream().filter(p -> p.getKpi().equals(SysKpi.KAFKA_KPI.KAFKA_OS_FREE_MEMORY.getCode())).findFirst();
+        Optional<SysKpi> firstOsTotal = result.stream().filter(p -> p.getKpi().equals(SysKpi.KAFKA_KPI.KAFKA_OS_TOTAL_MEMORY.getCode())).findFirst();
+
+        if (firstOsFree.isPresent() && firstOsTotal.isPresent()) {
+            Double osFree = firstOsFree.get().getValue();
+            Double osTotal = firstOsTotal.get().getValue();
+            SysKpi sysKpi = new SysKpi();
+            sysKpi.setKpi(SysKpi.KAFKA_KPI.KAFKA_OS_USED_MEMORY_PERCENTAGE.getCode());
+            sysKpi.setCreateTime(now);
+            sysKpi.setValue(Common.numberic((osFree / osTotal) * 100));
+            sysKpi.setHost(firstOsFree.get().getHost());
+            result.add(sysKpi);
+        }
+
         return result;
     }
 

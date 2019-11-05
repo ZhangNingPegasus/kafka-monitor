@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.List;
@@ -28,6 +29,7 @@ public class LineInfo implements Serializable {
         private List<Double> data;
         private String type;
         private Boolean smooth;
+        private JSONObject areaStyle;
     }
 
 

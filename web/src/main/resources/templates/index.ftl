@@ -84,11 +84,43 @@
                             </a>
                         </li>
                         <li data-name="performance" class="layui-nav-item">
-                            <a href="javascript:" lay-href="${ctx}/performance/tolist" lay-tips="性能监控"
+                            <a href="javascript:" lay-tips="性能监控"
                                lay-direction="2">
                                 <i class="layui-icon layui-icon-console"></i>
                                 <cite>性能指标</cite>
                             </a>
+                            <dl class="layui-nav-child">
+                                <dd><a lay-href="${ctx}/zkperformance/tolist">
+                                        ZooKeeper性能</a></dd>
+                                <dd><a lay-href="${ctx}/kafkaperformance/tolist">
+                                        Kafka性能</a></dd>
+                            </dl>
+                        </li>
+                        <li data-name="performance" class="layui-nav-item">
+                            <a href="javascript:" lay-tips="警告设置"
+                               lay-direction="2">
+                                <i class="layui-icon layui-icon-notice"></i>
+                                <cite>警告设置</cite>
+                            </a>
+                            <dl class="layui-nav-child">
+                                <dd><a lay-href="${ctx}/alertconsume/tolist">
+                                        消费组设置</a></dd>
+                                <dd><a lay-href="${ctx}/alertcluster/tolist">
+                                        集群主机设置</a></dd>
+                            </dl>
+                        </li>
+                        <li data-name="performance" class="layui-nav-item">
+                            <a href="javascript:" lay-tips="系统设置"
+                               lay-direction="2">
+                                <i class="layui-icon layui-icon-set"></i>
+                                <cite>系统设置</cite>
+                            </a>
+                            <dl class="layui-nav-child">
+                                <dd><a lay-href="${ctx}/mailconfig/tolist">
+                                        邮件发送设置</a></dd>
+                                <dd><a lay-href="${ctx}/dingdingconfig/tolist">
+                                        钉钉机器人设置</a></dd>
+                            </dl>
                         </li>
 
                     </ul>

@@ -29,21 +29,58 @@
       `log_size` bigint(20) NOT NULL COMMENT '主题对应的信息数量',
       `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
       PRIMARY KEY (`id`) USING BTREE,
-      INDEX `idx_sys_record_create_time`(`create_time`) USING BTREE,
-      INDEX `idx_sys_record_topic_name`(`topic_name`) USING BTREE
+      INDEX `idx_sys_log_size_create_time`(`create_time`) USING BTREE,
+      INDEX `idx_sys_log_size_topic_name`(`topic_name`) USING BTREE
     ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
 
     CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_kpi`(
       `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
-      `type` int(10) UNSIGNED NOT NULL COMMENT 'kpi类型(1:zookeeper; 2:kafka)',
       `host` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'kpi的主机信息',
       `kpi` int(10) UNSIGNED NOT NULL COMMENT 'kpi指标名称',
       `value` double UNSIGNED NOT NULL COMMENT 'kpi值',
       `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
       PRIMARY KEY (`id`) USING BTREE,
       INDEX `idx_sys_kpi_create_time`(`create_time`) USING BTREE,
-      INDEX `idx_sys_kpi_create_name`(`kpi`) USING BTREE,
-      INDEX `idx_sys_kpi_type`(`type`) USING BTREE
+      INDEX `idx_sys_kpi_create_name`(`kpi`) USING BTREE
+    ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+    CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_mail_config`(
+      `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+      `host` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱服务器地址',
+      `port` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱服务器端口',
+      `username` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱服务器用户名',
+      `password` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱服务器密码',
+      `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
+      PRIMARY KEY (`id`) USING BTREE
+    ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+    CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_dingding_config`(
+      `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+      `access_token` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '钉钉机器人的access_token',
+      `secret` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '钉钉机器人的加签秘钥',
+      `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
+      PRIMARY KEY (`id`) USING BTREE
+    ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+    CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_alert_cluster`(
+      `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+      `type` int(10) UNSIGNED NOT NULL COMMENT '集群主机类型(1. zookeeper; 2: kafka)',
+      `server` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '服务器地址',
+      `email` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '警报邮件的发送地址',
+      `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
+      PRIMARY KEY (`id`) USING BTREE,
+      UNIQUE INDEX `idx_sys_alert_cluster_type_server`(`type`, `server`) USING BTREE
+    ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+    CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_alert_consumer`(
+      `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+      `group_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '消费组名称',
+      `topic_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '消费组对应的主题名称',
+      `lag_threshold` bigint(20) UNSIGNED NOT NULL COMMENT '消息积压的数量阀值，超过这个阀值则会触发报警',
+      `email` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '警报邮件的发送地址',
+      `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
+      PRIMARY KEY (`id`) USING BTREE,
+      UNIQUE INDEX `idx_sys_alert_consumer_group_id_topic_name`(`group_id`, `topic_name`) USING BTREE
     ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
 
     SET FOREIGN_KEY_CHECKS = 1;

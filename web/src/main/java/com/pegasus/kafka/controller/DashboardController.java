@@ -15,6 +15,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -51,7 +52,7 @@ public class DashboardController {
         return "dashboard/index";
     }
 
-    @RequestMapping("getTopicChart")
+    @PostMapping("getTopicChart")
     @ResponseBody
     public Result<LineInfo> getTopicChart(@RequestParam(name = "topicName", required = true) String topicName,
                                           @RequestParam(name = "createTimeRange", required = true) String createTimeRange) throws ParseException {
@@ -133,7 +134,7 @@ public class DashboardController {
         return Result.success(result);
     }
 
-    @RequestMapping("getLagChart")
+    @PostMapping("getLagChart")
     @ResponseBody
     public Result<LineInfo> getLagChart(@RequestParam(name = "groupId", required = true) String groupId,
                                         @RequestParam(name = "createTimeRange", required = true) String createTimeRange) throws ParseException {
@@ -185,7 +186,7 @@ public class DashboardController {
     }
 
 
-    @RequestMapping("getTopicRankChart")
+    @PostMapping("getTopicRankChart")
     @ResponseBody
     public Result<LineInfo> getTopicRankChart(@RequestParam(name = "createTimeRange", required = true) String createTimeRange) throws ParseException {
         String key = String.format("DashboardController::getTopicRankChart:%s", createTimeRange);
@@ -221,7 +222,7 @@ public class DashboardController {
         return Result.success(result);
     }
 
-    @RequestMapping("getTopicHistoryChart")
+    @PostMapping("getTopicHistoryChart")
     @ResponseBody
     @TranRead
     public Result<LineInfo> getTopicHistoryChart(@RequestParam(name = "topicName", required = true) String topicName) throws Exception {

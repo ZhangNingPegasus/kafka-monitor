@@ -11,13 +11,13 @@
         })
     }, e("common", {});
 
-    admin.SYSTEM_PROMPT='系统提示';
-    admin.OPT_SUCCESS='操作成功';
-    admin.OPT_FAILURE='操作失败';
-    admin.BUTTONS=['确定', '取消'];
-    admin.DEL_ERROR='请先勾选要删除的项';
-    admin.DEL_QUESTION='确定要删除所选项吗?';
-    admin.DEL_SUCCESS='所选项已全部成功删除';
+    admin.SYSTEM_PROMPT = '系统提示';
+    admin.OPT_SUCCESS = '操作成功';
+    admin.OPT_FAILURE = '操作失败';
+    admin.BUTTONS = ['确定', '取消'];
+    admin.DEL_ERROR = '请先勾选要删除的项';
+    admin.DEL_QUESTION = '确定要删除所选项吗?';
+    admin.DEL_SUCCESS = '所选项已全部成功删除';
 
     admin.post = function (url, data, success, error) {
         $.ajax({
@@ -62,7 +62,7 @@
         });
     };
 
-    admin.toJson=function(obj){
+    admin.toJson = function (obj) {
         return JSON.parse(JSON.stringify(obj));
     }
 

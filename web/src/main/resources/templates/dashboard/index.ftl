@@ -137,10 +137,8 @@
     <script>
         layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table', 'laydate', 'carousel', 'echarts'], function () {
             const admin = layui.admin, form = layui.form, laydate = layui.laydate, echarts = layui.echarts;
-            //区块轮播切换
             layui.use(['carousel'], function () {
                 const $ = layui.$, carousel = layui.carousel, element = layui.element, device = layui.device();
-                //轮播切换
                 $('.layadmin-carousel').each(function () {
                     const othis = $(this);
                     carousel.render({

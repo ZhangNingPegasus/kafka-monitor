@@ -4,6 +4,7 @@ import com.pegasus.kafka.common.response.Result;
 import com.pegasus.kafka.entity.vo.ZooKeeperInfo;
 import com.pegasus.kafka.service.core.KafkaZkService;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -27,7 +28,7 @@ public class ZkCliController {
         return "zkCli/list";
     }
 
-    @RequestMapping("zkInfo")
+    @PostMapping("zkInfo")
     @ResponseBody
     public Result<String> zkInfo() {
         try {
@@ -39,7 +40,7 @@ public class ZkCliController {
         }
     }
 
-    @RequestMapping("execute")
+    @PostMapping("execute")
     @ResponseBody
     public Result<String> execute(@RequestParam(name = "command", required = true) String command,
                                   @RequestParam(name = "type", required = true) String type) throws Exception {

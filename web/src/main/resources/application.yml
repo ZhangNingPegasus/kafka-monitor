@@ -9,6 +9,7 @@ server:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain
 
+
 spring:
   application:
     name: kafka-monitor
@@ -51,7 +52,7 @@ spring:
     password: ${db_password:zhangningpegasus}
     druid:
       # 配置初始化大小
-      initialSize: 1
+      initialSize: 10
       # 配置连接池中最小可用连接的个数
       minIdle: 100
       # 配置连接池中最大可用连接的个数

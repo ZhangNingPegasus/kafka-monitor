@@ -13,6 +13,7 @@ import com.pegasus.kafka.service.kafka.KafkaTopicService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -54,13 +55,13 @@ public class RecordController {
         return "record/detail";
     }
 
-    @RequestMapping("listTopicPartitions")
+    @PostMapping("listTopicPartitions")
     @ResponseBody
     public Result<List<KafkaTopicPartitionInfo>> listTopicPartitions(@RequestParam(name = "topicName", required = true) String topicName) throws Exception {
         return Result.success(kafkaTopicService.listTopicDetails(topicName));
     }
 
-    @RequestMapping("list")
+    @PostMapping("list")
     @ResponseBody
     public Result<List<KafkaTopicRecordInfo>> list(@RequestParam(name = "topicName", required = false, defaultValue = "") String topicName,
                                                    @RequestParam(name = "partitionId", required = false) Integer partitionId,
@@ -83,7 +84,7 @@ public class RecordController {
         return Result.success(kafkaTopicService.listMessages(page, topicName, partitionId, key, from, to), page.getTotal());
     }
 
-    @RequestMapping("resend")
+    @PostMapping("resend")
     @ResponseBody
     public Result<?> resend(@RequestParam(name = "topicName", required = true, defaultValue = "") String topicName,
                             @RequestParam(name = "key", required = true, defaultValue = "") String key,
@@ -98,7 +99,7 @@ public class RecordController {
         return Result.success();
     }
 
-    @RequestMapping("listTopicConsumers")
+    @PostMapping("listTopicConsumers")
     @ResponseBody
     public Result<List<KafkaRecordConsumeInfo>> listTopicConsumers(@RequestParam(name = "topicName", required = true, defaultValue = "") String topicName,
                                                                    @RequestParam(name = "partitionId", required = false) Integer partitionId,

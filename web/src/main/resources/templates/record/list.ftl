@@ -74,7 +74,7 @@
             $("#createTimeRange").val(from + ' - ' + to);
 
             form.on('select(topicName)', function (data) {
-                $("select[name=partitionId]").html(" <option value=\"-1\">所有分区</option>");
+                $("select[name=partitionId]").html("<option value=\"-1\">所有分区</option>");
                 form.render('select');
                 if ($.trim(data.value) === '') {
                     return;

@@ -9,10 +9,7 @@ import com.pegasus.kafka.entity.vo.OffsetInfo;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
@@ -40,7 +37,7 @@ public class ConsumerController {
         return "consumer/detail";
     }
 
-    @RequestMapping("list")
+    @PostMapping("list")
     @ResponseBody
     public Result<List<KafkaConsumerInfo>> list(HttpSession httpSession) {
         try {
@@ -52,7 +49,7 @@ public class ConsumerController {
         }
     }
 
-    @RequestMapping("getChartData")
+    @PostMapping("getChartData")
     @ResponseBody
     public Result<TreeInfo> getChartData(HttpSession httpSession) {
         TreeInfo root = new TreeInfo("消费者 - 主题");
@@ -98,7 +95,7 @@ public class ConsumerController {
         }
     }
 
-    @RequestMapping("todetail/listConsumerDetails/{groupId}")
+    @PostMapping("todetail/listConsumerDetails/{groupId}")
     @ResponseBody
     public Result<List<KafkaTopicInfo>> listConsumerDetails(@PathVariable(required = true, name = "groupId") String groupId) throws Exception {
         groupId = groupId.trim();
@@ -143,7 +140,7 @@ public class ConsumerController {
         return Result.success(result);
     }
 
-    @RequestMapping("todetail/listOffsetInfo/{groupId}/{topicName}")
+    @PostMapping("todetail/listOffsetInfo/{groupId}/{topicName}")
     @ResponseBody
     public Result<List<OffsetInfo>> listOffsetInfo(@PathVariable(required = true, name = "groupId") String groupId,
                                                    @PathVariable(required = true, name = "topicName") String topicName) {
@@ -156,7 +153,7 @@ public class ConsumerController {
         }
     }
 
-    @RequestMapping("del")
+    @PostMapping("del")
     @ResponseBody
     public Result<?> del(@RequestParam(required = true, name = "consumerGroupId") String consumerGroupId) {
         consumerGroupId = consumerGroupId.trim();

@@ -175,9 +175,11 @@ public class KafkaZkService implements InitializingBean, DisposableBean {
         List<SysKpi> result = new ArrayList<>(SysKpi.ZK_KPI.values().length);
         List<ZooKeeperInfo> zooKeeperInfos = this.listZooKeeperCluster();
         for (SysKpi.ZK_KPI kpi : SysKpi.ZK_KPI.values()) {
+            if (StringUtils.isEmpty(kpi.getName())) {
+                continue;
+            }
             SysKpi sysKpi = new SysKpi();
             sysKpi.setKpi(kpi.getCode());
-            sysKpi.setType(SysKpi.Type.ZOOKEEPER.getCode());
             sysKpi.setCreateTime(now);
             StringBuilder host = new StringBuilder();
             for (ZooKeeperInfo zookeeper : zooKeeperInfos) {
@@ -201,6 +203,9 @@ public class KafkaZkService implements InitializingBean, DisposableBean {
                     default:
                         break;
                 }
+            }
+            if (sysKpi.getValue() == null) {
+                continue;
             }
             sysKpi.setHost(host.length() == 0 ? "unkowns" : host.substring(0, host.length() - 1));
             result.add(sysKpi);

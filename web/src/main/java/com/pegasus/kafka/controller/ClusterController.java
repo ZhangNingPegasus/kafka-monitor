@@ -7,6 +7,7 @@ import com.pegasus.kafka.entity.vo.ZooKeeperInfo;
 import com.pegasus.kafka.service.core.KafkaZkService;
 import com.pegasus.kafka.service.kafka.KafkaBrokerService;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -30,19 +31,19 @@ public class ClusterController {
         return "cluster/list";
     }
 
-    @RequestMapping("list")
+    @PostMapping("list")
     @ResponseBody
     public Result<List<KafkaBrokerInfo>> list() throws Exception {
         return Result.success(kafkaClusterService.listAllBrokers());
     }
 
-    @RequestMapping("listZk")
+    @PostMapping("listZk")
     @ResponseBody
     public Result<List<ZooKeeperInfo>> listZk() {
         return Result.success(kafkaZkService.listZooKeeperCluster());
     }
 
-    @RequestMapping("getChartData")
+    @PostMapping("getChartData")
     @ResponseBody
     public Result<TreeInfo> getChartData() throws Exception {
         TreeInfo root = new TreeInfo("Kafka集群");
@@ -55,7 +56,7 @@ public class ClusterController {
             treeInfo.setStyle(TreeInfo.Style.success());
             children.add(treeInfo);
         }
-        if (children != null && children.size() > 0) {
+        if (children.size() > 0) {
             root.setChildren(children);
         }
         return Result.success(root);

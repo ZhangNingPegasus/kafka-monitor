@@ -193,12 +193,13 @@
                     layer.confirm(admin.DEL_QUESTION, function (index) {
                         admin.post("del", {topicName: data.topicName}, function () {
                             if (table.cache.grid.length < 2) {
-                                const curPage = $(".layui-laypage-skip").find("input").val();
+                                const skip = $(".layui-laypage-skip");
+                                const curPage = skip.find("input").val();
                                 let page = parseInt(curPage) - 1;
                                 if (page < 1) {
                                     page = 1;
                                 }
-                                $(".layui-laypage-skip").find("input").val(page);
+                                skip.find("input").val(page);
                                 $(".layui-laypage-btn").click();
                             } else {
                                 table.reload('grid');

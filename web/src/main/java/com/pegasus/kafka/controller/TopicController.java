@@ -10,10 +10,7 @@ import com.pegasus.kafka.service.kafka.KafkaTopicService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -79,7 +76,7 @@ public class TopicController {
         return "topic/sendmsg";
     }
 
-    @RequestMapping("list")
+    @PostMapping("list")
     @ResponseBody
     public Result<List<KafkaTopicInfo>> list(@RequestParam(value = "topicName", required = false) String topicName,
                                              @RequestParam(value = "page", required = true) Integer pageNum,
@@ -93,7 +90,7 @@ public class TopicController {
                 .limit(pageSize).collect(Collectors.toList()), topicInfoList.size());
     }
 
-    @RequestMapping("sendmsg")
+    @PostMapping("sendmsg")
     @ResponseBody
     public Result<?> sendMsg(@RequestParam(value = "topicName", required = true) String topicName,
                              @RequestParam(value = "content", required = true) String content) throws Exception {
@@ -101,26 +98,26 @@ public class TopicController {
         return Result.success();
     }
 
-    @RequestMapping("todetail/listTopicSize")
+    @PostMapping("todetail/listTopicSize")
     @ResponseBody
     public Result<String> listTopicSize(@RequestParam(name = "topicName", required = true) String topicName) throws Exception {
         return Result.success(kafkaTopicService.listTopicSize(topicName.trim()));
     }
 
-    @RequestMapping("todetail/listTopicMBean/{topicName}")
+    @PostMapping("todetail/listTopicMBean/{topicName}")
     @ResponseBody
     public Result<List<MBeanInfo>> listTopicMBean(@PathVariable(name = "topicName", required = true) String topicName) throws Exception {
         return Result.success(kafkaTopicService.listTopicMBean(topicName.trim()));
     }
 
 
-    @RequestMapping("todetail/listTopicDetails/{topicName}")
+    @PostMapping("todetail/listTopicDetails/{topicName}")
     @ResponseBody
     public Result<List<KafkaTopicPartitionInfo>> listTopicDetails(@PathVariable(name = "topicName", required = true) String topicName) throws Exception {
         return Result.success(kafkaTopicService.listTopicDetails(topicName.trim()));
     }
 
-    @RequestMapping("add")
+    @PostMapping("add")
     @ResponseBody
     public Result<?> add(@RequestParam(name = "topicName", required = true) String topicName,
                          @RequestParam(name = "partitionNumber", required = true) Integer partitionNumber,
@@ -129,7 +126,7 @@ public class TopicController {
         return Result.success();
     }
 
-    @RequestMapping("edit")
+    @PostMapping("edit")
     @ResponseBody
     public Result<?> edit(@RequestParam(name = "topicName", required = true) String topicName,
                           @RequestParam(name = "partitionNumber", required = true) Integer partitionNumber) throws Exception {
@@ -137,7 +134,7 @@ public class TopicController {
         return Result.success();
     }
 
-    @RequestMapping("del")
+    @PostMapping("del")
     @ResponseBody
     public Result<?> del(@RequestParam(value = "topicName", required = true) String topicName) throws Exception {
         kafkaTopicService.delete(topicName.trim());

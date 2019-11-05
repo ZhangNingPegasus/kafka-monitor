@@ -5,9 +5,11 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.pegasus.kafka.common.utils.Common;
 import com.pegasus.kafka.entity.vo.KafkaTopicRecordInfo;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.Date;
 
+@EqualsAndHashCode(callSuper = false)
 @Data
 public class TopicRecord extends BaseDto {
     @TableField(value = "topic_name")

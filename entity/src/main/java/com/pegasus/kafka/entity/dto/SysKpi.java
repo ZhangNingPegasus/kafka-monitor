@@ -13,9 +13,6 @@ import lombok.Getter;
 @Data
 @TableName(value = Constants.DATABASE_NAME + "." + "`sys_kpi`")
 public class SysKpi extends BaseDto {
-    @TableField(value = "`type`")
-    private Integer type;
-
     @TableField(value = "`host`")
     private String host;
 
@@ -24,38 +21,6 @@ public class SysKpi extends BaseDto {
 
     @TableField(value = "`value`")
     private Double value;
-
-    @Getter
-    public enum Type {
-        ZOOKEEPER(1, "zookeeper指标"),
-        KAFKA(2, "kafka性能指标");
-
-        private int code;
-        private String description;
-
-        Type(int code, String description) {
-            this.code = code;
-            this.description = description;
-        }
-
-        public static Type get(Integer code) {
-            for (Type item : Type.values()) {
-                if (item.getCode() == code) {
-                    return item;
-                }
-            }
-            return null;
-        }
-
-        public static Type get(String description) {
-            for (Type item : Type.values()) {
-                if (item.getDescription().equals(description)) {
-                    return item;
-                }
-            }
-            return null;
-        }
-    }
 
     @Getter
     public enum ZK_KPI {
@@ -96,7 +61,8 @@ public class SysKpi extends BaseDto {
         KAFKA_REPLICATION_BYTES_OUT_PER_SEC(14, JMX.REPLICATION_BYTES_OUT_PER_SEC),
         KAFKA_PRODUCE_MESSAGE_CONVERSIONS(15, JMX.PRODUCE_MESSAGE_CONVERSIONS),
         KAFKA_OS_TOTAL_MEMORY(16, JMX.OS_TOTAL_MEMORY),
-        KAFKA_OS_FREE_MEMORY(17, JMX.OS_FREE_MEMORY);
+        KAFKA_OS_FREE_MEMORY(17, JMX.OS_FREE_MEMORY),
+        KAFKA_OS_USED_MEMORY_PERCENTAGE(18, "");
 
         private int code;
         private String name;
