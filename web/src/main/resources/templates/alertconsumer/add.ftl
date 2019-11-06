@@ -44,7 +44,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">通知邮箱</label>
             <div class="layui-input-inline" style="width:700px">
-                <input type="email" name="email" lay-verify="required" placeholder="请填写警告接受邮箱地址" autocomplete="off"
+                <input type="email" name="email" placeholder="请填写警告接受邮箱地址" autocomplete="off"
                        class="layui-input">
             </div>
         </div>

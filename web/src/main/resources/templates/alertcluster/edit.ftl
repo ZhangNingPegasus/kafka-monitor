@@ -12,12 +12,12 @@
         <div class="layui-form-item">
             <label class="layui-form-label">集群类型</label>
             <div class="layui-input-inline" style="width:700px">
-                <select name="groupId" lay-filter="groupId" autofocus="autofocus"
+                <select name="type" lay-filter="type" autofocus="autofocus"
                         lay-verify="required" lay-search>
-                    <option value="">请选择消费组</option>
+                    <option value="">请选择集群类型</option>
                     <#list type as t>
-                        <option value="${t}"
-                                selected="${(item.type==t)?string('selected','')}">${t}</option>
+                        <option value="${t.code}"
+                                selected="${(item.type==t.code)?string('selected','')}">${t}</option>
                     </#list>
                 </select>
             </div>
@@ -26,7 +26,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">主机地址</label>
             <div class="layui-input-inline" style="width:700px">
-                <input type="text" name="lagThreshold" lay-verify="required" placeholder="请填写消费组的消息积累阀值"
+                <input type="text" name="server" lay-verify="required" placeholder="请填写集群中的主机地址,如:192.168.6.166:2181"
                        autocomplete="off"
                        class="layui-input" value="${item.server}">
             </div>
@@ -35,7 +35,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">通知邮箱</label>
             <div class="layui-input-inline" style="width:700px">
-                <input type="email" name="email" lay-verify="required" placeholder="请填写警告接受邮箱地址" autocomplete="off"
+                <input type="email" name="email" placeholder="请填写警告接受邮箱地址" autocomplete="off"
                        class="layui-input" value="${item.email}">
             </div>
         </div>

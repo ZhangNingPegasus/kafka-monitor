@@ -11,6 +11,7 @@ import com.pegasus.kafka.entity.vo.KafkaConsumerInfo;
 import com.pegasus.kafka.entity.vo.KafkaTopicInfo;
 import com.pegasus.kafka.entity.vo.OffsetInfo;
 import com.pegasus.kafka.mapper.SysLogSizeMapper;
+import com.pegasus.kafka.service.alert.AlertService;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
 import com.pegasus.kafka.service.kafka.KafkaRecordService;
 import com.pegasus.kafka.service.kafka.KafkaTopicService;
@@ -26,10 +27,12 @@ import java.util.*;
 public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize> {
     private final KafkaConsumerService kafkaConsumerService;
     private final KafkaTopicService kafkaTopicService;
+    private final AlertService alertService;
 
-    public SysLogSizeService(KafkaConsumerService kafkaConsumerService, KafkaTopicService kafkaTopicService) {
+    public SysLogSizeService(KafkaConsumerService kafkaConsumerService, KafkaTopicService kafkaTopicService, AlertService alertService) {
         this.kafkaConsumerService = kafkaConsumerService;
         this.kafkaTopicService = kafkaTopicService;
+        this.alertService = alertService;
     }
 
     public Matrix kpi(Date now) throws Exception {
@@ -45,8 +48,10 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
                 try {
                     List<OffsetInfo> offsetInfos = kafkaConsumerService.listOffsetInfo(kafkaConsumerInfo.getGroupId(), topicName);
                     for (OffsetInfo offsetInfo : offsetInfos) {
-                        if (offsetInfo.getLag() != null && offsetInfo.getLag() > 0) {
+                        if (offsetInfo.getLag() != null && offsetInfo.getLag() >= 0) {
                             lag += offsetInfo.getLag();
+                        } else {
+                            alertService.offer(String.format("订阅组[%s]订阅的主题[%s]有部分分区不可用,请检查.", offsetInfo.getConsumerId(), topicName));
                         }
                         logSize += offsetInfo.getLogSize();
                     }

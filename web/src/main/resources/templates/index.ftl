@@ -105,8 +105,8 @@
                             <dl class="layui-nav-child">
                                 <dd><a lay-href="${ctx}/alertconsume/tolist">
                                         消费组设置</a></dd>
-<#--                                <dd><a lay-href="${ctx}/alertcluster/tolist">-->
-                                <#--                                        集群主机设置</a></dd>-->
+                                <dd><a lay-href="${ctx}/alertcluster/tolist">
+                                        集群主机设置</a></dd>
                             </dl>
                         </li>
                         <li data-name="performance" class="layui-nav-item">
