@@ -81,7 +81,12 @@ public class RecordController {
 
         Common.TimeRange timeRange = Common.splitTime(createTimeRange);
         Date from = timeRange.getStart(), to = timeRange.getEnd();
-        return Result.success(kafkaTopicService.listMessages(page, topicName, partitionId, key, from, to), page.getTotal());
+        try {
+            return Result.success(kafkaTopicService.listMessages(page, topicName, partitionId, key, from, to), page.getTotal());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.success();
+        }
     }
 
     @PostMapping("resend")

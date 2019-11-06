@@ -22,8 +22,10 @@ public class MailService {
     }
 
     public void send(String to, String subject, String html) throws Exception {
-
         SysMailConfig sysMailConfig = sysMailConfigService.get();
+        if (sysMailConfig == null) {
+            return;
+        }
 
         Properties props = new Properties();
         props.setProperty("mail.transport.protocol", "smtp");

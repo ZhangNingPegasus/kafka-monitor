@@ -26,7 +26,8 @@
                 <label class="layui-form-label">用户名</label>
                 <div class="layui-input-block">
                     <input type="text" name="username" lay-verify="required" autocomplete="off"
-                           placeholder="请输入邮箱服务器的用户邮箱地址, 例如:xxx@163.com" class="layui-input" value="${config.username!}">
+                           placeholder="请输入邮箱服务器的用户邮箱地址, 例如:xxx@163.com" class="layui-input"
+                           value="${config.username!}">
                 </div>
             </div>
             <div class="layui-form-item">
@@ -41,6 +42,9 @@
                 <div class="layui-input-block">
                     <button type="button" class="layui-btn" lay-submit="" lay-filter="btnConfirm">保存</button>
                     <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    <#if (config.id)??>
+                        <button id="btnTest" type="button" class="layui-btn layui-btn-normal">测试</button>
+                    </#if>
                 </div>
             </div>
         </form>
@@ -48,7 +52,7 @@
 
     <script>
         layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table'], function () {
-            const admin = layui.admin, form = layui.form;
+            const admin = layui.admin, form = layui.form, $ = layui.$;
             form.on('submit(btnConfirm)', function (data) {
                 admin.post("save", data.field, function () {
                     admin.success("操作成功", "操作成功", function () {
@@ -56,6 +60,34 @@
                     });
                 }, function (res) {
                     admin.error("操作失败", res.error);
+                });
+            });
+
+            $("#btnTest").click(function () {
+                layer.open({
+                    type: 2,
+                    title: '测试邮箱',
+                    content: 'totest',
+                    area: ['880px', '600px'],
+                    btn: admin.BUTTONS,
+                    resize: false,
+                    yes: function (index, layero) {
+                        const layeditCt = layer.getChildFrame('#LAY_layedit_1', index).contents().find('body');
+                        const iframeWindow = window['layui-layer-iframe' + index], submitID = 'btn_confirm',
+                            submit = layero.find('iframe').contents().find('#' + submitID);
+                        iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
+                            const field = data.field;
+                            field.html = layeditCt[0].innerHTML;
+                            admin.post('test', field, function () {
+                                admin.success("发送成功", "邮件发送成功", function () {
+                                    layer.close(index);
+                                });
+                            }, function (result) {
+                                admin.error(admin.OPT_FAILURE, result.error);
+                            });
+                        });
+                        submit.trigger('click');
+                    }
                 });
             });
         });

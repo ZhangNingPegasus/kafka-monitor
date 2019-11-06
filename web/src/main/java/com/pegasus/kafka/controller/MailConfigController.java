@@ -2,6 +2,7 @@ package com.pegasus.kafka.controller;
 
 import com.pegasus.kafka.common.response.Result;
 import com.pegasus.kafka.entity.dto.SysMailConfig;
+import com.pegasus.kafka.service.alert.MailService;
 import com.pegasus.kafka.service.dto.SysMailConfigService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,9 +17,11 @@ import java.util.List;
 @RequestMapping("mailconfig")
 public class MailConfigController {
     private final SysMailConfigService sysMailConfigService;
+    private final MailService mailService;
 
-    public MailConfigController(SysMailConfigService sysMailConfigService) {
+    public MailConfigController(SysMailConfigService sysMailConfigService, MailService mailService) {
         this.sysMailConfigService = sysMailConfigService;
+        this.mailService = mailService;
     }
 
     @RequestMapping("tolist")
@@ -33,6 +36,11 @@ public class MailConfigController {
         return "mailconfig/list";
     }
 
+    @RequestMapping("totest")
+    public String toTest() {
+        return "mailconfig/test";
+    }
+
     @PostMapping("save")
     @ResponseBody
     public Result<Integer> save(@RequestParam(required = true, name = "host") String host,
@@ -41,6 +49,15 @@ public class MailConfigController {
                                 @RequestParam(required = true, name = "password") String password) {
         int result = sysMailConfigService.save(host, port, username, password);
         return Result.success(result);
+    }
+
+    @PostMapping("test")
+    @ResponseBody
+    public Result<?> test(@RequestParam(required = true, name = "to") String to,
+                          @RequestParam(required = true, name = "subject") String subject,
+                          @RequestParam(required = true, name = "html") String html) throws Exception {
+        mailService.send(to, subject, html);
+        return Result.success();
     }
 
 }

@@ -28,6 +28,9 @@
                 <div class="layui-input-block">
                     <button type="button" class="layui-btn" lay-submit="" lay-filter="btnConfirm">保存</button>
                     <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    <#if (config.id)??>
+                        <button id="btnTest" type="button" class="layui-btn layui-btn-normal">测试</button>
+                    </#if>
                 </div>
             </div>
         </form>
@@ -35,7 +38,7 @@
 
     <script>
         layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table'], function () {
-            const admin = layui.admin, form = layui.form;
+            const admin = layui.admin, form = layui.form, $ = layui.$;
             form.on('submit(btnConfirm)', function (data) {
                 admin.post("save", data.field, function () {
                     admin.success("操作成功", "操作成功", function () {
@@ -43,6 +46,33 @@
                     });
                 }, function (res) {
                     admin.error("操作失败", res.error);
+                });
+            });
+
+            $("#btnTest").click(function () {
+                layer.open({
+                    type: 2,
+                    title: '测试钉钉',
+                    content: 'totest',
+                    area: ['880px', '600px'],
+                    btn: admin.BUTTONS,
+                    resize: false,
+                    yes: function (index, layero) {
+                        const iframeWindow = window['layui-layer-iframe' + index], submitID = 'btn_confirm',
+                            submit = layero.find('iframe').contents().find('#' + submitID);
+                        iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
+                            const field = data.field;
+                            field.isAtAll = (field.isAtAll === 'on') ? true : false;
+                            admin.post('test', field, function () {
+                                admin.success("发送成功", "钉钉提醒发送成功", function () {
+                                    layer.close(index);
+                                });
+                            }, function (result) {
+                                admin.error(admin.OPT_FAILURE, result.error);
+                            });
+                        });
+                        submit.trigger('click');
+                    }
                 });
             });
         });

@@ -2,6 +2,8 @@ package com.pegasus.kafka.controller;
 
 import com.pegasus.kafka.common.response.Result;
 import com.pegasus.kafka.entity.dto.SysDingDingConfig;
+import com.pegasus.kafka.entity.po.DingDingMessage;
+import com.pegasus.kafka.service.alert.DingDingService;
 import com.pegasus.kafka.service.dto.SysDingDingConfigService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,15 +12,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.net.InetAddress;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @Controller
 @RequestMapping("dingdingconfig")
 public class DingDingConfigController {
     private final SysDingDingConfigService sysDingDingConfigService;
+    private final DingDingService dingDingService;
 
-    public DingDingConfigController(SysDingDingConfigService sysDingDingConfigService) {
+    public DingDingConfigController(SysDingDingConfigService sysDingDingConfigService, DingDingService dingDingService) {
         this.sysDingDingConfigService = sysDingDingConfigService;
+        this.dingDingService = dingDingService;
     }
 
     @RequestMapping("tolist")
@@ -33,12 +41,37 @@ public class DingDingConfigController {
         return "dingdingconfig/list";
     }
 
+    @RequestMapping("totest")
+    public String toTest() {
+        return "dingdingconfig/test";
+    }
+
     @PostMapping("save")
     @ResponseBody
     public Result<Integer> save(@RequestParam(required = true, name = "accesstoken") String accesstoken,
                                 @RequestParam(required = true, name = "secret") String secret) {
         int result = sysDingDingConfigService.save(accesstoken, secret);
         return Result.success(result);
+    }
+
+    @PostMapping("test")
+    @ResponseBody
+    public Result<?> test(@RequestParam(required = true, name = "content", defaultValue = "") String content,
+                          @RequestParam(required = true, name = "atMobiles", defaultValue = "") String atMobiles,
+                          @RequestParam(required = true, name = "isAtAll", defaultValue = "false") Boolean isAtAll) throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        DingDingMessage message = new DingDingMessage();
+        message.setMsgtype("text");
+        message.setText(new DingDingMessage.Text("告警主机：" + InetAddress.getLocalHost().getHostName() + "\n" +
+                "主机地址：" + InetAddress.getLocalHost().getHostAddress() + "\n" +
+                "告警等级：警告\n" +
+                "当前状态：OK\n" +
+                "问题详情：" + content + "\n" +
+                "告警时间：" + sdf.format(new Date()) + "\n"));
+        message.setAt(new DingDingMessage.At(Arrays.asList(atMobiles.split(",")), isAtAll));
+
+        dingDingService.send(message);
+        return Result.success();
     }
 
 }
