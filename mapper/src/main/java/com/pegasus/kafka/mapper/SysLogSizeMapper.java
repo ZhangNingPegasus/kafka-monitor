@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The mapper for table 'sys_log_size'.
@@ -26,4 +27,6 @@ public interface SysLogSizeMapper extends BaseMapper<SysLogSize> {
                                   @Nullable @Param(value = "to") Date to);
 
     Long getHistoryLogSize(@Param(value = "from") Date from, @Param(value = "to") Date to);
+
+    Set<String> listTopicNames();
 }

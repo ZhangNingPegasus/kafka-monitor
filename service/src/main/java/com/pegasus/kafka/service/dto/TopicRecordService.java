@@ -79,11 +79,11 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
         return this.baseMapper.findMessage(convertToTableName(topicName), partitionId, offset, key);
     }
 
-    private String convertToTableName(String topicName) {
+    public String convertToTableName(String topicName) {
         return String.format("topic_%s", topicName);
     }
 
-    private Set<String> convertToTableName(Set<String> topicNames) {
+    public Set<String> convertToTableName(Set<String> topicNames) {
         Set<String> result = new HashSet<>(topicNames.size());
         for (String topicName : topicNames) {
             result.add(convertToTableName(topicName));

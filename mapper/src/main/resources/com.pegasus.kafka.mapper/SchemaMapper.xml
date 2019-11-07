@@ -86,4 +86,19 @@
     SET FOREIGN_KEY_CHECKS = 1;
     </insert>
 
+    <delete id="deleteExpired">
+
+        <foreach collection="tableNameList" item="tableName">
+            DELETE FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}` WHERE `create_time` &lt; #{dateTime};
+        </foreach>
+        DELETE FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_alert_cluster` WHERE `create_time` &lt; #{dateTime};
+        DELETE FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_alert_consumer` WHERE `create_time` &lt; #{dateTime};
+        DELETE FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_dingding_config` WHERE `create_time` &lt; #{dateTime};
+        DELETE FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_kpi` WHERE `create_time` &lt; #{dateTime};
+        DELETE FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_lag` WHERE `create_time` &lt; #{dateTime};
+        DELETE FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_log_size` WHERE `create_time` &lt; #{dateTime};
+        DELETE FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_mail_config` WHERE `create_time` &lt; #{dateTime};
+
+    </delete>
+
 </mapper>

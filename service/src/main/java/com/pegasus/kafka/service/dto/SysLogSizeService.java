@@ -142,6 +142,10 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
         return result == null ? 0L : result;
     }
 
+    public Set<String> listTopicNames() {
+        return this.baseMapper.listTopicNames();
+    }
+
     @Data
     public static class Matrix {
         private List<SysLag> sysLagList;
