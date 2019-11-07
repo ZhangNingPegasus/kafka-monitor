@@ -11,5 +11,4 @@ import org.springframework.test.context.junit4.SpringRunner;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class KafkaServiceTest {
 
-
 }

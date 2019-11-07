@@ -101,8 +101,8 @@
                 method: 'post',
                 cellMinWidth: 80,
                 page: true,
-                limit: 18,
-                limits: [18],
+                limit: 15,
+                limits: [15],
                 even: true,
                 text: {
                     none: '暂无相关数据'

@@ -603,7 +603,7 @@ public class KafkaService {
             SysKpi sysKpi = new SysKpi();
             sysKpi.setKpi(SysKpi.KAFKA_KPI.KAFKA_OS_USED_MEMORY_PERCENTAGE.getCode());
             sysKpi.setCreateTime(now);
-            sysKpi.setValue(Common.numberic((osFree / osTotal) * 100));
+            sysKpi.setValue(Common.numberic((1 - osFree / osTotal) * 100));
             sysKpi.setHost(firstOsFree.get().getHost());
             result.add(sysKpi);
         }

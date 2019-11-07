@@ -88,10 +88,10 @@
                 cols: [[
                     {type: 'numbers', title: '序号', width: 50},
                     {field: 'groupId', title: '组名称', templet: "#colGroupId"},
-                    {field: 'node', title: '节点', width: 300},
+                    {field: 'node', title: '节点', width: 180},
                     {title: '订阅主题数', sort: true, templet: "#topicCount", width: 400},
                     {title: '活跃主题', sort: true, templet: "#activeTopicCount", width: 400},
-                    {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 160}
+                    {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 145}
                 ]],
                 done: function () {
                     $("a[class='groupid layui-table-link']").click(function () {

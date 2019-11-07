@@ -2,17 +2,13 @@ package com.pegasus.kafka.entity.echarts;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.List;
 
-@ToString
-@Getter
-@Setter
+@Data
 @JsonSerialize
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class LineInfo implements Serializable {
@@ -20,8 +16,7 @@ public class LineInfo implements Serializable {
     private List<String> times;
     private List<Series> series;
 
-    @Getter
-    @Setter
+    @Data
     @JsonSerialize
     @JsonInclude(value = JsonInclude.Include.NON_NULL)
     public static class Series implements Serializable {

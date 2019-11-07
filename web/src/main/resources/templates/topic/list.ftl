@@ -142,15 +142,15 @@
                 cols: [[
                     {type: 'numbers', title: '序号', width: 50},
                     {field: 'topicName', title: '主题名称', templet: '#colTopicName'},
-                    {field: 'todayLogSize', title: '今天消息数量', templet: '#colTodayLogSize', width: 150},
-                    {field: 'yesterdayLogSize', title: '昨天消息数量', templet: '#colYesterdayLogSize', width: 150},
-                    {field: 'tdbyLogSize', title: '前天消息数量', templet: '#colTdbyLogSize', width: 150},
+                    {field: 'todayLogSize', title: '今天消息数量', templet: '#colTodayLogSize', width: 130},
+                    {field: 'yesterdayLogSize', title: '昨天消息数量', templet: '#colYesterdayLogSize', width: 130},
+                    {field: 'tdbyLogSize', title: '前天消息数量', templet: '#colTdbyLogSize', width: 130},
                     {field: 'subscribeNums', title: '被订阅数', templet: '#subscribeNums', width: 100},
                     {field: 'partitionNum', title: '分区数', templet: '#colPartitionNum', width: 100},
                     {field: 'partitionIndex', title: '分区索引', templet: '#colPartitionIndex', width: 120},
-                    {field: 'createTime', title: '创建时间', templet: '#colCreateTime', width: 180},
-                    {field: 'modifyTime', title: '修改时间', templet: '#colModifyTime', width: 180},
-                    {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 250}
+                    {field: 'createTime', title: '创建时间', templet: '#colCreateTime', width: 170},
+                    {field: 'modifyTime', title: '修改时间', templet: '#colModifyTime', width: 170},
+                    {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 240}
                 ]],
                 done: function () {
                     $("a[class='topicName layui-table-link']").click(function () {
