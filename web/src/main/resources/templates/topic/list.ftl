@@ -8,11 +8,10 @@
 
     <div class="layui-fluid">
         <div class="layui-card">
-
             <div class="layui-form layui-card-header layuiadmin-card-header-auto">
                 <div class="layui-form-item">
                     <div class="layui-inline">主题名称</div>
-                    <div class="layui-inline" style="width:200px">
+                    <div class="layui-inline" style="width:500px">
                         <input type="text" name="topicName" placeholder="请输入主题名称" autocomplete="off"
                                class="layui-input">
                     </div>
