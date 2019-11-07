@@ -23,8 +23,16 @@ Supported JDK: JDK8+
    &nbsp;&nbsp;&nbsp;&nbsp;export db_port=3306<br/>
    &nbsp;&nbsp;&nbsp;&nbsp;export db_username=root<br/>
    &nbsp;&nbsp;&nbsp;&nbsp;export db_password=root<br/>
- 3. nohup java -jar  xxx.jar &
+ 3. nohup java -jar  xxx.jar &<br/><br/>
 
 
 
 Here are a few Kafka-Monitor system screenshots:
+<img src="https://raw.githubusercontent.com/ZhangNingPegasus/kafka-monitor/master/1.png"/>
+<img src="https://raw.githubusercontent.com/ZhangNingPegasus/kafka-monitor/master/2.png"/>
+<img src="https://raw.githubusercontent.com/ZhangNingPegasus/kafka-monitor/master/3.png"/>
+<img src="https://raw.githubusercontent.com/ZhangNingPegasus/kafka-monitor/master/4.png"/>
+<img src="https://raw.githubusercontent.com/ZhangNingPegasus/kafka-monitor/master/5.png"/>
+<img src="https://raw.githubusercontent.com/ZhangNingPegasus/kafka-monitor/master/6.png"/>
+<img src="https://raw.githubusercontent.com/ZhangNingPegasus/kafka-monitor/master/7.png"/>
+<img src="https://raw.githubusercontent.com/ZhangNingPegasus/kafka-monitor/master/8.png"/>
