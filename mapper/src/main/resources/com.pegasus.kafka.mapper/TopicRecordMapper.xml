@@ -31,8 +31,7 @@
             SET FOREIGN_KEY_CHECKS = 0;
             CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}` (
             `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
-            `topic_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT
-            '主题名称',
+            `topic_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '主题名称',
             `partition_id` int(11) UNSIGNED NOT NULL COMMENT '分区id号',
             `offset` bigint(20) UNSIGNED NOT NULL COMMENT '消息偏移量',
             `key` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '消息键值',
