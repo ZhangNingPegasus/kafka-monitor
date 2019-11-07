@@ -8,19 +8,19 @@
         FROM
         (
         SELECT
-        topic_name,
-        MAX(create_time) create_time
+        `topic_name`,
+        MAX(`create_time`) create_time
         FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_log_size`
         WHERE 1 = 1
         <if test="from!=null and to !=null">
-            AND create_time &gt;= #{from}
-            AND create_time &lt;= #{to}
+            AND `create_time` &gt;= #{from}
+            AND `create_time` &lt;= #{to}
         </if>
-        GROUP BY topic_name
+        GROUP BY `topic_name`
         ) a
-        LEFT OUTER JOIN ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_log_size` b ON a.topic_name =
-        b.topic_name AND a.create_time = b.create_time
-        ORDER BY log_size DESC
+        LEFT OUTER JOIN ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_log_size` b ON a.`topic_name` =
+        b.`topic_name` AND a.`create_time` = b.`create_time`
+        ORDER BY `log_size` DESC
         LIMIT #{rank}
     </select>
 
