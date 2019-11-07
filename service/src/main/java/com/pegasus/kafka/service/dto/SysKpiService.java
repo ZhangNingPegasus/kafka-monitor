@@ -10,6 +10,14 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * The service for table 'sys_kpi'.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Service
 public class SysKpiService extends ServiceImpl<SysKpiMapper, SysKpi> {
 

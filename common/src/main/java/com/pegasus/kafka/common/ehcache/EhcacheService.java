@@ -7,9 +7,17 @@ import net.sf.ehcache.Element;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+
+/**
+ * the service for ehcache.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Component
 public class EhcacheService {
-    // 默认的缓存存在时间（秒）
     private static final int DEFAULT_LIVE_SECOND = 30 * 60;
     @Lazy
     private final CacheManager cacheManager;
@@ -23,7 +31,7 @@ public class EhcacheService {
         Element element = new Element(
                 key,
                 value,
-                0,// timeToIdleSeconds
+                0,
                 DEFAULT_LIVE_SECOND);
         cache.put(element);
     }

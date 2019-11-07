@@ -17,6 +17,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * The controller for providing the ability of alert for consumer.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Controller
 @RequestMapping("alertconsume")
 public class AlertConsumerController {

@@ -2,6 +2,14 @@ package com.pegasus.kafka.common.response;
 
 import lombok.Getter;
 
+/**
+ * the enum for ajax's result
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Getter
 public enum ResultCode {
     SUCCESS(0, true, "success"),

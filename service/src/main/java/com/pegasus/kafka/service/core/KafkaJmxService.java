@@ -12,6 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * The service for kafka's JMX.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Service
 public class KafkaJmxService {
     private static final String JMX_URL;

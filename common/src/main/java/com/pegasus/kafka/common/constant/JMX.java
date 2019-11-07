@@ -1,6 +1,13 @@
 package com.pegasus.kafka.common.constant;
 
-
+/**
+ * Constants variable used for Kafka's JMX.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 public class JMX {
     public static final String BYTES_IN_PER_SEC = "kafka.server:type=BrokerTopicMetrics,name=BytesInPerSec";
     public static final String BYTES_OUT_PER_SEC = "kafka.server:type=BrokerTopicMetrics,name=BytesOutPerSec";
@@ -14,7 +21,7 @@ public class JMX {
     public static final String REPLICATION_BYTES_IN_PER_SEC = "kafka.server:type=BrokerTopicMetrics,name=ReplicationBytesInPerSec";
     public static final String REPLICATION_BYTES_OUT_PER_SEC = "kafka.server:type=BrokerTopicMetrics,name=ReplicationBytesOutPerSec";
 
-    public static final String OPERATING_SYSTEM="java.lang:type=OperatingSystem";
+    public static final String OPERATING_SYSTEM = "java.lang:type=OperatingSystem";
     public static final String TOTAL_PHYSICAL_MEMORY_SIZE = "TotalPhysicalMemorySize";
     public static final String FREE_PHYSICAL_MEMORY_SIZE = "FreePhysicalMemorySize";
 

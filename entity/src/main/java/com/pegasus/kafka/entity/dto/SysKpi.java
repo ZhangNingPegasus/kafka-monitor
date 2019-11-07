@@ -9,6 +9,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+/**
+ * The entity for table sys_kpi. Using for saving zookeeper and kafka's kpi information.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @TableName(value = Constants.DATABASE_NAME + "." + "`sys_kpi`")

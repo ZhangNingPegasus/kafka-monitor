@@ -1,10 +1,16 @@
 package com.pegasus.kafka.common.constant;
 
-
+/**
+ * Constant variable.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 public class Constants {
     public static final String DATABASE_NAME = "`kafka_monitor`";
     public static final Integer MAX_PAGE_NUM = 10000;
-
 
     public static final String EHCACHE_CONFIG_NAME = "EHCACHE_CONFIG_NAME";
     public static final String EHCACHE_KAFKA_BROKER_SERVER = "EHCACHE_KAFKA_BROKER_SERVER";
@@ -17,7 +23,7 @@ public class Constants {
     public static final String ZK_BROKERS_TOPICS_PATH = "/brokers/topics";
 
     /**
-     * topic的partion路径，参数1: topicName
+     * the path of topics' partition in ZooKeeper，参数1: topicName
      */
     public static final String ZK_BROKERS_TOPICS_PARTITION_PATH = Constants.ZK_BROKERS_TOPICS_PATH + "/%s/partitions";
     public static final String KAFKA_COMPRESS_TYPE = "lz4";
@@ -28,7 +34,7 @@ public class Constants {
     public static final String KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_MESSAGE = KAFKA_MONITOR_PEGASUS_SYSTEM_PREFIX + "consumer_group_name_for_message";
 
     /**
-     * 分区[%s]不可用，参数1: partition_id
+     * the partition [%s] is not avaiable，parameter 1: partition_id
      */
     public static final String PARTITION_NOT_AVAIABLE = "分区[%s]不可用";
 

@@ -23,6 +23,14 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Nullable;
 import java.util.*;
 
+/**
+ * The service for table 'sys_log_size'.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Service
 public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize> {
     private final KafkaConsumerService kafkaConsumerService;

@@ -11,6 +11,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * The mapper for dynamic table. Using for save the topics'content.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Repository
 public interface TopicRecordMapper extends BaseMapper<TopicRecord> {
     void createTableIfNotExists(@Param(value = "tableNames") Set<String> tableNames);

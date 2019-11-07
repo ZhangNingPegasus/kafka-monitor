@@ -10,6 +10,14 @@ import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * The mapper for table 'sys_log_size'.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Repository
 public interface SysLogSizeMapper extends BaseMapper<SysLogSize> {
 

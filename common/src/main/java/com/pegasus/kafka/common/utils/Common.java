@@ -9,6 +9,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * providing the tool function.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 public class Common {
     private final static long KB_IN_BYTES = 1024;
     private final static long MB_IN_BYTES = 1024 * KB_IN_BYTES;

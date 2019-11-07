@@ -3,6 +3,14 @@ package com.pegasus.kafka.common.exception;
 import com.pegasus.kafka.common.response.ResultCode;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
+/**
+ * the customized exception for business
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 public class BusinessException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;

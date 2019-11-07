@@ -13,6 +13,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
+/**
+ * The controller for providing the UI used for setting the emails' configuration.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Controller
 @RequestMapping("mailconfig")
 public class MailConfigController {

@@ -9,6 +9,14 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * the uniformed response used for ajax.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @JsonSerialize
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class Result<T> implements Serializable {

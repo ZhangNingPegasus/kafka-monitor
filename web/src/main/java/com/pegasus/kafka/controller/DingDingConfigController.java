@@ -18,6 +18,14 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * The controller for providing a UI for setting the dingding's configuration.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Controller
 @RequestMapping("dingdingconfig")
 public class DingDingConfigController {

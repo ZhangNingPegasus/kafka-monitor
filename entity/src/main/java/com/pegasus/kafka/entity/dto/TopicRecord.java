@@ -9,6 +9,15 @@ import lombok.EqualsAndHashCode;
 
 import java.util.Date;
 
+/**
+ * The entity for dynamic table. Using for saving the topic's content.
+ * One topic corresponds one table, the table's name is the name of topic.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @EqualsAndHashCode(callSuper = false)
 @Data
 public class TopicRecord extends BaseDto {

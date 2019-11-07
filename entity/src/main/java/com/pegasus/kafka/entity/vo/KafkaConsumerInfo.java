@@ -9,6 +9,14 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * The view object for ajax's response. Using for show the kafka's consumer information.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Data
 @JsonSerialize
 @JsonInclude(value = JsonInclude.Include.NON_NULL)

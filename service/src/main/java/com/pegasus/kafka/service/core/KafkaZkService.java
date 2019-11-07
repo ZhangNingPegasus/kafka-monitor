@@ -26,6 +26,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * The service for kafka cluter's zookeeper.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Service
 public class KafkaZkService implements InitializingBean, DisposableBean {
     private final String CHARSET_NAME = "gbk";

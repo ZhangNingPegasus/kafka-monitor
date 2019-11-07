@@ -9,6 +9,14 @@ import java.io.InterruptedIOException;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.*;
 
+/**
+ * the utils class for Kafka's JMX.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 public class JMXFactoryUtils {
     private static final ThreadFactory daemonThreadFactory = new DaemonThreadFactory();
 

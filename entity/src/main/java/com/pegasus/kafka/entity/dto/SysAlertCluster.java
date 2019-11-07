@@ -8,6 +8,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+/**
+ * The entity for table sys_alert_cluster. Using for throw a alerm when there's something wrong in cluster.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @TableName(value = Constants.DATABASE_NAME + "." + "`sys_alert_cluster`")

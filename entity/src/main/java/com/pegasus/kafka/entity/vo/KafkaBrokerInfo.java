@@ -6,6 +6,14 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * The view object for ajax's response. Using for show the kafka's broker information.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Data
 @JsonSerialize
 @JsonInclude(value = JsonInclude.Include.NON_NULL)

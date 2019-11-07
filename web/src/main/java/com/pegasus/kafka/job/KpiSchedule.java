@@ -11,8 +11,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * The schedule job for collection kpi of kafka and zookeeper.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Component
-
 public class KpiSchedule {
     private final KafkaZkService kafkaZkService;
     private final KafkaService kafkaService;

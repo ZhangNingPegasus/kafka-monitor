@@ -9,6 +9,14 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
+/**
+ * The listener for SpringMVC. Used for initiate the database and table's schema.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Component
 public class ApplicationListener implements ApplicationContextAware {
 

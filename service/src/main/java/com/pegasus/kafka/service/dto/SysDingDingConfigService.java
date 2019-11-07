@@ -11,6 +11,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * The service for table 'sys_dingding_config'.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Service
 public class SysDingDingConfigService extends ServiceImpl<SysDingDingConfigMapper, SysDingDingConfig> {
     private final EhcacheService ehcacheService;

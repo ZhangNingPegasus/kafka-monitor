@@ -4,6 +4,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.annotation.*;
 
+/**
+ * Transaction for insert,update and delete.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited

@@ -12,7 +12,14 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-
+/**
+ * The advice controller used for providing the global business process.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @ControllerAdvice
 public class ExceptionControllerAdvice {
     private final static Logger LOGGER = LoggerFactory.getLogger(ExceptionControllerAdvice.class);

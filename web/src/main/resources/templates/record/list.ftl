@@ -115,7 +115,7 @@
                     {field: 'key', title: '消息Key', width: 150},
                     {field: 'createTime', title: '创建时间', width: 180},
                     {field: 'value', title: '消息体'},
-                    {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 220}
+                    {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 195}
                 ]]
             });
 

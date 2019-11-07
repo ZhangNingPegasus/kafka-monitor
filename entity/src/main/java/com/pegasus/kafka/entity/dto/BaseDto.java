@@ -9,6 +9,14 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * all DTO class's super class.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Data
 public abstract class BaseDto implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)

@@ -21,6 +21,14 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
+/**
+ * SpringMVC's configuration.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Configuration
 public class WebConfig extends WebMvcConfigurationSupport {
     @Override

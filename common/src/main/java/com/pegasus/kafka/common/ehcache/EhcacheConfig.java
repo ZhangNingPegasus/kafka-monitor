@@ -7,6 +7,14 @@ import net.sf.ehcache.config.Configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
+/**
+ * the config for ehcache.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Component
 public class EhcacheConfig {
 
@@ -15,12 +23,11 @@ public class EhcacheConfig {
         CacheConfiguration config = new CacheConfiguration();
         config.setName(Constants.EHCACHE_CONFIG_NAME);
         config.setMaxEntriesLocalHeap(2000);
-        config.setEternal(false);//是否永不过期，false则过期, 需要通过timeToIdleSeconds，timeToLiveSeconds判断
-        config.setMemoryStoreEvictionPolicy("LFU");//最少使用
+        config.setEternal(false);
+        config.setMemoryStoreEvictionPolicy("LFU");
         config.setTimeToIdleSeconds(30);
         config.setTimeToLiveSeconds(30);
 
-        // 设置ehcache配置文件，获取CacheManager
         Configuration configuration = new Configuration();
         configuration.addCache(config);
         return CacheManager.create(configuration);

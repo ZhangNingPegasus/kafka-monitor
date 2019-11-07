@@ -18,8 +18,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * The schedule job for providing an alert when a problem is detected.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Component
-
 public class AlertSchedule {
     private final SysAlertClusterService sysAlertClusterService;
     private final KafkaBrokerService kafkaBrokerService;

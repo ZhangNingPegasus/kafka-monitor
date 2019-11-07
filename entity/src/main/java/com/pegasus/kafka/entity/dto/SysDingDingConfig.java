@@ -7,6 +7,14 @@ import com.pegasus.kafka.common.constant.Constants;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * The entity for table sys_dingding_config. Using for dingding's config.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @TableName(value = Constants.DATABASE_NAME + "." + "`sys_dingding_config`")

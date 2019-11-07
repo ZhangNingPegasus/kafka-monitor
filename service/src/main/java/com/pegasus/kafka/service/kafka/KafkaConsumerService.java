@@ -9,6 +9,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * The service for Kafka Consumer.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Service
 public class KafkaConsumerService {
     private final KafkaService kafkaService;

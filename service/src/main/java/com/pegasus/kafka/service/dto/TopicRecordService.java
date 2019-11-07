@@ -10,6 +10,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+/**
+ * The service for dynamic table. Saving topics' records.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Service
 public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicRecord> {
 

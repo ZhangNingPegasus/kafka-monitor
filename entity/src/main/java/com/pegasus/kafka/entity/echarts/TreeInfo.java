@@ -8,6 +8,14 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * The entity for ajax's response. Using for echart's tree graph.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Data
 @JsonSerialize
 @JsonInclude(value = JsonInclude.Include.NON_NULL)

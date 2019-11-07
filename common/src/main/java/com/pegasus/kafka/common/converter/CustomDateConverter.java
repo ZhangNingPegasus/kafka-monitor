@@ -10,6 +10,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * date converter tools for SpringMVC's parameters.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 public class CustomDateConverter implements Converter<String, Date> {
 
     private static final List<String> formarts = new ArrayList<>();

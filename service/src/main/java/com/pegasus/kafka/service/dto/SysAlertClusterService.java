@@ -7,6 +7,14 @@ import com.pegasus.kafka.entity.dto.SysAlertCluster;
 import com.pegasus.kafka.mapper.SysAlertClusterMapper;
 import org.springframework.stereotype.Service;
 
+/**
+ * The service for table 'sys_alert_cluster'.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Service
 public class SysAlertClusterService extends ServiceImpl<SysAlertClusterMapper, SysAlertCluster> {
 

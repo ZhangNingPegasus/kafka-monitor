@@ -8,6 +8,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 
+/**
+ * the utils class for ZooKeeper.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 public class ZooKeeperKpiUtils {
 
     private static final String zk_avg_latency = "zk_avg_latency";

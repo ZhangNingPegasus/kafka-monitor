@@ -6,6 +6,14 @@ import com.pegasus.kafka.entity.dto.TopicRecord;
 import com.pegasus.kafka.mapper.SchemaMapper;
 import org.springframework.stereotype.Service;
 
+/**
+ * The service for initiate the database and tables.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Service
 public class SchemaService extends ServiceImpl<SchemaMapper, TopicRecord> {
 

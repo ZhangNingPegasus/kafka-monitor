@@ -41,7 +41,7 @@
       `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
       PRIMARY KEY (`id`) USING BTREE,
       INDEX `idx_sys_kpi_create_time`(`create_time`) USING BTREE,
-      INDEX `idx_sys_kpi_create_name`(`kpi`) USING BTREE
+      INDEX `idx_sys_kpi_kpi`(`kpi`) USING BTREE
     ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
 
     CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_mail_config`(

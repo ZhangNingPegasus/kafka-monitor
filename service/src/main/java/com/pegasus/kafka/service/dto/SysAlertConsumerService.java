@@ -7,6 +7,14 @@ import com.pegasus.kafka.entity.dto.SysAlertConsumer;
 import com.pegasus.kafka.mapper.SysAlertConsumerMapper;
 import org.springframework.stereotype.Service;
 
+/**
+ * The service for table 'sys_alert_consumer'.
+ * <p>
+ * *****************************************************************
+ * Name               Action            Time          Description  *
+ * Ning.Zhang       Initialize         11/7/2019      Initialize   *
+ * *****************************************************************
+ */
 @Service
 public class SysAlertConsumerService extends ServiceImpl<SysAlertConsumerMapper, SysAlertConsumer> {
 
