@@ -137,7 +137,7 @@
                         content: 'todetail?topicName=' + data.topicName + '&partitionId=' + data.partitionId + '&offset=' + data.offset + '&key=' + data.key,
                         shadeClose: true,
                         shade: 0.8,
-                        area: ['880px', '880px']
+                        area: ['880px', '800px']
                     });
                 }
             });
