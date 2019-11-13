@@ -158,11 +158,7 @@ function topicRankChart(data) {
             type: 'category',
             nameTextStyle: {fontSize: 2},
             data: data.topicNames.map(function (str) {
-                if (str.length > 15) {
-                    return str.substr(0, 15) + '...'
-                } else {
-                    return str;
-                }
+                return str;
             })
         },
         yAxis: {

@@ -125,7 +125,7 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
     }
 
     @TranRead
-    public Long getHistoryLogSize(int days) {
+    public Long getHistoryLogSize(String topicName, int days) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
@@ -138,7 +138,7 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
         Date from = DateUtils.addDays(now, -days);
         Date to = DateUtils.addDays(from, 1);
 
-        Long result = this.baseMapper.getHistoryLogSize(from, to);
+        Long result = this.baseMapper.getHistoryLogSize(topicName, from, to);
         return result == null ? 0L : result;
     }
 

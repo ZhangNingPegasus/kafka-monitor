@@ -26,7 +26,7 @@ public interface SysLogSizeMapper extends BaseMapper<SysLogSize> {
                                   @Nullable @Param(value = "from") Date from,
                                   @Nullable @Param(value = "to") Date to);
 
-    Long getHistoryLogSize(@Param(value = "from") Date from, @Param(value = "to") Date to);
+    Long getHistoryLogSize(@Param(value = "topicName") String topicName, @Param(value = "from") Date from, @Param(value = "to") Date to);
 
     Set<String> listTopicNames();
 }

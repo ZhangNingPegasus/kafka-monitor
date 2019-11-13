@@ -242,13 +242,13 @@ public class DashboardController {
         LineInfo result = new LineInfo();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Long logsize = kafkaTopicService.getLogsize(topicName);
-        Long day1 = sysLogSizeService.getHistoryLogSize(1);
-        Long day2 = sysLogSizeService.getHistoryLogSize(2);
-        Long day3 = sysLogSizeService.getHistoryLogSize(3);
-        Long day4 = sysLogSizeService.getHistoryLogSize(4);
-        Long day5 = sysLogSizeService.getHistoryLogSize(5);
-        Long day6 = sysLogSizeService.getHistoryLogSize(6);
-        Long day7 = sysLogSizeService.getHistoryLogSize(7);
+        Long day1 = sysLogSizeService.getHistoryLogSize(topicName, 1);
+        Long day2 = sysLogSizeService.getHistoryLogSize(topicName, 2);
+        Long day3 = sysLogSizeService.getHistoryLogSize(topicName, 3);
+        Long day4 = sysLogSizeService.getHistoryLogSize(topicName, 4);
+        Long day5 = sysLogSizeService.getHistoryLogSize(topicName, 5);
+        Long day6 = sysLogSizeService.getHistoryLogSize(topicName, 6);
+        Long day7 = sysLogSizeService.getHistoryLogSize(topicName, 7);
 
         List<String> timesList = new ArrayList<>();
         for (int i = 0; i < 7; i++) {

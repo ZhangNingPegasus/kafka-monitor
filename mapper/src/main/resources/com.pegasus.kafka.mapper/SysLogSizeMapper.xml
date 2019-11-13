@@ -29,7 +29,8 @@
         SELECT
         `log_size`
         FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_log_size`
-        WHERE `create_time` &gt;= #{from}
+        WHERE `topic_name` = #{topicName}
+        AND   `create_time` &gt;= #{from}
         AND   `create_time` &lt; #{to}
         ORDER BY `create_time` DESC
         LIMIT 1

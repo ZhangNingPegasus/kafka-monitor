@@ -105,9 +105,9 @@ public class KafkaTopicService {
                     }
                     topicInfo.setError(out.getError());
                     if (needHisLogSize && topicInfo.getLogSize() >= 0) {
-                        Long day1 = sysLogSizeService.getHistoryLogSize(1);
-                        Long day2 = sysLogSizeService.getHistoryLogSize(2);
-                        Long day3 = sysLogSizeService.getHistoryLogSize(3);
+                        Long day1 = sysLogSizeService.getHistoryLogSize(topicName, 1);
+                        Long day2 = sysLogSizeService.getHistoryLogSize(topicName, 2);
+                        Long day3 = sysLogSizeService.getHistoryLogSize(topicName, 3);
 
                         topicInfo.setTodayLogSize(topicInfo.getLogSize() - day1);
                         topicInfo.setYesterdayLogSize(day1 - day2);
