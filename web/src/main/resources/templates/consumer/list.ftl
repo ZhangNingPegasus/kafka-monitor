@@ -75,6 +75,60 @@
                 element.render('progress');
             });
 
+            function refresChart() {
+                admin.post("getChartData", {}, function (data) {
+                    _init(data.data);
+                });
+
+                function _init(data) {
+                    const ele = $('#activeTopics').children('div');
+                    ele.removeAttr("_echarts_instance_").empty();
+                    const echart = echarts.init(ele[0], layui.echartsTheme);
+                    if (!data) {
+                        return;
+                    }
+                    echart.setOption({
+                        tooltip: {
+                            trigger: 'item',
+                            triggerOn: 'mousemove'
+                        },
+                        series: [
+                            {
+                                type: 'tree',
+                                data: [data],
+                                top: '1%',
+                                left: '7%',
+                                bottom: '1%',
+                                right: '27%',
+                                symbolSize: 7,
+                                label: {
+                                    normal: {
+                                        position: 'left',
+                                        verticalAlign: 'middle',
+                                        align: 'right',
+                                        fontSize: 14
+                                    }
+                                },
+                                leaves: {
+                                    label: {
+                                        normal: {
+                                            position: 'right',
+                                            verticalAlign: 'middle',
+                                            align: 'left'
+                                        }
+                                    }
+                                },
+                                expandAndCollapse: true,
+                                animationDuration: 550,
+                                animationDurationUpdate: 750
+                            }
+                        ]
+                    });
+                    window.onresize = echart.resize;
+                }
+            }
+
+
             table.render({
                 elem: '#grid',
                 url: 'list',
@@ -97,55 +151,7 @@
                     $("a[class='groupid layui-table-link']").click(function () {
                         showDetail($(this).attr("data"));
                     });
-                    admin.post("getChartData", {}, function (data) {
-                        if (!data.data) {
-                            return;
-                        }
-                        const echnormline = [], elemnormline = $('#activeTopics').children('div'),
-                            rendernormline = function (index) {
-                                echnormline[index] = echarts.init(elemnormline[index], layui.echartsTheme);
-                                echnormline[index].setOption({
-                                    tooltip: {
-                                        trigger: 'item',
-                                        triggerOn: 'mousemove'
-                                    },
-                                    series: [
-                                        {
-                                            type: 'tree',
-                                            data: [data.data],
-                                            top: '1%',
-                                            left: '7%',
-                                            bottom: '1%',
-                                            right: '27%',
-                                            symbolSize: 7,
-                                            label: {
-                                                normal: {
-                                                    position: 'left',
-                                                    verticalAlign: 'middle',
-                                                    align: 'right',
-                                                    fontSize: 14
-                                                }
-                                            },
-                                            leaves: {
-                                                label: {
-                                                    normal: {
-                                                        position: 'right',
-                                                        verticalAlign: 'middle',
-                                                        align: 'left'
-                                                    }
-                                                }
-                                            },
-                                            expandAndCollapse: true,
-                                            animationDuration: 550,
-                                            animationDurationUpdate: 750
-                                        }
-                                    ]
-                                });
-                                window.onresize = echnormline[index].resize;
-                            };
-                        if (!elemnormline[0]) return;
-                        rendernormline(0);
-                    });
+                    refresChart();
                 }
             });
 
