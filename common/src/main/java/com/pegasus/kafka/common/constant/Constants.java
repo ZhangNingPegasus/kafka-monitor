@@ -1,5 +1,8 @@
 package com.pegasus.kafka.common.constant;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Constant variable.
  * <p>
@@ -28,7 +31,7 @@ public class Constants {
     public static final String ZK_BROKERS_TOPICS_PARTITION_PATH = Constants.ZK_BROKERS_TOPICS_PATH + "/%s/partitions";
     public static final String KAFKA_COMPRESS_TYPE = "lz4";
 
-    public final static String KAFKA_CONSUMER_OFFSETS = "__consumer_offsets";
+    public final static List<String> KAFKA_SYSTEM_TOPIC = Arrays.asList("__consumer_offsets", "__transaction_state");
     public static final String KAFKA_MONITOR_PEGASUS_SYSTEM_PREFIX = "kafka_monitor_pegasus_system_";
     public static final String KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_MONITOR = KAFKA_MONITOR_PEGASUS_SYSTEM_PREFIX + "consumer_group_name_for_monitor";
     public static final String KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_MESSAGE = KAFKA_MONITOR_PEGASUS_SYSTEM_PREFIX + "consumer_group_name_for_message";

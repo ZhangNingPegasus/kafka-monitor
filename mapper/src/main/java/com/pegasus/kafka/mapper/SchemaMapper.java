@@ -24,4 +24,6 @@ public interface SchemaMapper extends BaseMapper<TopicRecord> {
     void createTableIfNotExists();
 
     void deleteExpired(@Param("tableNameList") Set<String> tableNameList, @Param("dateTime") Date dateTime);
+
+    Set<String> listTables(@Param("databaseName") String databaseName);
 }

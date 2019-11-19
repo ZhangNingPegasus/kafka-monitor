@@ -26,11 +26,9 @@ public class DeleteSchedule {
         this.schemaService = schemaService;
     }
 
-    //@Scheduled(cron = "0 1 0 1/1 * ?")
-    @Scheduled(fixedDelay = 1000)
+    @Scheduled(cron = "0 1 0 1/1 * ?")
     public void deleteExpired() {
-        Set<String> topicNameList = sysLogSizeService.listTopicNames();
-        schemaService.deleteExpired(topicNameList);
-
+        Set<String> tableNames = schemaService.listTables();
+        schemaService.deleteExpired(tableNames);
     }
 }

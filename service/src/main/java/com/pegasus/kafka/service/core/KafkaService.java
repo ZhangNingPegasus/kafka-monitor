@@ -493,7 +493,7 @@ public class KafkaService {
     }
 
     public List<String> listTopicNames() throws Exception {
-        return kafkaZkService.getChildren(Constants.ZK_BROKERS_TOPICS_PATH).stream().filter(p -> !Constants.KAFKA_CONSUMER_OFFSETS.equals(p)).collect(Collectors.toList());
+        return kafkaZkService.getChildren(Constants.ZK_BROKERS_TOPICS_PATH).stream().filter(p -> !Constants.KAFKA_SYSTEM_TOPIC.contains(p)).collect(Collectors.toList());
     }
 
     public Stat getTopicStat(String topicName) throws Exception {

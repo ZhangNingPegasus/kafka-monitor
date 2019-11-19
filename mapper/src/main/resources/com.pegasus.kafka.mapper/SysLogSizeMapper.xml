@@ -35,7 +35,4 @@
         ORDER BY `create_time` DESC
         LIMIT 1
     </select>
-    <select id="listTopicNames" resultType="java.lang.String">
-        SELECT DISTINCT `topic_name` FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_log_size`
-    </select>
 </mapper>

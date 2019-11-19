@@ -1,7 +1,10 @@
 package com.pegasus.kafka.service.dto;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.pegasus.kafka.common.annotation.TranRead;
 import com.pegasus.kafka.common.annotation.TranSave;
+import com.pegasus.kafka.common.constant.Constants;
+import com.pegasus.kafka.common.utils.Common;
 import com.pegasus.kafka.entity.dto.TopicRecord;
 import com.pegasus.kafka.mapper.SchemaMapper;
 import org.apache.commons.lang3.time.DateUtils;
@@ -42,10 +45,15 @@ public class SchemaService extends ServiceImpl<SchemaMapper, TopicRecord> {
     }
 
     @TranSave
-    public void deleteExpired(Set<String> topicNameList) {
+    public void deleteExpired(Set<String> tableNames) {
         Date now = new Date();
         Date date = DateUtils.addDays(now, -7);
-        Set<String> tableNameList = topicRecordService.convertToTableName(topicNameList);
-        this.baseMapper.deleteExpired(tableNameList, date);
+        this.baseMapper.deleteExpired(tableNames, date);
+    }
+
+    @TranRead
+    public Set<String> listTables() {
+        String databaseName = Common.trim(Constants.DATABASE_NAME, '`');
+        return this.baseMapper.listTables(databaseName);
     }
 }

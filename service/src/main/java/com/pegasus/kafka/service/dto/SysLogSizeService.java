@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pegasus.kafka.common.annotation.TranRead;
 import com.pegasus.kafka.common.annotation.TranSave;
+import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.entity.dto.SysLag;
 import com.pegasus.kafka.entity.dto.SysLogSize;
 import com.pegasus.kafka.entity.vo.KafkaConsumerInfo;
@@ -51,6 +52,9 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
         for (KafkaConsumerInfo kafkaConsumerInfo : kafkaConsumerInfos) {
             Set<String> topicNames = kafkaConsumerInfo.getTopicNames();
             for (String topicName : topicNames) {
+                if (Constants.KAFKA_SYSTEM_TOPIC.contains(topicName)) {
+                    continue;
+                }
                 Long logSize = 0L;
                 Long lag = 0L;
                 try {
@@ -140,10 +144,6 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
 
         Long result = this.baseMapper.getHistoryLogSize(topicName, from, to);
         return result == null ? 0L : result;
-    }
-
-    public Set<String> listTopicNames() {
-        return this.baseMapper.listTopicNames();
     }
 
     @Data
