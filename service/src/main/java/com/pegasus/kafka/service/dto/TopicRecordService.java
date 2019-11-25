@@ -20,33 +20,26 @@ import java.util.*;
  */
 @Service
 public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicRecord> {
+    private final SchemaService schemaService;
 
-    public void batchSave(List<TopicRecord> topicRecordList) {
-        if (topicRecordList.size() < 1) {
-            return;
+    public TopicRecordService(SchemaService schemaService) {
+        this.schemaService = schemaService;
+    }
+
+
+    @TranSave
+    public void batchSave(String topicName, List<TopicRecord> topicRecordList) {
+        String tableName = convertToTableName(topicName);
+        Set<String> tableNames = schemaService.listTables();
+        if (!tableNames.contains(tableName)) {
+            createTableIfNotExists(new HashSet<>(Arrays.asList(tableName)));
         }
-        batchSave(analyse(topicRecordList));
+        this.baseMapper.batchSave(tableName, topicRecordList);
     }
 
     @TranSave
-    public void batchSave(Map<String, List<TopicRecord>> topicRecordMap) {
-        if (topicRecordMap.size() < 1) {
-            return;
-        }
-
-        Set<String> topicNames = topicRecordMap.keySet();
-        createTableIfNotExists(topicNames);
-
-        for (Map.Entry<String, List<TopicRecord>> entry : topicRecordMap.entrySet()) {
-            String topicName = entry.getKey();
-            List<TopicRecord> topicRecordList = entry.getValue();
-            this.baseMapper.batchSave(convertToTableName(topicName), topicRecordList);
-        }
-    }
-
-    @TranSave
-    public void createTableIfNotExists(Set<String> topicNames) {
-        this.baseMapper.createTableIfNotExists(convertToTableName(topicNames));
+    public void createTableIfNotExists(Set<String> tableNames) {
+        this.baseMapper.createTableIfNotExists(tableNames);
     }
 
     @TranRead
@@ -54,29 +47,22 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
         this.baseMapper.dropTable(convertToTableName(topicName));
     }
 
-    private Map<String, List<TopicRecord>> analyse(List<TopicRecord> topicRecordList) {
-        Map<String, List<TopicRecord>> result = new LinkedHashMap<>(topicRecordList.size());
-        for (TopicRecord topicRecord : topicRecordList) {
-            String topicName = topicRecord.getTopicName();
-            if (result.containsKey(topicName)) {
-                result.get(topicName).add(topicRecord);
-            } else {
-                List<TopicRecord> topicRecords = new ArrayList<>();
-                topicRecords.add(topicRecord);
-                result.put(topicName, topicRecords);
-            }
-        }
-        return result;
-    }
-
     @TranRead
     public List<TopicRecord> listMessages(IPage page, String topicName, Integer partitionId, String key, Date from, Date to) {
-        return this.baseMapper.listMessages(page, convertToTableName(topicName), partitionId, key, from, to);
+        try {
+            return this.baseMapper.listMessages(page, convertToTableName(topicName), partitionId, key, from, to);
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
     }
 
     @TranRead
     public TopicRecord findMessage(String topicName, Integer partitionId, Long offset, String key) {
-        return this.baseMapper.findMessage(convertToTableName(topicName), partitionId, offset, key);
+        try {
+            return this.baseMapper.findMessage(convertToTableName(topicName), partitionId, offset, key);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public String convertToTableName(String topicName) {

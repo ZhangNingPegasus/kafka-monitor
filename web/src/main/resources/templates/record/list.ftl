@@ -131,13 +131,16 @@
                         });
                     });
                 } else if (obj.event === 'showDetails') {
+                    if (!data.key) {
+                        data.key = "";
+                    }
                     layer.open({
                         type: 2,
                         title: '消息详情',
                         content: 'todetail?topicName=' + data.topicName + '&partitionId=' + data.partitionId + '&offset=' + data.offset + '&key=' + data.key,
                         shadeClose: true,
                         shade: 0.8,
-                        area: ['880px', '800px']
+                        area: ['880px', '820px']
                     });
                 }
             });

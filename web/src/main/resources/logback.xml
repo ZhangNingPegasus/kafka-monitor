@@ -37,15 +37,11 @@
     </appender>
 
     <!-- 控制台输出日志级别 -->
+    <!-- 级别依次为【从高到低】：FATAL > ERROR > WARN > INFO > DEBUG > TRACE  -->
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
-    </root>
-    <!-- 指定项目中某个包，当有日志操作行为时的日志记录级别 -->
-    <!-- com.cps为根包，也就是只要是发生在这个根包下面的所有日志操作行为的权限都是DEBUG -->
-    <!-- 级别依次为【从高到低】：FATAL > ERROR > WARN > INFO > DEBUG > TRACE  -->
-    <logger name="com.cps" level="ERROR">
         <appender-ref ref="ASYNC_ROLLING_FILE"/>
-    </logger>
+    </root>
 
     <logger name="org.apache.kafka" level="off"/>
     <logger name="org.apache.curator.framework.imps.EnsembleTracker" level="off"/>

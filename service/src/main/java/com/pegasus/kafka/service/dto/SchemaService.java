@@ -23,13 +23,6 @@ import java.util.Set;
  */
 @Service
 public class SchemaService extends ServiceImpl<SchemaMapper, TopicRecord> {
-
-    private final TopicRecordService topicRecordService;
-
-    public SchemaService(TopicRecordService topicRecordService) {
-        this.topicRecordService = topicRecordService;
-    }
-
     @TranSave
     public void initSchema() {
         createDatabaseIfNotExists();

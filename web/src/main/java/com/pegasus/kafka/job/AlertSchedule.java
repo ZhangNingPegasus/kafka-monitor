@@ -43,7 +43,7 @@ public class AlertSchedule {
         this.alertService = alertService;
     }
 
-    @Scheduled(cron = "0/1 * * * * ?")
+    @Scheduled(cron = "0/1 * * * * ?") //每秒执行一次
     public void alert() throws InterruptedException {
         AlertService.Alert alert = alertService.poll();
         if (alert == null) {
@@ -69,7 +69,7 @@ public class AlertSchedule {
         }
     }
 
-    @Scheduled(cron = "0 0/1 * * * ?")
+    @Scheduled(cron = "0 0/1 * * * ?") //每秒执行一次
     public void checkCluster() throws Exception {
         List<SysAlertCluster> list = sysAlertClusterService.list();
         List<KafkaBrokerInfo> kafkaBrokerInfoList = kafkaBrokerService.listAllBrokers();

@@ -13,9 +13,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.filter.ShallowEtagHeaderFilter;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
+import javax.servlet.Filter;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
@@ -49,6 +51,11 @@ public class WebConfig extends WebMvcConfigurationSupport {
         });
         objectMapper.registerModule(module);
         converter.setObjectMapper(objectMapper);
+    }
+
+    @Bean
+    public Filter filter() {
+        return new ShallowEtagHeaderFilter();
     }
 
     @Override

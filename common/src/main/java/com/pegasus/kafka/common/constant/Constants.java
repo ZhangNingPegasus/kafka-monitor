@@ -35,7 +35,6 @@ public class Constants {
     public static final String KAFKA_MONITOR_PEGASUS_SYSTEM_PREFIX = "kafka_monitor_pegasus_system_";
     public static final String KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_MONITOR = KAFKA_MONITOR_PEGASUS_SYSTEM_PREFIX + "consumer_group_name_for_monitor";
     public static final String KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_MESSAGE = KAFKA_MONITOR_PEGASUS_SYSTEM_PREFIX + "consumer_group_name_for_message";
-    public static final String KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_LIST = KAFKA_MONITOR_PEGASUS_SYSTEM_PREFIX + "consumer_group_name_for_list";
     /**
      * the partition [%s] is not avaiable，parameter 1: partition_id
      */

@@ -13,3 +13,16 @@ Date.prototype.format = function (fmt) { //author: meizz
         if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
     return fmt;
 }
+
+function toGetUrl(json) {
+    let result = "";
+    for (let i in json) {
+        let key = escape(i);
+        let value = escape(json[i]);
+        result = result + key + "=" + value + "&";
+    }
+    if (result !== "") {
+        result = "?" + result.substr(0, result.length - 1);
+    }
+    return result;
+}

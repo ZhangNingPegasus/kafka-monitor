@@ -13,38 +13,38 @@
         <div class="layui-form-item">
             <label class="layui-form-label">主题名称</label>
             <div class="layui-input-inline" style="width:700px">
-                <input type="text" class="layui-input" readonly="readonly" value="${record.topicName}">
+                <input type="text" class="layui-input" readonly="readonly" value="${record.topicName!''}">
             </div>
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label">分区号</label>
             <div class="layui-input-inline" style="width:700px">
-                <input type="text" class="layui-input" readonly="readonly" value="${record.partitionId}">
+                <input type="text" class="layui-input" readonly="readonly" value="${record.partitionId!''}">
             </div>
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label">偏移量</label>
             <div class="layui-input-inline" style="width:700px">
-                <input type="text" class="layui-input" readonly="readonly" value="${record.offset}">
+                <input type="text" class="layui-input" readonly="readonly" value="${record.offset!''}">
             </div>
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label">消息Key</label>
             <div class="layui-input-inline" style="width:700px">
-                <input type="text" class="layui-input" readonly="readonly" value="${record.key}">
+                <input type="text" class="layui-input" readonly="readonly" value="${record.key!''}">
             </div>
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label">创建时间</label>
             <div class="layui-input-inline" style="width:700px">
-                <input type="text" class="layui-input" readonly="readonly" value="${record.createTime}">
+                <input type="text" class="layui-input" readonly="readonly" value="${record.createTime!''}">
             </div>
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label">消息体</label>
             <div class="layui-input-inline" style="width:700px">
             <textarea id="json" placeholder="请输入" class="layui-textarea"
-                      rows="15" readonly="readonly">${record.value}</textarea>
+                      rows="15" readonly="readonly">${record.value!''}</textarea>
                 <button id="btnJson" type="button" class="layui-btn layui-btn-primary layui-btn-xs">json化</button>
                 <button id="btnRefresh" type="button" class="layui-btn layui-btn-primary layui-btn-xs">刷新</button>
             </div>
@@ -60,7 +60,6 @@
                 {{#  } }}
             </script>
         </div>
-
 
     </div>
 

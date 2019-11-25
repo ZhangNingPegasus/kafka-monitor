@@ -141,7 +141,7 @@
 
             table.render({
                 elem: '#gridMBean',
-                url: 'listTopicMBean/${topicName}',
+                url: 'listTopicMBean?topicName=' + ${topicName},
                 method: 'post',
                 cellMinWidth: 80,
                 page: false,

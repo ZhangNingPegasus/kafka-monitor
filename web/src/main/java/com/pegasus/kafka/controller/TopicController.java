@@ -78,8 +78,9 @@ public class TopicController {
         return "topic/detail";
     }
 
-    @RequestMapping("tosendmsg/{topicName}")
-    public String toSendMsg(Model model, @PathVariable(name = "topicName", required = true) String topicName) {
+    @RequestMapping("tosendmsg")
+    public String toSendMsg(Model model,
+                            @RequestParam(name = "topicName", required = true) String topicName) {
         model.addAttribute("topicName", topicName.trim());
         return "topic/sendmsg";
     }
@@ -112,9 +113,9 @@ public class TopicController {
         return Result.success(kafkaTopicService.listTopicSize(topicName.trim()));
     }
 
-    @PostMapping("todetail/listTopicMBean/{topicName}")
+    @PostMapping("todetail/listTopicMBean")
     @ResponseBody
-    public Result<List<MBeanInfo>> listTopicMBean(@PathVariable(name = "topicName", required = true) String topicName) throws Exception {
+    public Result<List<MBeanInfo>> listTopicMBean(@RequestParam(name = "topicName", required = true) String topicName) throws Exception {
         return Result.success(kafkaTopicService.listTopicMBean(topicName.trim()));
     }
 

@@ -159,7 +159,7 @@
                 const data = obj.data;
                 if (obj.event === 'del') {
                     layer.confirm(admin.DEL_QUESTION, function (index) {
-                        admin.post("del", {consumerGroupId: data.groupId}, function () {
+                        admin.post("del", {'consumerGroupId': data.groupId}, function () {
                             table.reload('grid');
                             layer.close(index);
                         });

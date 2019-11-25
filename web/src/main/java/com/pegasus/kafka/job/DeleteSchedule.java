@@ -26,7 +26,7 @@ public class DeleteSchedule {
         this.schemaService = schemaService;
     }
 
-    @Scheduled(cron = "0 1 0 1/1 * ?")
+    @Scheduled(cron = "0 1 0 1/1 * ?") //每天00:01:00执行一次
     public void deleteExpired() {
         Set<String> tableNames = schemaService.listTables();
         schemaService.deleteExpired(tableNames);

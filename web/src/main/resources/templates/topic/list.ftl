@@ -190,6 +190,7 @@
                 const data = obj.data;
                 if (obj.event === 'del') {
                     layer.confirm(admin.DEL_QUESTION, function (index) {
+                        layer.load();
                         admin.post("del", {topicName: data.topicName}, function () {
                             if (table.cache.grid.length < 2) {
                                 const skip = $(".layui-laypage-skip");
@@ -204,6 +205,7 @@
                                 table.reload('grid');
                             }
                             layer.close(index);
+                            layer.closeAll('loading');
                         });
                     });
                 } else if (obj.event === 'edit') {
@@ -233,7 +235,7 @@
                     layer.open({
                         type: 2,
                         title: '发送消息, 主题名称: ' + data.topicName,
-                        content: 'tosendmsg/' + data.topicName,
+                        content: 'tosendmsg?topicName=' + data.topicName,
                         area: ['880px', '400px'],
                         btn: admin.BUTTONS,
                         resize: false,

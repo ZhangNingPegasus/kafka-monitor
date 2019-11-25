@@ -2,6 +2,7 @@ package com.pegasus.kafka.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * The controller for providing a home page.

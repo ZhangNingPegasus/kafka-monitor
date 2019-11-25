@@ -14,20 +14,15 @@ import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.dto.SysLagService;
 import com.pegasus.kafka.service.dto.SysLogSizeService;
 import com.pegasus.kafka.service.dto.TopicRecordService;
-import org.apache.kafka.clients.CommonClientConfigs;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.TopicPartition;
-import org.apache.kafka.common.serialization.StringDeserializer;
+import com.pegasus.kafka.service.record.KafkaRecordService;
 import org.apache.zookeeper.data.Stat;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -45,13 +40,15 @@ public class KafkaTopicService {
     private final SysLagService sysLagService;
     private final SysLogSizeService sysLogSizeService;
     private final KafkaConsumerService kafkaConsumerService;
+    private final KafkaRecordService kafkaRecordService;
 
-    public KafkaTopicService(KafkaService kafkaService, TopicRecordService topicRecordService, SysLagService sysLagService, @Lazy SysLogSizeService sysLogSizeService, KafkaConsumerService kafkaConsumerService) {
+    public KafkaTopicService(KafkaService kafkaService, TopicRecordService topicRecordService, SysLagService sysLagService, @Lazy SysLogSizeService sysLogSizeService, KafkaConsumerService kafkaConsumerService, KafkaRecordService kafkaRecordService) {
         this.kafkaService = kafkaService;
         this.topicRecordService = topicRecordService;
         this.sysLagService = sysLagService;
         this.sysLogSizeService = sysLogSizeService;
         this.kafkaConsumerService = kafkaConsumerService;
+        this.kafkaRecordService = kafkaRecordService;
     }
 
     @TranRead
@@ -199,11 +196,12 @@ public class KafkaTopicService {
                 throw new BusinessException(ResultCode.TOPIC_IS_RUNNING);
             }
         }
+        kafkaRecordService.uninstallTopic(topicName);
         kafkaService.deleteTopic(topicName);
         sysLagService.deleteTopic(topicName);
         sysLogSizeService.deleteTopic(topicName);
         topicRecordService.dropTable(topicName);
-        Thread.sleep(500);
+        Thread.sleep(1000);
     }
 
     public String listTopicSize(String topicName) throws Exception {
@@ -235,87 +233,13 @@ public class KafkaTopicService {
         return getLogsize(topicName, null);
     }
 
-    public List<KafkaTopicRecordInfo> listMessages(IPage page, String topicName, Integer partitionId, String key, Date from, Date to) throws Exception {
+    public List<KafkaTopicRecordInfo> listMessages(IPage page, String topicName, Integer partitionId, String key, Date from, Date to) {
         List<TopicRecord> topicRecordList = topicRecordService.listMessages(page, topicName, partitionId, key, from, to);
         List<KafkaTopicRecordInfo> result = new ArrayList<>(topicRecordList.size());
-
         for (TopicRecord topicRecord : topicRecordList) {
             result.add(topicRecord.toVo());
         }
-
-        if (result.size() < 1) {
-            result.addAll(getMessages(page, topicName, partitionId, key, from, to));
-            page.setTotal(getLogsize(topicName, partitionId.toString()));
-        }
         return result;
-    }
-
-    private List<KafkaTopicRecordInfo> getMessages(IPage page, String topicName, Integer partitionNum, String key, Date from, Date to) throws Exception {
-        final int SIZE = 1024;
-        List<KafkaTopicRecordInfo> result = new ArrayList<>(SIZE);
-        long pageNum = page.getPages();
-        long pageSize = page.getSize();
-        List<Integer> partitionNumList = new ArrayList<>();
-        if (partitionNum < 0) {
-            List<KafkaTopicPartitionInfo> topicDetails = this.listTopicDetails(topicName);
-            partitionNumList.addAll(topicDetails.stream().map(p -> Integer.parseInt(p.getPartitionId())).collect(Collectors.toList()));
-        } else {
-            partitionNumList.add(partitionNum);
-        }
-
-        Properties props = new Properties();
-        props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, kafkaService.getKafkaBrokerServer());
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, Constants.KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_LIST);
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getCanonicalName());
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getCanonicalName());
-
-        try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props)) {
-            List<TopicPartition> topics = new ArrayList<>(partitionNumList.size());
-            for (Integer partitionId : partitionNumList) {
-                TopicPartition tp = new TopicPartition(topicName, partitionId);
-                topics.add(tp);
-            }
-            consumer.assign(topics);
-
-            for (TopicPartition tp : topics) {
-                Map<TopicPartition, Long> offsets = consumer.endOffsets(Collections.singleton(tp));
-                long num = pageSize * pageNum;
-                if (offsets.get(tp) < num) {
-                    num = offsets.get(tp);
-                }
-                consumer.seek(tp, offsets.get(tp) - num);
-            }
-            while (true) {
-                ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
-                for (ConsumerRecord<String, String> record : records) {
-                    KafkaTopicRecordInfo kafkaMessageInfo = new KafkaTopicRecordInfo();
-                    kafkaMessageInfo.setTopicName(record.topic());
-                    kafkaMessageInfo.setPartitionId(String.valueOf(record.partition()));
-                    kafkaMessageInfo.setOffset(String.valueOf(record.offset()));
-                    kafkaMessageInfo.setKey(record.key());
-                    kafkaMessageInfo.setTimestamp(record.timestamp());
-                    kafkaMessageInfo.setCreateTime(Common.format(new Date(kafkaMessageInfo.getTimestamp())));
-                    kafkaMessageInfo.setValue(record.value());
-                    result.add(kafkaMessageInfo);
-                }
-                if (records.isEmpty() || result.size() >= SIZE) {
-                    break;
-                }
-            }
-        }
-        result.sort((o1, o2) -> (int) (o2.getTimestamp() - o1.getTimestamp()));
-
-        if (!StringUtils.isEmpty(key)) {
-            result = result.stream().filter(p -> key.equals(p.getKey())).collect(Collectors.toList());
-        }
-
-        if (from != null && to != null) {
-            result = result.stream().filter(p -> p.getTimestamp() >= from.getTime() && p.getTimestamp() <= to.getTime()).collect(Collectors.toList());
-        }
-
-        return result.stream()
-                .skip(pageSize * (pageNum - 1))
-                .limit(pageSize).collect(Collectors.toList());
     }
 
     public enum SearchType {

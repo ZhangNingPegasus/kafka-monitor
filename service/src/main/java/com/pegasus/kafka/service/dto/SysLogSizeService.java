@@ -14,8 +14,8 @@ import com.pegasus.kafka.entity.vo.OffsetInfo;
 import com.pegasus.kafka.mapper.SysLogSizeMapper;
 import com.pegasus.kafka.service.alert.AlertService;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
-import com.pegasus.kafka.service.kafka.KafkaRecordService;
 import com.pegasus.kafka.service.kafka.KafkaTopicService;
+import com.pegasus.kafka.service.record.KafkaTopicRecord;
 import lombok.Data;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
@@ -46,8 +46,8 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
 
     public Matrix kpi(Date now) throws Exception {
         Matrix result = new Matrix();
-        List<SysLag> sysLagList = new ArrayList<>(KafkaRecordService.BATCH_SIZE);
-        Map<String, Long> sysLogSizeMap = new HashMap<>(KafkaRecordService.BATCH_SIZE);
+        List<SysLag> sysLagList = new ArrayList<>(KafkaTopicRecord.BATCH_SIZE);
+        Map<String, Long> sysLogSizeMap = new HashMap<>(KafkaTopicRecord.BATCH_SIZE);
         List<KafkaConsumerInfo> kafkaConsumerInfos = kafkaConsumerService.listKafkaConsumers();
         for (KafkaConsumerInfo kafkaConsumerInfo : kafkaConsumerInfos) {
             Set<String> topicNames = kafkaConsumerInfo.getTopicNames();
@@ -79,7 +79,7 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
             }
         }
 
-        List<SysLogSize> sysLogSizeList = new ArrayList<>(KafkaRecordService.BATCH_SIZE);
+        List<SysLogSize> sysLogSizeList = new ArrayList<>(KafkaTopicRecord.BATCH_SIZE);
         if (sysLogSizeMap.size() > 0) {
             for (Map.Entry<String, Long> entry : sysLogSizeMap.entrySet()) {
                 SysLogSize sysLogSize = new SysLogSize();
