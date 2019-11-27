@@ -212,7 +212,7 @@
                     layer.open({
                         type: 2,
                         title: '编辑主题',
-                        content: 'toedit/' + data.topicName,
+                        content: 'toedit?topicName=' + data.topicName,
                         area: ['880px', '400px'],
                         btn: admin.BUTTONS,
                         resize: false,
@@ -264,7 +264,7 @@
                     shadeClose: true,
                     shade: 0.8,
                     area: ['90%', '90%'],
-                    content: 'todetail/' + topicName
+                    content: 'todetail?topicName=' + topicName
                 });
             }
         });

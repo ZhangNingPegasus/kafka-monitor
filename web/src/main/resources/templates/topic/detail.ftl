@@ -108,7 +108,7 @@
             const admin = layui.admin, table = layui.table, $ = layui.$;
             table.render({
                 elem: '#grid',
-                url: 'listTopicDetails/${topicName}',
+                url: 'listTopicDetails?topicName=${topicName}',
                 method: 'post',
                 cellMinWidth: 80,
                 page: false,
@@ -141,7 +141,7 @@
 
             table.render({
                 elem: '#gridMBean',
-                url: 'listTopicMBean?topicName=' + ${topicName},
+                url: 'listTopicMBean?topicName=${topicName}',
                 method: 'post',
                 cellMinWidth: 80,
                 page: false,
