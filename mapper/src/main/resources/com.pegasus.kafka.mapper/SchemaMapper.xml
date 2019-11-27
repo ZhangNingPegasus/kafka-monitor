@@ -4,7 +4,7 @@
 <mapper namespace="com.pegasus.kafka.mapper.SchemaMapper">
 
     <insert id="createDatabaseIfNotExists">
-        CREATE DATABASE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME} CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';
+        CREATE DATABASE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
         USE ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME};
     </insert>
 
