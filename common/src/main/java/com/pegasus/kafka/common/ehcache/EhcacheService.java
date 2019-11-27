@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class EhcacheService {
-    private static final int DEFAULT_LIVE_SECOND = 30 * 60;
+
     @Lazy
     private final CacheManager cacheManager;
 
@@ -31,8 +31,8 @@ public class EhcacheService {
         Element element = new Element(
                 key,
                 value,
-                0,
-                DEFAULT_LIVE_SECOND);
+                EhcacheConfig.IDLE_SECONDS,
+                EhcacheConfig.LIVE_SECONDS);
         cache.put(element);
     }
 
@@ -41,8 +41,8 @@ public class EhcacheService {
         Element element = new Element(
                 key,
                 value,
-                expiredInSeconds,
-                DEFAULT_LIVE_SECOND);
+                EhcacheConfig.IDLE_SECONDS,
+                expiredInSeconds);
         cache.put(element);
     }
 

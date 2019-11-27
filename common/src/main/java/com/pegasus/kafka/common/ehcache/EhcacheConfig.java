@@ -17,6 +17,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class EhcacheConfig {
+    public static final Integer IDLE_SECONDS = 30;
+    public static final Integer LIVE_SECONDS = 30;
 
     @Bean
     public CacheManager cacheManager() {
@@ -25,8 +27,8 @@ public class EhcacheConfig {
         config.setMaxEntriesLocalHeap(2000);
         config.setEternal(false);
         config.setMemoryStoreEvictionPolicy("LFU");
-        config.setTimeToIdleSeconds(30);
-        config.setTimeToLiveSeconds(30);
+        config.setTimeToIdleSeconds(IDLE_SECONDS);
+        config.setTimeToLiveSeconds(LIVE_SECONDS);
 
         Configuration configuration = new Configuration();
         configuration.addCache(config);
