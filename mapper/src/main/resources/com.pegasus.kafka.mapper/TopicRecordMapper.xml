@@ -97,7 +97,7 @@
             AND `timestamp` &gt;= #{from}
             AND `timestamp` &lt;= #{to}
         </if>
-        ORDER BY `timestamp` DESC
+        ORDER BY `timestamp` DESC, `offset` DESC
     </select>
 
     <select id="findRecord" resultType="com.pegasus.kafka.entity.dto.TopicRecord">

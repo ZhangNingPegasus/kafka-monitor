@@ -55,8 +55,8 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
             topicRecordValue.setValue(value);
             topicRecordValueList.add(topicRecordValue);
 
-            if (value.length() > 128) {
-                value = value.substring(0, 128).concat("... ...");
+            if (value.length() > 125) {
+                value = value.substring(0, 125).concat("...");
                 topicRecord.setValue(value);
             }
         }

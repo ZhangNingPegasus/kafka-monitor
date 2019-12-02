@@ -111,10 +111,10 @@
                     none: '暂无相关数据'
                 },
                 cols: [[
-                    {type: 'numbers', title: '序号', width: 50},
-                    {field: 'partitionId', title: '分区号', width: 80},
-                    {field: 'offset', title: '偏移量', width: 100},
-                    {field: 'key', title: '消息Key', width: 150},
+                    {type: 'numbers', title: '序号', width: 80},
+                    {field: 'partitionId', title: '分区号', width: 120},
+                    {field: 'offset', title: '偏移量', width: 120},
+                    {field: 'key', title: '消息Key', width: 220},
                     {field: 'createTime', title: '消息时间', width: 180},
                     {field: 'value', title: '消息体'},
                     {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 285}
