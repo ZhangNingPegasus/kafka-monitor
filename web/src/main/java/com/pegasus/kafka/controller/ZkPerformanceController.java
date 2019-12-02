@@ -20,6 +20,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.pegasus.kafka.controller.ZkPerformanceController.PREFIX;
+
 /**
  * The controller for showing the performance of zookeeper.
  * <p>
@@ -29,9 +31,9 @@ import java.util.stream.Collectors;
  * *****************************************************************
  */
 @Controller
-@RequestMapping("zkperformance")
+@RequestMapping(PREFIX)
 public class ZkPerformanceController {
-
+    public static final String PREFIX = "zkperformance";
     private static final List<Integer> ZK_KPI;
 
     static {
@@ -51,7 +53,7 @@ public class ZkPerformanceController {
 
     @RequestMapping("tolist")
     public String toList() {
-        return "zkperformance/list";
+        return String.format("%s/list", PREFIX);
     }
 
     @PostMapping("getChart")

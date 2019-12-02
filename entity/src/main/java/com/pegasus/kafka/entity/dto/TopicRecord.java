@@ -21,7 +21,7 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = false)
 @Data
 public class TopicRecord extends BaseDto {
-    @TableField(value = "topic_name")
+    @TableField(exist = false)
     private String topicName;
 
     @TableField(value = "partition_id")

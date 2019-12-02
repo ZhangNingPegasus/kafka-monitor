@@ -9,11 +9,16 @@ import com.pegasus.kafka.entity.vo.OffsetInfo;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.pegasus.kafka.controller.ConsumerController.PREFIX;
 
 /**
  * The controller for providing the ability of consumer.
@@ -24,9 +29,9 @@ import java.util.List;
  * *****************************************************************
  */
 @Controller
-@RequestMapping("consumer")
+@RequestMapping(PREFIX)
 public class ConsumerController {
-
+    public static final String PREFIX = "consumer";
     private final KafkaConsumerService kafkaConsumerService;
 
     public ConsumerController(KafkaConsumerService kafkaConsumerService) {
@@ -35,14 +40,15 @@ public class ConsumerController {
 
     @RequestMapping("tolist")
     public String toList() {
-        return "consumer/list";
+        return String.format("%s/list", PREFIX);
     }
 
-    @RequestMapping("todetail/{groupId}")
-    public String toDetail(Model model, @PathVariable(name = "groupId", required = true) String groupId) {
+    @RequestMapping("todetail")
+    public String toDetail(Model model,
+                           @RequestParam(name = "groupId", required = true) String groupId) {
         groupId = groupId.trim();
         model.addAttribute("groupId", groupId);
-        return "consumer/detail";
+        return String.format("%s/detail", PREFIX);
     }
 
     @PostMapping("list")
@@ -103,9 +109,9 @@ public class ConsumerController {
         }
     }
 
-    @PostMapping("todetail/listConsumerDetails/{groupId}")
+    @PostMapping("listConsumerDetails")
     @ResponseBody
-    public Result<List<KafkaTopicInfo>> listConsumerDetails(@PathVariable(required = true, name = "groupId") String groupId) throws Exception {
+    public Result<List<KafkaTopicInfo>> listConsumerDetails(@RequestParam(required = true, name = "groupId") String groupId) throws Exception {
         groupId = groupId.trim();
         List<KafkaTopicInfo> result = new ArrayList<>();
         List<KafkaConsumerInfo> kafkaConsumerInfos = kafkaConsumerService.listKafkaConsumers(groupId);
@@ -148,10 +154,10 @@ public class ConsumerController {
         return Result.success(result);
     }
 
-    @PostMapping("todetail/listOffsetInfo/{groupId}/{topicName}")
+    @PostMapping("listOffsetInfo")
     @ResponseBody
-    public Result<List<OffsetInfo>> listOffsetInfo(@PathVariable(required = true, name = "groupId") String groupId,
-                                                   @PathVariable(required = true, name = "topicName") String topicName) {
+    public Result<List<OffsetInfo>> listOffsetInfo(@RequestParam(required = true, name = "groupId") String groupId,
+                                                   @RequestParam(required = true, name = "topicName") String topicName) {
         groupId = groupId.trim();
         topicName = topicName.trim();
         try {

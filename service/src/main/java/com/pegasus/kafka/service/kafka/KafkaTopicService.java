@@ -162,11 +162,14 @@ public class KafkaTopicService {
         return result;
     }
 
-    public void add(String topicName, Integer partitionNumber, Integer replicationNumber) {
+    public void add(String topicName, Integer partitionNumber, Integer replicationNumber) throws Exception {
         try {
             kafkaService.createTopics(topicName, partitionNumber, replicationNumber);
         } catch (Exception e) {
-            throw new BusinessException(ResultCode.TOPIC_ALREADY_EXISTS);
+            if (e.getMessage().contains("already exists.")) {
+                throw new BusinessException(ResultCode.TOPIC_ALREADY_EXISTS);
+            }
+            throw e;
         }
     }
 
@@ -234,7 +237,7 @@ public class KafkaTopicService {
     }
 
     public List<KafkaTopicRecordInfo> listMessages(IPage page, String topicName, Integer partitionId, String key, Date from, Date to) {
-        List<TopicRecord> topicRecordList = topicRecordService.listMessages(page, topicName, partitionId, key, from, to);
+        List<TopicRecord> topicRecordList = topicRecordService.listRecords(page, topicName, partitionId, key, from, to);
         List<KafkaTopicRecordInfo> result = new ArrayList<>(topicRecordList.size());
         for (TopicRecord topicRecord : topicRecordList) {
             result.add(topicRecord.toVo());

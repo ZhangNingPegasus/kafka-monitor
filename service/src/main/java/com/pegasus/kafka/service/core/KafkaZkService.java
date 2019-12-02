@@ -197,16 +197,16 @@ public class KafkaZkService implements InitializingBean, DisposableBean {
                 ZooKeeperKpiUtils.ZooKeeperKpi zooKeeperKpi = ZooKeeperKpiUtils.listKpi(ip, Integer.parseInt(port));
                 switch (kpi) {
                     case ZK_PACKETS_RECEIVED:
-                        sysKpi.setValue(Common.numberic((sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + Double.parseDouble(zooKeeperKpi.getZkPacketsReceived())));
+                        sysKpi.setValue(Common.numberic((sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + Double.parseDouble(zooKeeperKpi.getZkPacketsReceived() == null ? "0" : zooKeeperKpi.getZkPacketsReceived())));
                         break;
                     case ZK_PACKETS_SENT:
-                        sysKpi.setValue(Common.numberic((sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + Double.parseDouble(zooKeeperKpi.getZkPacketsSent())));
+                        sysKpi.setValue(Common.numberic((sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + Double.parseDouble(zooKeeperKpi.getZkPacketsSent() == null ? "0" : zooKeeperKpi.getZkPacketsSent())));
                         break;
                     case ZK_NUM_ALIVE_CONNECTIONS:
-                        sysKpi.setValue(Common.numberic((sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + Double.parseDouble(zooKeeperKpi.getZkNumAliveConnections())));
+                        sysKpi.setValue(Common.numberic((sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + Double.parseDouble(zooKeeperKpi.getZkNumAliveConnections() == null ? "0" : zooKeeperKpi.getZkNumAliveConnections())));
                         break;
                     case ZK_OUTSTANDING_REQUESTS:
-                        sysKpi.setValue(Common.numberic((sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + Double.parseDouble(zooKeeperKpi.getZkOutstandingRequests())));
+                        sysKpi.setValue(Common.numberic((sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + Double.parseDouble(zooKeeperKpi.getZkOutstandingRequests() == null ? "0" : zooKeeperKpi.getZkOutstandingRequests())));
                         break;
                     default:
                         break;

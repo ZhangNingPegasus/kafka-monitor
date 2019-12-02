@@ -17,6 +17,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.pegasus.kafka.controller.AlertConsumerController.PREFIX;
+
 /**
  * The controller for providing the ability of alert for consumer.
  * <p>
@@ -26,9 +28,9 @@ import java.util.stream.Collectors;
  * *****************************************************************
  */
 @Controller
-@RequestMapping("alertconsume")
+@RequestMapping(PREFIX)
 public class AlertConsumerController {
-
+    public static final String PREFIX = "alertconsumer";
     private final SysAlertConsumerService sysAlertConsumerService;
     private final KafkaConsumerService kafkaConsumerService;
     private final KafkaTopicService kafkaTopicService;
@@ -42,14 +44,14 @@ public class AlertConsumerController {
 
     @RequestMapping("tolist")
     public String toList() {
-        return "alertconsumer/list";
+        return String.format("%s/list", PREFIX);
     }
 
     @RequestMapping("toadd")
     public String toAdd(Model model) throws Exception {
         List<KafkaConsumerInfo> kafkaConsumerInfoList = kafkaConsumerService.listKafkaConsumers();
         model.addAttribute("consumers", kafkaConsumerInfoList);
-        return "alertconsumer/add";
+        return String.format("%s/add", PREFIX);
     }
 
     @RequestMapping("toedit/{id}")
@@ -61,7 +63,7 @@ public class AlertConsumerController {
         model.addAttribute("consumers", kafkaConsumerInfoList);
         model.addAttribute("item", sysAlertConsumer);
         model.addAttribute("topics", listTopics(sysAlertConsumer.getGroupId()).getData());
-        return "alertconsumer/edit";
+        return String.format("%s/edit", PREFIX);
     }
 
     @PostMapping("list")

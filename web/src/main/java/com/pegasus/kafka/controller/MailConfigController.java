@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
+import static com.pegasus.kafka.controller.MailConfigController.PREFIX;
+
 /**
  * The controller for providing the UI used for setting the emails' configuration.
  * <p>
@@ -22,8 +24,9 @@ import java.util.List;
  * *****************************************************************
  */
 @Controller
-@RequestMapping("mailconfig")
+@RequestMapping(PREFIX)
 public class MailConfigController {
+    public static final String PREFIX = "mailconfig";
     private final SysMailConfigService sysMailConfigService;
     private final MailService mailService;
 
@@ -41,12 +44,12 @@ public class MailConfigController {
         } else {
             model.addAttribute("config", new SysMailConfig());
         }
-        return "mailconfig/list";
+        return String.format("%s/list", PREFIX);
     }
 
     @RequestMapping("totest")
     public String toTest() {
-        return "mailconfig/test";
+        return String.format("%s/test", PREFIX);
     }
 
     @PostMapping("save")

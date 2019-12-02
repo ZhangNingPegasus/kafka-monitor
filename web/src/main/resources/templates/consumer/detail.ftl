@@ -104,7 +104,7 @@
             const table = layui.table, $ = layui.$;
             table.render({
                 elem: '#grid',
-                url: 'listConsumerDetails/${groupId}',
+                url: 'listConsumerDetails?groupId=${groupId}',
                 method: 'post',
                 cellMinWidth: 80,
                 page: false,
@@ -139,7 +139,7 @@
             function showOffsetDetails(topicName) {
                 table.render({
                     elem: '#gridOffset',
-                    url: 'listOffsetInfo/${groupId}/' + topicName,
+                    url: 'listOffsetInfo?groupId=${groupId}&topicName=' + topicName,
                     method: 'post',
                     cellMinWidth: 80,
                     page: false,

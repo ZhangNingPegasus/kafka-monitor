@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.pegasus.kafka.controller.AlertClusterController.PREFIX;
+
+
 /**
  * The controller for providing the ability of alert for cluster.
  * <p>
@@ -20,8 +23,9 @@ import java.util.List;
  * *****************************************************************
  */
 @Controller
-@RequestMapping("alertcluster")
+@RequestMapping(PREFIX)
 public class AlertClusterController {
+    public static final String PREFIX = "alertcluster";
     private final SysAlertClusterService sysAlertClusterService;
 
     public AlertClusterController(SysAlertClusterService sysAlertClusterService) {
@@ -30,13 +34,13 @@ public class AlertClusterController {
 
     @RequestMapping("tolist")
     public String toList() {
-        return "alertcluster/list";
+        return String.format("%s/list", PREFIX);
     }
 
     @RequestMapping("toadd")
     public String toAdd(Model model) {
         model.addAttribute("type", SysAlertCluster.Type.values());
-        return "alertcluster/add";
+        return String.format("%s/add", PREFIX);
     }
 
     @RequestMapping("toedit/{id}")
@@ -45,7 +49,7 @@ public class AlertClusterController {
         SysAlertCluster sysAlertCluster = sysAlertClusterService.getById(id);
         model.addAttribute("item", sysAlertCluster);
         model.addAttribute("type", SysAlertCluster.Type.values());
-        return "alertcluster/edit";
+        return String.format("%s/edit", PREFIX);
     }
 
     @PostMapping("list")

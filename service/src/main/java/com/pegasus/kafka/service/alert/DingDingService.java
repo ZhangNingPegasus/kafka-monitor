@@ -37,12 +37,12 @@ public class DingDingService {
         this.sysDingDingConfigService = sysDingDingConfigService;
     }
 
-    public void send(DingDingMessage message) throws Exception {
+    public String send(DingDingMessage message) throws Exception {
 
         SysDingDingConfig sysDingDingConfig = sysDingDingConfigService.get();
 
         if (sysDingDingConfig == null) {
-            return;
+            return "";
         }
 
         Long timestamp = System.currentTimeMillis();
@@ -62,11 +62,12 @@ public class DingDingService {
             HttpResponse response = httpclient.execute(httppost);
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 String result = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-                System.out.println(result);
+                return result;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return "";
     }
 
 

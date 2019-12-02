@@ -103,7 +103,7 @@
                                 <cite>警告设置</cite>
                             </a>
                             <dl class="layui-nav-child">
-                                <dd><a lay-href="${ctx}/alertconsume/tolist">
+                                <dd><a lay-href="${ctx}/alertconsumer/tolist">
                                         消费组设置</a></dd>
                                 <dd><a lay-href="${ctx}/alertcluster/tolist">
                                         集群主机设置</a></dd>

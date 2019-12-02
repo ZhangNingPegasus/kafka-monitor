@@ -20,6 +20,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.pegasus.kafka.controller.KafkaPerformanceController.PREFIX;
+
 /**
  * The controller for showing the performance of kafka's information.
  * <p>
@@ -29,9 +31,9 @@ import java.util.stream.Collectors;
  * *****************************************************************
  */
 @Controller
-@RequestMapping("kafkaperformance")
+@RequestMapping(PREFIX)
 public class KafkaPerformanceController {
-
+    public static final String PREFIX = "kafkaperformance";
     private static final List<Integer> KAFKA_KPI;
 
     static {
@@ -51,7 +53,7 @@ public class KafkaPerformanceController {
 
     @RequestMapping("tolist")
     public String toList() {
-        return "kafkaperformance/list";
+        return String.format("%s/list", PREFIX);
     }
 
     @PostMapping("getChart")

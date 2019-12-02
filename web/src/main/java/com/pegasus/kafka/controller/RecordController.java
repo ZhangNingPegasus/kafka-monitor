@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.response.Result;
 import com.pegasus.kafka.common.utils.Common;
-import com.pegasus.kafka.entity.dto.TopicRecord;
 import com.pegasus.kafka.entity.vo.*;
 import com.pegasus.kafka.service.dto.TopicRecordService;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
@@ -24,6 +23,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.pegasus.kafka.controller.RecordController.PREFIX;
+
 /**
  * The controller for providing the trace ability for topics' records.
  * <p>
@@ -33,8 +34,9 @@ import java.util.stream.Collectors;
  * *****************************************************************
  */
 @Controller
-@RequestMapping("record")
+@RequestMapping(PREFIX)
 public class RecordController {
+    public static final String PREFIX = "record";
     private final TopicRecordService topicRecordService;
     private final KafkaTopicService kafkaTopicService;
     private final KafkaConsumerService kafkaConsumerService;
@@ -49,18 +51,35 @@ public class RecordController {
     public String toList(Model model) throws Exception {
         List<KafkaTopicInfo> kafkaTopicInfoList = kafkaTopicService.listTopics(false, false, false, false, false);
         model.addAttribute("topics", kafkaTopicInfoList);
-        return "record/list";
+        return String.format("%s/list", PREFIX);
     }
 
-    @RequestMapping("todetail")
-    public String toDetail(Model model,
-                           @RequestParam(value = "topicName", required = true) String topicName,
-                           @RequestParam(value = "partitionId", required = true) Integer partitionId,
-                           @RequestParam(value = "offset", required = true) Long offset,
-                           @RequestParam(value = "key", required = true) String key) {
-        TopicRecord topicRecord = topicRecordService.findMessage(topicName, partitionId, offset, key);
-        model.addAttribute("record", topicRecord.toVo());
-        return "record/detail";
+    @RequestMapping("tomsgdetail")
+    public String toMsgDetail(Model model,
+                              @RequestParam(value = "topicName", required = true) String topicName,
+                              @RequestParam(value = "partitionId", required = true) Integer partitionId,
+                              @RequestParam(value = "offset", required = true) Long offset,
+                              @RequestParam(value = "key", required = true) String key,
+                              @RequestParam(value = "createTime", required = true) Date createTime) {
+        String recordValue = topicRecordService.findRecordValue(topicName, partitionId, offset);
+        model.addAttribute("topicName", topicName);
+        model.addAttribute("partitionId", partitionId);
+        model.addAttribute("offset", offset);
+        model.addAttribute("key", key);
+        model.addAttribute("createTime", Common.format(createTime));
+        model.addAttribute("value", recordValue);
+        return String.format("%s/msgdetail", PREFIX);
+    }
+
+    @RequestMapping("toconsumerdetail")
+    public String toConsumerDetail(Model model,
+                                   @RequestParam(name = "topicName", required = true, defaultValue = "") String topicName,
+                                   @RequestParam(name = "partitionId", required = false) Integer partitionId,
+                                   @RequestParam(name = "offset", required = false, defaultValue = "") Long offset) {
+        model.addAttribute("topicName", topicName);
+        model.addAttribute("partitionId", partitionId);
+        model.addAttribute("offset", offset);
+        return String.format("%s/consumerdetail", PREFIX);
     }
 
     @PostMapping("listTopicPartitions")

@@ -211,7 +211,7 @@
                 } else if (obj.event === 'edit') {
                     layer.open({
                         type: 2,
-                        title: '编辑主题',
+                        title: '<i class="layui-icon layui-icon-edit" style="color: #1E9FFF;"></i>&nbsp;编辑主题',
                         content: 'toedit?topicName=' + data.topicName,
                         area: ['880px', '400px'],
                         btn: admin.BUTTONS,
@@ -234,7 +234,7 @@
                 } else if (obj.event === 'sendMsg') {
                     layer.open({
                         type: 2,
-                        title: '发送消息, 主题名称: ' + data.topicName,
+                        title: '<i class="layui-icon layui-icon-dialogue" style="color: #1E9FFF;"></i>&nbsp;发送消息, 主题名称: ' + data.topicName,
                         content: 'tosendmsg?topicName=' + data.topicName,
                         area: ['880px', '400px'],
                         btn: admin.BUTTONS,

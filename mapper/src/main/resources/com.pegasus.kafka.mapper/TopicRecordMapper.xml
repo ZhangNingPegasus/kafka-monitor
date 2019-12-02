@@ -5,7 +5,6 @@
     <insert id="batchSave">
         INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}`
         (
-        `topic_name`,
         `partition_id`,
         `offset`,
         `key`,
@@ -15,7 +14,6 @@
         VALUES
         <foreach collection="topicRecords" item="item" separator=",">
             (
-            #{item.topicName},
             #{item.partitionId},
             #{item.offset},
             #{item.key},
@@ -25,34 +23,66 @@
         </foreach>
     </insert>
 
-    <update id="createTableIfNotExists">
-        <foreach collection="tableNames" item="tableName">
-            SET NAMES utf8mb4;
-            SET FOREIGN_KEY_CHECKS = 0;
-            CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}` (
-            `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
-            `topic_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT
-            '主题名称',
-            `partition_id` int(11) UNSIGNED NOT NULL COMMENT '分区id号',
-            `offset` bigint(20) UNSIGNED NOT NULL COMMENT '消息偏移量',
-            `key` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '消息键值',
-            `value` varchar(10000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '消息体',
-            `timestamp` datetime(0) NOT NULL COMMENT '消息时间',
-            `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
-            PRIMARY KEY (`id`) USING BTREE,
-            UNIQUE INDEX `idx_topic_partition_id_offset`(`partition_id`, `offset`) USING BTREE,
-            INDEX `idx_topic_key`(`key`) USING BTREE,
-            INDEX `idx_topic_timestamp`(`timestamp`) USING BTREE
-            ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
-            SET FOREIGN_KEY_CHECKS = 1;
+    <insert id="batchSaveRecord">
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${recordTableName}`
+        (
+        `partition_id`,
+        `offset`,
+        `value`
+        )
+        VALUES
+        <foreach collection="topicRecordValues" item="item" separator=",">
+            (
+            #{item.partitionId},
+            #{item.offset},
+            #{item.value}
+            )
         </foreach>
+    </insert>
+
+    <update id="createTableIfNotExists">
+         SET NAMES utf8mb4;
+         SET FOREIGN_KEY_CHECKS = 0;
+
+         CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}` (
+         `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+         `partition_id` int(11) UNSIGNED NOT NULL COMMENT '分区号',
+         `offset` bigint(20) UNSIGNED NOT NULL COMMENT '消息在该分区号下的偏移量',
+         `key` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '消息键值',
+         `value` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '消息体的缩微样本',
+         `timestamp` datetime(0) NOT NULL COMMENT '消息时间',
+         `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
+         PRIMARY KEY (`id`) USING BTREE,
+         UNIQUE INDEX `idx_topic_partition_id_offset`(`partition_id`, `offset`) USING BTREE,
+         INDEX `idx_topic_key`(`key`) USING BTREE,
+         INDEX `idx_topic_timestamp`(`timestamp`) USING BTREE
+         ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+        SET FOREIGN_KEY_CHECKS = 1;
+    </update>
+
+    <update id="createRecordTableIfNotExists">
+         SET NAMES utf8mb4;
+         SET FOREIGN_KEY_CHECKS = 0;
+
+        CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${recordTableName}` (
+          `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+          `partition_id` int(11) UNSIGNED NOT NULL COMMENT '分区id号',
+          `offset` bigint(20) UNSIGNED NOT NULL COMMENT '消息偏移量',
+          `value` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '消息体',
+          `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
+          PRIMARY KEY (`id`) USING BTREE,
+          UNIQUE INDEX `idx_topic_record_partition_id_offset`(`partition_id`, `offset`) USING BTREE
+        ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+        SET FOREIGN_KEY_CHECKS = 1;
     </update>
 
     <delete id="dropTable">
         DROP TABLE IF EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}`;
     </delete>
 
-    <select id="listMessages" resultType="com.pegasus.kafka.entity.dto.TopicRecord">
+    <select id="listRecords" resultType="com.pegasus.kafka.entity.dto.TopicRecord">
         SELECT
         *
         FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}`
@@ -70,12 +100,20 @@
         ORDER BY `timestamp` DESC
     </select>
 
-    <select id="findMessage" resultType="com.pegasus.kafka.entity.dto.TopicRecord">
+    <select id="findRecord" resultType="com.pegasus.kafka.entity.dto.TopicRecord">
         SELECT
         *
         FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}`
         WHERE `partition_id` = #{partitionId}
         AND   `offset` = #{offset}
         AND   `key` = #{key}
+    </select>
+
+    <select id="findRecordValue" resultType="java.lang.String">
+        SELECT
+        `value`
+        FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}`
+        WHERE `partition_id` = #{partitionId}
+        AND   `offset` = #{offset}
     </select>
 </mapper>

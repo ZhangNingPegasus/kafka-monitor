@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.pegasus.kafka.controller.TopicController.PREFIX;
+
 /**
  * The controller for providing the ability of creating, modifying and deleting the topics.
  * <p>
@@ -27,9 +29,9 @@ import java.util.stream.Collectors;
  * *****************************************************************
  */
 @Controller
-@RequestMapping("topic")
+@RequestMapping(PREFIX)
 public class TopicController {
-
+    public static final String PREFIX = "topic";
     private final KafkaTopicService kafkaTopicService;
     private final KafkaBrokerService kafkaBrokerService;
 
@@ -41,7 +43,7 @@ public class TopicController {
 
     @RequestMapping("tolist")
     public String toList() {
-        return "topic/list";
+        return String.format("%s/list", PREFIX);
     }
 
     @RequestMapping("toadd")
@@ -52,7 +54,7 @@ public class TopicController {
         } catch (Exception ignored) {
         }
         model.addAttribute("brokerSize", brokerSize);
-        return "topic/add";
+        return String.format("%s/add", PREFIX);
     }
 
     @RequestMapping("toedit")
@@ -71,21 +73,21 @@ public class TopicController {
             model.addAttribute("topicName", topicName);
             model.addAttribute("partitionNum", topicVo.getPartitionNum());
         }
-        return "topic/edit";
+        return String.format("%s/edit", PREFIX);
     }
 
     @RequestMapping("todetail")
     public String toDetail(Model model, @RequestParam(name = "topicName", required = true) String topicName) {
         topicName = topicName.trim();
         model.addAttribute("topicName", topicName.trim());
-        return "topic/detail";
+        return String.format("%s/detail", PREFIX);
     }
 
     @RequestMapping("tosendmsg")
     public String toSendMsg(Model model,
                             @RequestParam(name = "topicName", required = true) String topicName) {
         model.addAttribute("topicName", topicName.trim());
-        return "topic/sendmsg";
+        return String.format("%s/sendmsg", PREFIX);
     }
 
     @PostMapping("list")
@@ -133,7 +135,7 @@ public class TopicController {
     @ResponseBody
     public Result<?> add(@RequestParam(name = "topicName", required = true) String topicName,
                          @RequestParam(name = "partitionNumber", required = true) Integer partitionNumber,
-                         @RequestParam(name = "replicationNumber", required = true) Integer replicationNumber) {
+                         @RequestParam(name = "replicationNumber", required = true) Integer replicationNumber) throws Exception {
         kafkaTopicService.add(topicName.trim(), partitionNumber, replicationNumber);
         return Result.success();
     }

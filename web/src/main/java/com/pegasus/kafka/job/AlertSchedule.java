@@ -69,9 +69,12 @@ public class AlertSchedule {
         }
     }
 
-    @Scheduled(cron = "0 0/1 * * * ?") //每秒执行一次
+    @Scheduled(cron = "0/30 * * * * ?") //每30秒执行一次
     public void checkCluster() throws Exception {
         List<SysAlertCluster> list = sysAlertClusterService.list();
+        if (list == null || list.size() < 1) {
+            return;
+        }
         List<KafkaBrokerInfo> kafkaBrokerInfoList = kafkaBrokerService.listAllBrokers();
         List<SysAlertCluster> zooKeepers = list.stream().filter(p -> p.getType().equals(SysAlertCluster.Type.ZOOKEEPER.getCode())).collect(Collectors.toList());
         List<SysAlertCluster> kafkas = list.stream().filter(p -> p.getType().equals(SysAlertCluster.Type.KAFKA.getCode())).collect(Collectors.toList());

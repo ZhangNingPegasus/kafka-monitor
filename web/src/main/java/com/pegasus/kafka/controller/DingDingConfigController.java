@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static com.pegasus.kafka.controller.DingDingConfigController.PREFIX;
+
 /**
  * The controller for providing a UI for setting the dingding's configuration.
  * <p>
@@ -27,8 +29,9 @@ import java.util.List;
  * *****************************************************************
  */
 @Controller
-@RequestMapping("dingdingconfig")
+@RequestMapping(PREFIX)
 public class DingDingConfigController {
+    public static final String PREFIX = "dingdingconfig";
     private final SysDingDingConfigService sysDingDingConfigService;
     private final DingDingService dingDingService;
 
@@ -46,12 +49,12 @@ public class DingDingConfigController {
         } else {
             model.addAttribute("config", new SysDingDingConfig());
         }
-        return "dingdingconfig/list";
+        return String.format("%s/list", PREFIX);
     }
 
     @RequestMapping("totest")
     public String toTest() {
-        return "dingdingconfig/test";
+        return String.format("%s/test", PREFIX);
     }
 
     @PostMapping("save")

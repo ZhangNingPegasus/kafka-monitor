@@ -28,6 +28,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.pegasus.kafka.controller.DashboardController.PREFIX;
+
 /**
  * The controller for providing the ability of dashboard.
  * <p>
@@ -37,8 +39,9 @@ import java.util.stream.Collectors;
  * *****************************************************************
  */
 @Controller
-@RequestMapping("dashboard")
+@RequestMapping(PREFIX)
 public class DashboardController {
+    public static final String PREFIX = "dashboard";
     private final KafkaConsumerService kafkaConsumerService;
     private final KafkaTopicService kafkaTopicService;
     private final SysLagService sysLagService;
@@ -57,7 +60,7 @@ public class DashboardController {
     public String index(Model model) throws Exception {
         model.addAttribute("consumers", kafkaConsumerService.listKafkaConsumers());
         model.addAttribute("topics", kafkaTopicService.listTopics(false, false, false, false, false));
-        return "dashboard/index";
+        return String.format("%s/index", PREFIX);
     }
 
     @PostMapping("getTopicChart")

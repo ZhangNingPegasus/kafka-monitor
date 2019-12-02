@@ -52,8 +52,10 @@
                 <script type="text/html" id="grid-bar">
                     <a class="layui-btn layui-btn-xs" lay-event="sendMsg"><i
                                 class="layui-icon layui-icon-dialogue"></i>重发消息</a>
-                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="showDetails"><i
+                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="showMsgDetails"><i
                                 class="layui-icon layui-icon-login-wechat" style="color:white"></i>消息详情</a>
+                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="showConsumerDetails"><i
+                                class="layui-icon layui-icon-user" style="color:white"></i>消费详情</a>
                 </script>
             </div>
         </div>
@@ -62,7 +64,7 @@
     <script>
         layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table', 'laydate'], function () {
             const admin = layui.admin, laydate = layui.laydate, $ = layui.$, form = layui.form, table = layui.table;
-
+            let topicName = '';
             laydate.render({elem: '#createTimeRange', type: 'datetime', range: true});
 
             const now = new Date();
@@ -74,6 +76,7 @@
             $("#createTimeRange").val(from + ' - ' + to);
 
             form.on('select(topicName)', function (data) {
+                topicName = data.value;
                 $("select[name=partitionId]").html("<option value=\"-1\">所有分区</option>");
                 form.render('select');
                 if ($.trim(data.value) === '') {
@@ -109,13 +112,12 @@
                 },
                 cols: [[
                     {type: 'numbers', title: '序号', width: 50},
-                    {field: 'topicName', title: '主题名称', width: 180},
                     {field: 'partitionId', title: '分区号', width: 80},
                     {field: 'offset', title: '偏移量', width: 100},
                     {field: 'key', title: '消息Key', width: 150},
-                    {field: 'createTime', title: '创建时间', width: 180},
+                    {field: 'createTime', title: '消息时间', width: 180},
                     {field: 'value', title: '消息体'},
-                    {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 195}
+                    {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 285}
                 ]]
             });
 
@@ -130,14 +132,24 @@
                             admin.error(admin.OPT_FAILURE, result.error);
                         });
                     });
-                } else if (obj.event === 'showDetails') {
+                } else if (obj.event === 'showMsgDetails') {
                     if (!data.key) {
                         data.key = "";
                     }
+                    data.topicName = topicName;
                     layer.open({
                         type: 2,
-                        title: '消息详情',
-                        content: 'todetail?topicName=' + data.topicName + '&partitionId=' + data.partitionId + '&offset=' + data.offset + '&key=' + data.key,
+                        title: '<i class="layui-icon layui-icon-login-wechat" style="color: #1E9FFF;"></i>&nbsp;消息详情',
+                        content: 'tomsgdetail?topicName=' + data.topicName + '&partitionId=' + data.partitionId + '&offset=' + data.offset + '&key=' + data.key + '&createTime=' + data.createTime,
+                        shadeClose: true,
+                        shade: 0.8,
+                        area: ['880px', '820px']
+                    });
+                } else if (obj.event === 'showConsumerDetails') {
+                    layer.open({
+                        type: 2,
+                        title: '<i class="layui-icon layui-icon-user" style="color: #1E9FFF;"></i>&nbsp;消费详情',
+                        content: 'toconsumerdetail?topicName=' + data.topicName + '&partitionId=' + data.partitionId + '&offset=' + data.offset,
                         shadeClose: true,
                         shade: 0.8,
                         area: ['880px', '820px']

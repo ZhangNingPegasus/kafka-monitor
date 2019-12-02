@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.pegasus.kafka.controller.ZkCliController.PREFIX;
+
 /**
  * The controller for providing the zookeeper's client.
  * <p>
@@ -23,9 +25,9 @@ import java.util.stream.Collectors;
  * *****************************************************************
  */
 @Controller
-@RequestMapping("zkCli")
+@RequestMapping(PREFIX)
 public class ZkCliController {
-
+    public static final String PREFIX = "zkCli";
     private final KafkaZkService kafkaZkService;
 
     public ZkCliController(KafkaZkService kafkaZkService) {
@@ -34,7 +36,7 @@ public class ZkCliController {
 
     @RequestMapping("tolist")
     public String toList() {
-        return "zkCli/list";
+        return String.format("%s/list", PREFIX);
     }
 
     @PostMapping("zkInfo")
@@ -59,7 +61,11 @@ public class ZkCliController {
     @ResponseBody
     public Result<String> execute(@RequestParam(name = "command", required = true) String command,
                                   @RequestParam(name = "type", required = true) String type) throws Exception {
-        return Result.success(kafkaZkService.execute(command, type));
+        try {
+            return Result.success(kafkaZkService.execute(command, type));
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
     }
 
 }

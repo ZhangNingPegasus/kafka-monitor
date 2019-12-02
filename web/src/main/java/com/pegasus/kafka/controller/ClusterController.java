@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.pegasus.kafka.controller.ClusterController.PREFIX;
+
 /**
  * The controller for providing the ability of cluster.
  * <p>
@@ -23,8 +25,9 @@ import java.util.List;
  * *****************************************************************
  */
 @Controller
-@RequestMapping("cluster")
+@RequestMapping(PREFIX)
 public class ClusterController {
+    public static final String PREFIX = "cluster";
     private final KafkaBrokerService kafkaClusterService;
     private final KafkaZkService kafkaZkService;
 
@@ -35,7 +38,7 @@ public class ClusterController {
 
     @RequestMapping("tolist")
     public String toList() {
-        return "cluster/list";
+        return String.format("%s/list", PREFIX);
     }
 
     @PostMapping("list")

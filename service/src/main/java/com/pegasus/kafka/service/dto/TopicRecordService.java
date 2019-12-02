@@ -5,10 +5,15 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pegasus.kafka.common.annotation.TranRead;
 import com.pegasus.kafka.common.annotation.TranSave;
 import com.pegasus.kafka.entity.dto.TopicRecord;
+import com.pegasus.kafka.entity.dto.TopicRecordValue;
 import com.pegasus.kafka.mapper.TopicRecordMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  * The service for dynamic table. Saving topics' records.
@@ -30,50 +35,87 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
     @TranSave
     public void batchSave(String topicName, List<TopicRecord> topicRecordList) {
         String tableName = convertToTableName(topicName);
+        String recordTableName = convertToRecordTableName(topicName);
         Set<String> tableNames = schemaService.listTables();
         if (!tableNames.contains(tableName)) {
-            createTableIfNotExists(new HashSet<>(Arrays.asList(tableName)));
+            createTableIfNotExists(tableName);
         }
+        if (!tableNames.contains(recordTableName)) {
+            createRecordTableIfNotExists(recordTableName);
+        }
+
+        List<TopicRecordValue> topicRecordValueList = new ArrayList<>(topicRecordList.size());
+
+        for (TopicRecord topicRecord : topicRecordList) {
+            String value = topicRecord.getValue();
+
+            TopicRecordValue topicRecordValue = new TopicRecordValue();
+            topicRecordValue.setPartitionId(topicRecord.getPartitionId());
+            topicRecordValue.setOffset(topicRecord.getOffset());
+            topicRecordValue.setValue(value);
+            topicRecordValueList.add(topicRecordValue);
+
+            if (value.length() > 128) {
+                value = value.substring(0, 128).concat("... ...");
+                topicRecord.setValue(value);
+            }
+        }
+
         this.baseMapper.batchSave(tableName, topicRecordList);
+        this.baseMapper.batchSaveRecord(recordTableName, topicRecordValueList);
+
     }
 
-    @TranSave
-    public void createTableIfNotExists(Set<String> tableNames) {
-        this.baseMapper.createTableIfNotExists(tableNames);
-    }
 
     @TranRead
+    @Transactional
     public void dropTable(String topicName) {
         this.baseMapper.dropTable(convertToTableName(topicName));
+        this.baseMapper.dropTable(convertToRecordTableName(topicName));
     }
 
     @TranRead
-    public List<TopicRecord> listMessages(IPage page, String topicName, Integer partitionId, String key, Date from, Date to) {
+    public List<TopicRecord> listRecords(IPage page, String topicName, Integer partitionId, String key, Date from, Date to) {
         try {
-            return this.baseMapper.listMessages(page, convertToTableName(topicName), partitionId, key, from, to);
+            return this.baseMapper.listRecords(page, convertToTableName(topicName), partitionId, key, from, to);
         } catch (Exception e) {
             return new ArrayList<>();
         }
     }
 
     @TranRead
-    public TopicRecord findMessage(String topicName, Integer partitionId, Long offset, String key) {
+    public TopicRecord findRecord(String topicName, Integer partitionId, Long offset, String key) {
         try {
-            return this.baseMapper.findMessage(convertToTableName(topicName), partitionId, offset, key);
+            return this.baseMapper.findRecord(convertToTableName(topicName), partitionId, offset, key);
         } catch (Exception e) {
             return null;
         }
     }
 
-    public String convertToTableName(String topicName) {
+    @TranRead
+    public String findRecordValue(String topicName, Integer partitionId, Long offset) {
+        try {
+            return this.baseMapper.findRecordValue(convertToRecordTableName(topicName), partitionId, offset);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private void createTableIfNotExists(String tableName) {
+        this.baseMapper.createTableIfNotExists(tableName);
+    }
+
+    private void createRecordTableIfNotExists(String recordTableName) {
+        this.baseMapper.createRecordTableIfNotExists(recordTableName);
+    }
+
+    private String convertToTableName(String topicName) {
         return String.format("topic_%s", topicName);
     }
 
-    public Set<String> convertToTableName(Set<String> topicNames) {
-        Set<String> result = new HashSet<>(topicNames.size());
-        for (String topicName : topicNames) {
-            result.add(convertToTableName(topicName));
-        }
-        return result;
+    private String convertToRecordTableName(String topicName) {
+        return String.format("topic_record_%s", topicName);
     }
+
+
 }

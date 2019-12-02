@@ -176,7 +176,7 @@
                     shadeClose: true,
                     shade: 0.8,
                     area: ['90%', '90%'],
-                    content: 'todetail/' + groupId
+                    content: 'todetail?groupId=' + groupId
                 });
             }
 
