@@ -1,14 +1,8 @@
 ;layui.define(function (e) {
-    var i = (layui.$, layui.layer, layui.laytpl, layui.setter, layui.view, layui.admin);
-    var $ = layui.$, admin = layui.admin;
+    const i = (layui.$, layui.layer, layui.laytpl, layui.setter, layui.view, layui.admin);
+    const $ = layui.$, admin = layui.admin;
     i.events.logout = function () {
-        i.req({
-            url: layui.setter.base + "json/user/logout.js", type: "get", data: {}, done: function (e) {
-                i.exit(function () {
-                    location.href = "user/login.html"
-                })
-            }
-        })
+        admin.quit();
     }, e("common", {});
 
     admin.SYSTEM_PROMPT = '系统提示';
@@ -64,6 +58,19 @@
 
     admin.toJson = function (obj) {
         return JSON.parse(JSON.stringify(obj));
-    }
+    };
+
+    admin.quit = function () {
+        admin.post("quit", {}, function () {
+            admin.initPage();
+            location.href = "/"
+        });
+    };
+
+    admin.initPage = function () {
+        if (window.top !== window.self) {
+            top.location.href = location.href;
+        }
+    };
 
 });

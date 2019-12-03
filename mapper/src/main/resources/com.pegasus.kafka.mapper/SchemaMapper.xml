@@ -12,6 +12,20 @@
     SET NAMES utf8mb4;
     SET FOREIGN_KEY_CHECKS = 0;
 
+    CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_admin`  (
+      `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+      `username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '管理员的登陆用户名',
+      `password` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '管理员的登陆密码',
+      `name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '管理员姓名',
+      `gender` bit(1) NOT NULL COMMENT '性别(1: 男性; 0:女性)',
+      `phone_number` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '手机号码',
+      `email` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '警报邮件的发送地址',
+      `remark` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '备注',
+      `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
+      PRIMARY KEY (`id`) USING BTREE,
+      UNIQUE INDEX `idx_sys_admin_username`(`username`) USING BTREE
+    ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
     CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_lag`  (
       `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
       `consumer_name` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '消费者名称',
@@ -84,11 +98,14 @@
     ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
 
     SET FOREIGN_KEY_CHECKS = 1;
+
+    INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_admin`(`username`, `password`, `name`, `gender`, `phone_number`, `email`, `remark`, `create_time`) VALUES ('admin', 'ebc255e6a0c6711a4366bc99ebafb54f', '管理员', b'1', '', 'zhangningkid@163.com', '', now());
     </insert>
 
     <delete id="deleteExpired">
         <foreach collection="tableNameList" item="tableName">
-            DELETE FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}` WHERE `create_time` &lt; #{dateTime};
+            DELETE FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}` WHERE `create_time`
+            &lt; #{dateTime};
         </foreach>
     </delete>
 

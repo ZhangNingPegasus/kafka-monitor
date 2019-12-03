@@ -298,7 +298,7 @@
                     refreshTopicHistoryChart();
                 });
 
-
+                $('#tpsTopicName option:eq(1)').attr('selected', 'selected');
                 $('#consumerName option:eq(1)').attr('selected', 'selected');
                 $('#hisTopicName option:eq(1)').attr('selected', 'selected');
                 layui.form.render('select');

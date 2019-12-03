@@ -9,10 +9,7 @@ import com.pegasus.kafka.service.dto.SysKpiService;
 import lombok.Data;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -51,7 +48,7 @@ public class ZkPerformanceController {
         this.ehcacheService = ehcacheService;
     }
 
-    @RequestMapping("tolist")
+    @GetMapping("tolist")
     public String toList() {
         return String.format("%s/list", PREFIX);
     }
@@ -73,7 +70,7 @@ public class ZkPerformanceController {
             result.setQueue(getInfo(sysKpiList, SysKpi.ZK_KPI.ZK_OUTSTANDING_REQUESTS));
             ehcacheService.set(key, result);
         }
-        return Result.success(result);
+        return Result.ok(result);
     }
 
     private LineInfo getInfo(List<SysKpi> sysKpiList, SysKpi.ZK_KPI kpi) {

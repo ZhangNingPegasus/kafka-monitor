@@ -7,10 +7,7 @@ import com.pegasus.kafka.service.alert.DingDingService;
 import com.pegasus.kafka.service.dto.SysDingDingConfigService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.InetAddress;
 import java.text.SimpleDateFormat;
@@ -40,7 +37,7 @@ public class DingDingConfigController {
         this.dingDingService = dingDingService;
     }
 
-    @RequestMapping("tolist")
+    @GetMapping("tolist")
     public String toList(Model model) {
         List<SysDingDingConfig> sysDingDingConfigList = sysDingDingConfigService.list();
         if (sysDingDingConfigList != null && sysDingDingConfigList.size() > 0) {
@@ -52,7 +49,7 @@ public class DingDingConfigController {
         return String.format("%s/list", PREFIX);
     }
 
-    @RequestMapping("totest")
+    @GetMapping("totest")
     public String toTest() {
         return String.format("%s/test", PREFIX);
     }
@@ -62,7 +59,7 @@ public class DingDingConfigController {
     public Result<Integer> save(@RequestParam(required = true, name = "accesstoken") String accesstoken,
                                 @RequestParam(required = true, name = "secret") String secret) {
         int result = sysDingDingConfigService.save(accesstoken, secret);
-        return Result.success(result);
+        return Result.ok(result);
     }
 
     @PostMapping("test")
@@ -82,7 +79,7 @@ public class DingDingConfigController {
         message.setAt(new DingDingMessage.At(Arrays.asList(atMobiles.split(",")), isAtAll));
 
         dingDingService.send(message);
-        return Result.success();
+        return Result.ok();
     }
 
 }

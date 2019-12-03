@@ -1,7 +1,17 @@
 package com.pegasus.kafka.controller;
 
+import com.pegasus.kafka.common.response.Result;
+import com.pegasus.kafka.entity.dto.SysAdmin;
+import com.pegasus.kafka.service.dto.SysAdminService;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.subject.Subject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -14,8 +24,82 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class IndexController {
-    @RequestMapping("/")
-    public String test() {
+
+    @Autowired
+    private SysAdminService sysAdminService;
+
+    @GetMapping("index")
+    public String toIndex(Model model,
+                          SysAdmin sysAdmin) {
+        model.addAttribute("name", sysAdmin.getName());
         return "index";
+    }
+
+    @GetMapping("/")
+    public String toLogin() {
+        return "login";
+    }
+
+    @GetMapping("toinfo")
+    public String toInfo(Model model,
+                         SysAdmin sysAdmin) {
+        model.addAttribute("admin", sysAdmin);
+        return "info";
+    }
+
+    @GetMapping("topassword")
+    public String toPassword() {
+        return "password";
+    }
+
+    @PostMapping("login")
+    @ResponseBody
+    public Result<?> login(@RequestParam(name = "username", required = true) String username,
+                           @RequestParam(name = "password", required = true) String password,
+                           @RequestParam(name = "remember", required = true, defaultValue = "false") Boolean remember) {
+        try {
+            Subject subject = SecurityUtils.getSubject();
+            UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken(username, password);
+            usernamePasswordToken.setRememberMe(remember);
+            subject.login(usernamePasswordToken);
+            return Result.ok();
+        } catch (Exception e) {
+            return Result.error("账号或密码错误");
+        }
+    }
+
+    @PostMapping("repwd")
+    @ResponseBody
+    public Result<?> repwd(SysAdmin sysAdmin,
+                           @RequestParam(name = "oldPassword", required = true) String oldPassword,
+                           @RequestParam(name = "password", required = true) String password) {
+        if (sysAdminService.changePassword(sysAdmin, oldPassword, password)) {
+            return Result.ok();
+        } else {
+            return Result.error("密码修改失败");
+        }
+    }
+
+    @PostMapping("reinfo")
+    @ResponseBody
+    public Result<?> reinfo(SysAdmin sysAdmin,
+                            @RequestParam(name = "name", required = true) String name,
+                            @RequestParam(name = "gender", required = true) Boolean gender,
+                            @RequestParam(name = "phoneNumber", required = true) String phoneNumber,
+                            @RequestParam(name = "email", required = true) String email,
+                            @RequestParam(name = "remark", required = true) String remark) {
+        sysAdminService.updateInfo(sysAdmin, name, gender, phoneNumber, email, remark);
+        return Result.ok();
+
+    }
+
+    @PostMapping("quit")
+    @ResponseBody
+    public Result<?> quit() {
+        Subject subject = SecurityUtils.getSubject();
+        if (subject.isAuthenticated()) {
+            subject.logout(); //session会销毁, 在SessionListener监听session销毁，清理权限缓存
+        }
+        return Result.ok();
     }
 }

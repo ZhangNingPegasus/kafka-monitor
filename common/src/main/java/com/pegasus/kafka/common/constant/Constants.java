@@ -43,4 +43,5 @@ public class Constants {
     public static final String HOST_NOT_AVAIABLE = "主机不可用，请检查";
 
 
+    public static final String CURRENT_ADMIN_LOGIN = "CURRENT_ADMIN_LOGIN";
 }

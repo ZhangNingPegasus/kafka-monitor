@@ -2,6 +2,7 @@ package com.pegasus.kafka.common.utils;
 
 
 import lombok.Data;
+import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.util.StringUtils;
 
 import java.text.DecimalFormat;
@@ -23,7 +24,12 @@ public class Common {
     private final static long GB_IN_BYTES = 1024 * MB_IN_BYTES;
     private final static long TB_IN_BYTES = 1024 * GB_IN_BYTES;
     private final static DecimalFormat df = new DecimalFormat("0.00");
+    private final static String SALT = "PEgASuS";
     private static ThreadLocal<SimpleDateFormat> threadLocal = ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+
+    public static String hash(String value) {
+        return new Md5Hash(value, SALT).toString();
+    }
 
     public static Date parse(String value) throws ParseException {
         return threadLocal.get().parse(value);

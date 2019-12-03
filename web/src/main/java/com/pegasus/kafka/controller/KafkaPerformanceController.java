@@ -9,10 +9,7 @@ import com.pegasus.kafka.service.dto.SysKpiService;
 import lombok.Data;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -51,7 +48,7 @@ public class KafkaPerformanceController {
         this.sysKpiService = sysKpiService;
     }
 
-    @RequestMapping("tolist")
+    @GetMapping("tolist")
     public String toList() {
         return String.format("%s/list", PREFIX);
     }
@@ -81,7 +78,7 @@ public class KafkaPerformanceController {
             result.setOsFreeMemory(getInfo(sysKpiList, SysKpi.KAFKA_KPI.KAFKA_OS_USED_MEMORY_PERCENTAGE));
             ehcacheService.set(key, result);
         }
-        return Result.success(result);
+        return Result.ok(result);
     }
 
     private LineInfo getInfo(List<SysKpi> sysKpiList, SysKpi.KAFKA_KPI kpi) {

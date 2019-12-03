@@ -15,10 +15,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -56,7 +53,7 @@ public class DashboardController {
         this.ehcacheService = ehcacheService;
     }
 
-    @RequestMapping("index")
+    @GetMapping("index")
     public String index(Model model) throws Exception {
         model.addAttribute("consumers", kafkaConsumerService.listKafkaConsumers());
         model.addAttribute("topics", kafkaTopicService.listTopics(false, false, false, false, false));
@@ -70,13 +67,13 @@ public class DashboardController {
         String key = String.format("DashboardController::getTopicChart:%s:%s", topicName, createTimeRange);
         LineInfo cache = ehcacheService.get(key);
         if (cache != null) {
-            return Result.success(cache);
+            return Result.ok(cache);
         }
 
         topicName = topicName.trim();
         createTimeRange = createTimeRange.trim();
         if (StringUtils.isEmpty(createTimeRange)) {
-            return Result.success();
+            return Result.ok();
         }
         LineInfo result = new LineInfo();
         Common.TimeRange timeRange = Common.splitTime(createTimeRange);
@@ -142,7 +139,7 @@ public class DashboardController {
             series.setData(data);
         }
         ehcacheService.set(key, result);
-        return Result.success(result);
+        return Result.ok(result);
     }
 
     @PostMapping("getLagChart")
@@ -152,12 +149,12 @@ public class DashboardController {
         String key = String.format("DashboardController::getLagChart:%s:%s", groupId, createTimeRange);
         LineInfo cache = ehcacheService.get(key);
         if (cache != null) {
-            return Result.success(cache);
+            return Result.ok(cache);
         }
         groupId = groupId.trim();
         createTimeRange = createTimeRange.trim();
         if (StringUtils.isEmpty(groupId) || StringUtils.isEmpty(createTimeRange)) {
-            return Result.success();
+            return Result.ok();
         }
         LineInfo result = new LineInfo();
         Common.TimeRange timeRange = Common.splitTime(createTimeRange);
@@ -193,7 +190,7 @@ public class DashboardController {
             series.setData(data);
         }
         ehcacheService.set(key, result);
-        return Result.success(result);
+        return Result.ok(result);
     }
 
 
@@ -203,12 +200,12 @@ public class DashboardController {
         String key = String.format("DashboardController::getTopicRankChart:%s", createTimeRange);
         LineInfo cache = ehcacheService.get(key);
         if (cache != null) {
-            return Result.success(cache);
+            return Result.ok(cache);
         }
 
         createTimeRange = createTimeRange.trim();
         if (StringUtils.isEmpty(createTimeRange)) {
-            return Result.success();
+            return Result.ok();
         }
         Common.TimeRange timeRange = Common.splitTime(createTimeRange);
         Date from = timeRange.getStart(), to = timeRange.getEnd();
@@ -230,7 +227,7 @@ public class DashboardController {
         result.setTopicNames(topicNames);
         result.setSeries(seriesList);
         ehcacheService.set(key, result);
-        return Result.success(result);
+        return Result.ok(result);
     }
 
     @PostMapping("getTopicHistoryChart")
@@ -239,7 +236,7 @@ public class DashboardController {
     public Result<LineInfo> getTopicHistoryChart(@RequestParam(name = "topicName", required = true) String topicName) throws Exception {
         topicName = topicName.trim();
         if (StringUtils.isEmpty(topicName)) {
-            return Result.success();
+            return Result.ok();
         }
 
         LineInfo result = new LineInfo();
@@ -280,7 +277,7 @@ public class DashboardController {
         result.setTimes(timesList);
         result.setSeries(seriesList);
 
-        return Result.success(result);
+        return Result.ok(result);
     }
 
 }

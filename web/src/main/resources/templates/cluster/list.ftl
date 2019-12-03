@@ -70,9 +70,9 @@
                 cols: [[
                     {type: 'numbers', title: '序号', width: 200},
                     {field: 'host', title: '地址'},
-                    {field: 'port', title: '端口', width: 275},
-                    {field: 'version', title: '版本', templet: '#colVersion', width: 275},
-                    {field: 'mode', title: '模式', templet: '#colMode', width: 250}
+                    {field: 'port', title: '端口', width: 255},
+                    {field: 'version', title: '版本', templet: '#colVersion', width: 255},
+                    {field: 'mode', title: '模式', templet: '#colMode', width: 240}
                 ]]
             });
 

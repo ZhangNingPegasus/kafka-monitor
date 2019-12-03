@@ -6,10 +6,7 @@ import com.pegasus.kafka.entity.vo.ZooKeeperInfo;
 import com.pegasus.kafka.service.core.KafkaZkService;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,7 +31,7 @@ public class ZkCliController {
         this.kafkaZkService = kafkaZkService;
     }
 
-    @RequestMapping("tolist")
+    @GetMapping("tolist")
     public String toList() {
         return String.format("%s/list", PREFIX);
     }
@@ -49,7 +46,7 @@ public class ZkCliController {
                 ZooKeeperKpiUtils.ZooKeeperKpi zooKeeperKpi = ZooKeeperKpiUtils.listKpi(zooKeeperInfo.getHost(), Integer.parseInt(zooKeeperInfo.getPort()));
                 if (!StringUtils.isEmpty(zooKeeperKpi.getZkNumAliveConnections())) {
                     List<String> result = zooKeeperInfos.stream().map(p -> String.format("%s:%s", p.getHost(), p.getPort())).collect(Collectors.toList());
-                    return Result.success(result.toString());
+                    return Result.ok(result.toString());
                 }
             }
         } catch (Exception ignored) {
@@ -62,7 +59,7 @@ public class ZkCliController {
     public Result<String> execute(@RequestParam(name = "command", required = true) String command,
                                   @RequestParam(name = "type", required = true) String type) throws Exception {
         try {
-            return Result.success(kafkaZkService.execute(command, type));
+            return Result.ok(kafkaZkService.execute(command, type));
         } catch (Exception e) {
             return Result.error(e.getMessage());
         }

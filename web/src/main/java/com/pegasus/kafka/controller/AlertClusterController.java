@@ -32,18 +32,18 @@ public class AlertClusterController {
         this.sysAlertClusterService = sysAlertClusterService;
     }
 
-    @RequestMapping("tolist")
+    @GetMapping("tolist")
     public String toList() {
         return String.format("%s/list", PREFIX);
     }
 
-    @RequestMapping("toadd")
+    @GetMapping("toadd")
     public String toAdd(Model model) {
         model.addAttribute("type", SysAlertCluster.Type.values());
         return String.format("%s/add", PREFIX);
     }
 
-    @RequestMapping("toedit/{id}")
+    @GetMapping("toedit/{id}")
     public String toEdit(Model model,
                          @PathVariable(required = true, value = "id") String id) {
         SysAlertCluster sysAlertCluster = sysAlertClusterService.getById(id);
@@ -58,7 +58,7 @@ public class AlertClusterController {
                                               @RequestParam(value = "limit", required = true) Integer pageSize) {
         QueryWrapper<SysAlertCluster> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().orderByAsc(SysAlertCluster::getCreateTime);
-        return Result.success(this.sysAlertClusterService.page(new Page<>(pageNum, pageSize), queryWrapper));
+        return Result.ok(this.sysAlertClusterService.page(new Page<>(pageNum, pageSize), queryWrapper));
     }
 
 
@@ -69,7 +69,7 @@ public class AlertClusterController {
                          @RequestParam(value = "email", required = true) String email
     ) {
         sysAlertClusterService.save(type, server, email);
-        return Result.success();
+        return Result.ok();
     }
 
     @PostMapping("edit")
@@ -80,7 +80,7 @@ public class AlertClusterController {
                           @RequestParam(value = "email", required = true) String email
     ) {
         sysAlertClusterService.update(id, type, server, email);
-        return Result.success();
+        return Result.ok();
     }
 
 
@@ -88,7 +88,7 @@ public class AlertClusterController {
     @ResponseBody
     public Result<?> del(@RequestParam(value = "id", required = true) Long id) {
         sysAlertClusterService.removeById(id);
-        return Result.success();
+        return Result.ok();
     }
 
 }

@@ -12,10 +12,7 @@ import com.pegasus.kafka.service.kafka.KafkaTopicService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -47,14 +44,14 @@ public class RecordController {
         this.kafkaConsumerService = kafkaConsumerService;
     }
 
-    @RequestMapping("tolist")
+    @GetMapping("tolist")
     public String toList(Model model) throws Exception {
         List<KafkaTopicInfo> kafkaTopicInfoList = kafkaTopicService.listTopics(false, false, false, false, false);
         model.addAttribute("topics", kafkaTopicInfoList);
         return String.format("%s/list", PREFIX);
     }
 
-    @RequestMapping("tomsgdetail")
+    @GetMapping("tomsgdetail")
     public String toMsgDetail(Model model,
                               @RequestParam(value = "topicName", required = true) String topicName,
                               @RequestParam(value = "partitionId", required = true) Integer partitionId,
@@ -71,7 +68,7 @@ public class RecordController {
         return String.format("%s/msgdetail", PREFIX);
     }
 
-    @RequestMapping("toconsumerdetail")
+    @GetMapping("toconsumerdetail")
     public String toConsumerDetail(Model model,
                                    @RequestParam(name = "topicName", required = true, defaultValue = "") String topicName,
                                    @RequestParam(name = "partitionId", required = false) Integer partitionId,
@@ -85,7 +82,7 @@ public class RecordController {
     @PostMapping("listTopicPartitions")
     @ResponseBody
     public Result<List<KafkaTopicPartitionInfo>> listTopicPartitions(@RequestParam(name = "topicName", required = true) String topicName) throws Exception {
-        return Result.success(kafkaTopicService.listTopicDetails(topicName));
+        return Result.ok(kafkaTopicService.listTopicDetails(topicName));
     }
 
     @PostMapping("list")
@@ -101,7 +98,7 @@ public class RecordController {
         createTimeRange = createTimeRange.trim();
         pageNum = Math.min(pageNum, Constants.MAX_PAGE_NUM);
         if (StringUtils.isEmpty(topicName)) {
-            return Result.success();
+            return Result.ok();
         }
 
         IPage page = new Page(pageNum, pageSize);
@@ -109,10 +106,10 @@ public class RecordController {
         Common.TimeRange timeRange = Common.splitTime(createTimeRange);
         Date from = timeRange.getStart(), to = timeRange.getEnd();
         try {
-            return Result.success(kafkaTopicService.listMessages(page, topicName, partitionId, key, from, to), page.getTotal());
+            return Result.ok(kafkaTopicService.listMessages(page, topicName, partitionId, key, from, to), page.getTotal());
         } catch (Exception e) {
             e.printStackTrace();
-            return Result.success();
+            return Result.ok();
         }
     }
 
@@ -128,7 +125,7 @@ public class RecordController {
             return Result.error("主题不能为空");
         }
         kafkaTopicService.sendMessage(topicName, key, value);
-        return Result.success();
+        return Result.ok();
     }
 
     @PostMapping("listTopicConsumers")
@@ -153,6 +150,6 @@ public class RecordController {
                 result.add(recordConsumeInfo);
             }
         }
-        return Result.success(result);
+        return Result.ok(result);
     }
 }

@@ -6,10 +6,7 @@ import com.pegasus.kafka.service.alert.MailService;
 import com.pegasus.kafka.service.dto.SysMailConfigService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -35,7 +32,7 @@ public class MailConfigController {
         this.mailService = mailService;
     }
 
-    @RequestMapping("tolist")
+    @GetMapping("tolist")
     public String toList(Model model) {
         List<SysMailConfig> sysMailConfigList = sysMailConfigService.list();
         if (sysMailConfigList != null && sysMailConfigList.size() > 0) {
@@ -47,7 +44,7 @@ public class MailConfigController {
         return String.format("%s/list", PREFIX);
     }
 
-    @RequestMapping("totest")
+    @GetMapping("totest")
     public String toTest() {
         return String.format("%s/test", PREFIX);
     }
@@ -59,7 +56,7 @@ public class MailConfigController {
                                 @RequestParam(required = true, name = "username") String username,
                                 @RequestParam(required = true, name = "password") String password) {
         int result = sysMailConfigService.save(host, port, username, password);
-        return Result.success(result);
+        return Result.ok(result);
     }
 
     @PostMapping("test")
@@ -68,7 +65,7 @@ public class MailConfigController {
                           @RequestParam(required = true, name = "subject") String subject,
                           @RequestParam(required = true, name = "html") String html) throws Exception {
         mailService.send(to, subject, html);
-        return Result.success();
+        return Result.ok();
     }
 
 }

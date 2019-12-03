@@ -28,13 +28,13 @@
                     </li>
                     <li class="layui-nav-item" style="margin-right: 10px" lay-unselect>
                         <a href="javascript:">
-                            <cite>Administrator</cite>
+                            <cite>${name}</cite>
                         </a>
                         <dl class="layui-nav-child">
-                            <dd><a lay-href="set/user/info.html">基本资料</a></dd>
-                            <dd><a lay-href="set/user/password.html">修改密码</a></dd>
+                            <dd><a lay-href="${ctx}/toinfo">基本资料</a></dd>
+                            <dd><a lay-href="${ctx}/topassword">修改密码</a></dd>
                             <hr>
-                            <dd layadmin-event="logout" style="text-align: center;"><a>退出</a></dd>
+                            <dd layadmin-event="${ctx}/logout" style="text-align: center;"><a>退出</a></dd>
                         </dl>
                     </li>
                 </ul>

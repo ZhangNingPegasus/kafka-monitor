@@ -42,22 +42,21 @@ public class AlertConsumerController {
         this.kafkaTopicService = kafkaTopicService1;
     }
 
-    @RequestMapping("tolist")
+    @GetMapping("tolist")
     public String toList() {
         return String.format("%s/list", PREFIX);
     }
 
-    @RequestMapping("toadd")
+    @GetMapping("toadd")
     public String toAdd(Model model) throws Exception {
         List<KafkaConsumerInfo> kafkaConsumerInfoList = kafkaConsumerService.listKafkaConsumers();
         model.addAttribute("consumers", kafkaConsumerInfoList);
         return String.format("%s/add", PREFIX);
     }
 
-    @RequestMapping("toedit/{id}")
+    @GetMapping("toedit/{id}")
     public String toEdit(Model model,
                          @PathVariable(required = true, value = "id") String id) throws Exception {
-
         SysAlertConsumer sysAlertConsumer = sysAlertConsumerService.getById(id);
         List<KafkaConsumerInfo> kafkaConsumerInfoList = kafkaConsumerService.listKafkaConsumers();
         model.addAttribute("consumers", kafkaConsumerInfoList);
@@ -72,7 +71,7 @@ public class AlertConsumerController {
                                                @RequestParam(value = "limit", required = true) Integer pageSize) {
         QueryWrapper<SysAlertConsumer> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().orderByAsc(SysAlertConsumer::getCreateTime);
-        return Result.success(this.sysAlertConsumerService.page(new Page<>(pageNum, pageSize), queryWrapper));
+        return Result.ok(this.sysAlertConsumerService.page(new Page<>(pageNum, pageSize), queryWrapper));
     }
 
     @PostMapping("listTopics")
@@ -80,7 +79,7 @@ public class AlertConsumerController {
     public Result<List<String>> listTopics(@RequestParam(value = "groupId", required = true) String groupId) throws Exception {
         List<KafkaTopicInfo> kafkaTopicInfoList = kafkaTopicService.listTopics(false, false, true, false, false);
         List<String> topicNames = kafkaTopicInfoList.stream().filter(p -> Arrays.asList(p.getSubscribeGroupIds()).contains(groupId)).map(KafkaTopicInfo::getTopicName).distinct().collect(Collectors.toList());
-        return Result.success(topicNames);
+        return Result.ok(topicNames);
     }
 
     @PostMapping("add")
@@ -91,7 +90,7 @@ public class AlertConsumerController {
                          @RequestParam(value = "email", required = true) String email
     ) {
         sysAlertConsumerService.save(groupId, topicName, lagThreshold, email);
-        return Result.success();
+        return Result.ok();
     }
 
     @PostMapping("edit")
@@ -103,7 +102,7 @@ public class AlertConsumerController {
                           @RequestParam(value = "email", required = true) String email
     ) {
         sysAlertConsumerService.update(id, groupId, topicName, lagThreshold, email);
-        return Result.success();
+        return Result.ok();
     }
 
 
@@ -111,7 +110,7 @@ public class AlertConsumerController {
     @ResponseBody
     public Result<?> del(@RequestParam(value = "id", required = true) Long id) {
         sysAlertConsumerService.removeById(id);
-        return Result.success();
+        return Result.ok();
     }
 
 }

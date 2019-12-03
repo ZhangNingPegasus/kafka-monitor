@@ -43,30 +43,30 @@ public class Result<T> implements Serializable {
     }
 
 
-    public static <T> Result<T> success(T data) {
+    public static <T> Result<T> ok(T data) {
         return new Result<>(ResultCode.SUCCESS.getCode(), null, data, ResultCode.SUCCESS.getSuccess());
     }
 
-    public static <T extends Collection> Result<T> success(T data, Long count) {
+    public static <T extends Collection> Result<T> ok(T data, Long count) {
         Result<T> result = new Result<>(ResultCode.SUCCESS.getCode(), null, data, ResultCode.SUCCESS.getSuccess());
         result.setCount(count);
         return result;
     }
 
-    public static <T extends Collection> Result<T> success(T data, Integer count) {
+    public static <T extends Collection> Result<T> ok(T data, Integer count) {
         Result<T> result = new Result<>(ResultCode.SUCCESS.getCode(), null, data, ResultCode.SUCCESS.getSuccess());
         result.setCount((long) count);
         return result;
     }
 
-    public static <T> Result<List<T>> success(IPage<T> page) {
+    public static <T> Result<List<T>> ok(IPage<T> page) {
         Result<List<T>> result = new Result<>(ResultCode.SUCCESS.getCode(), null, page.getRecords(),
                 ResultCode.SUCCESS.getSuccess());
         result.setCount(page.getTotal());
         return result;
     }
 
-    public static <T> Result<T> success() {
+    public static <T> Result<T> ok() {
         return new Result<>(ResultCode.SUCCESS.getCode(), null, null, ResultCode.SUCCESS.getSuccess());
     }
 

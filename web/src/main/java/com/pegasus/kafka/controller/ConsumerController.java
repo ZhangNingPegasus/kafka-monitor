@@ -9,10 +9,7 @@ import com.pegasus.kafka.entity.vo.OffsetInfo;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
@@ -38,12 +35,12 @@ public class ConsumerController {
         this.kafkaConsumerService = kafkaConsumerService;
     }
 
-    @RequestMapping("tolist")
+    @GetMapping("tolist")
     public String toList() {
         return String.format("%s/list", PREFIX);
     }
 
-    @RequestMapping("todetail")
+    @GetMapping("todetail")
     public String toDetail(Model model,
                            @RequestParam(name = "groupId", required = true) String groupId) {
         groupId = groupId.trim();
@@ -57,9 +54,9 @@ public class ConsumerController {
         try {
             List<KafkaConsumerInfo> kafkaConsumerInfos = kafkaConsumerService.listKafkaConsumers();
             httpSession.setAttribute(Constants.SESSION_KAFKA_CONSUMER_INFO, kafkaConsumerInfos);
-            return Result.success(kafkaConsumerInfos);
+            return Result.ok(kafkaConsumerInfos);
         } catch (Exception e) {
-            return Result.success();
+            return Result.ok();
         }
     }
 
@@ -103,9 +100,9 @@ public class ConsumerController {
             root.setChildren(consuerGroupTreeInfoList);
         }
         if (root.getChildren() != null && root.getChildren().size() > 0) {
-            return Result.success(root);
+            return Result.ok(root);
         } else {
-            return Result.success();
+            return Result.ok();
         }
     }
 
@@ -151,7 +148,7 @@ public class ConsumerController {
             kafkaTopicInfo.setLag(lag);
         }
 
-        return Result.success(result);
+        return Result.ok(result);
     }
 
     @PostMapping("listOffsetInfo")
@@ -161,9 +158,9 @@ public class ConsumerController {
         groupId = groupId.trim();
         topicName = topicName.trim();
         try {
-            return Result.success(kafkaConsumerService.listOffsetInfo(groupId, topicName));
+            return Result.ok(kafkaConsumerService.listOffsetInfo(groupId, topicName));
         } catch (Exception ignored) {
-            return Result.success();
+            return Result.ok();
         }
     }
 
@@ -172,6 +169,6 @@ public class ConsumerController {
     public Result<?> del(@RequestParam(required = true, name = "consumerGroupId") String consumerGroupId) {
         consumerGroupId = consumerGroupId.trim();
         kafkaConsumerService.delete(consumerGroupId.trim());
-        return Result.success();
+        return Result.ok();
     }
 }
