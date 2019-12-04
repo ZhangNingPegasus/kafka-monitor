@@ -1,5 +1,7 @@
 package com.pegasus.kafka.common.constant;
 
+import com.pegasus.kafka.common.utils.Common;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,6 +15,12 @@ import java.util.List;
  */
 public class Constants {
     public static final String DATABASE_NAME = "`kafka_monitor`";
+
+    public static final String DEFAULT_ADMIN_USER_NAME = "admin";
+    public static final String DEFAULT_ADMIN_PASSWORD = Common.hash("admin");
+
+    public static final String SYSTEM_ROLE_NAME = "超级管理员";
+
     public static final Integer MAX_PAGE_NUM = 10000;
 
     public static final String EHCACHE_CONFIG_NAME = "EHCACHE_CONFIG_NAME";

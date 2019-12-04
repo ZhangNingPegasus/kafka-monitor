@@ -34,7 +34,7 @@
                             <dd><a lay-href="${ctx}/toinfo">基本资料</a></dd>
                             <dd><a lay-href="${ctx}/topassword">修改密码</a></dd>
                             <hr>
-                            <dd layadmin-event="${ctx}/logout" style="text-align: center;"><a>退出</a></dd>
+                            <dd layadmin-event="logout" style="text-align: center;"><a>退出</a></dd>
                         </dl>
                     </li>
                 </ul>
@@ -79,7 +79,7 @@
                         <li data-name="zkCli" class="layui-nav-item">
                             <a href="javascript:" lay-href="${ctx}/zkCli/tolist" lay-tips="zookeeper客户端"
                                lay-direction="2">
-                                <i class="layui-icon layui-icon-component"></i>
+                                <i class="layui-icon layui-icon-util"></i>
                                 <cite>ZooKeeper客户端</cite>
                             </a>
                         </li>
@@ -96,7 +96,7 @@
                                         Kafka性能</a></dd>
                             </dl>
                         </li>
-                        <li data-name="performance" class="layui-nav-item">
+                        <li data-name="alerm" class="layui-nav-item">
                             <a href="javascript:" lay-tips="警告设置"
                                lay-direction="2">
                                 <i class="layui-icon layui-icon-notice"></i>
@@ -109,20 +109,42 @@
                                         集群主机设置</a></dd>
                             </dl>
                         </li>
-                        <li data-name="performance" class="layui-nav-item">
+                        <li data-name="privileges" class="layui-nav-item">
+                            <a href="javascript:" lay-tips="权限设置"
+                               lay-direction="2">
+                                <i class="layui-icon layui-icon-password"></i>
+                                <cite>权限设置</cite>
+                            </a>
+                            <dl class="layui-nav-child">
+                                <dd><a lay-href="${ctx}/admin/tolist">
+                                        管理员配置</a></dd>
+                                <dd><a lay-href="${ctx}/role/tolist">
+                                        角色管理</a></dd>
+                                <dd><a lay-href="${ctx}/permission/tolist">
+                                        权限管理</a></dd>
+                            </dl>
+                        </li>
+                        <li data-name="setting" class="layui-nav-item">
                             <a href="javascript:" lay-tips="系统设置"
                                lay-direction="2">
                                 <i class="layui-icon layui-icon-set"></i>
                                 <cite>系统设置</cite>
                             </a>
                             <dl class="layui-nav-child">
+                                <dd><a lay-href="${ctx}/page/tolist">
+                                        页面配置</a></dd>
                                 <dd><a lay-href="${ctx}/mailconfig/tolist">
                                         邮件发送设置</a></dd>
                                 <dd><a lay-href="${ctx}/dingdingconfig/tolist">
                                         钉钉机器人设置</a></dd>
                             </dl>
                         </li>
-
+                        <li data-name="bigscreen" class="layui-nav-item">
+                            <a href="javascript:" lay-href="${ctx}/dashboard/index" lay-tips="大屏幕" lay-direction="2">
+                                <i class="layui-icon layui-icon-chart-screen"></i>
+                                <cite>大屏幕</cite>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>

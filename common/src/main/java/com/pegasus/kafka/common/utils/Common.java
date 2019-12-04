@@ -96,6 +96,17 @@ public class Common {
         return ((st > 0) || (len < value.length())) ? value.substring(st, len) : value;
     }
 
+    public static Long toLong(String value) {
+        if (StringUtils.isEmpty(value)) {
+            return null;
+        }
+        try {
+            return Long.valueOf(value.trim());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     @Data
     public static class TimeRange {
         private Date start;

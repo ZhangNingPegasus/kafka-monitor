@@ -1,14 +1,15 @@
-package com.pegasus.kafka.entity.dto;
+package com.pegasus.kafka.entity.vo;
 
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.pegasus.kafka.common.constant.Constants;
+import com.pegasus.kafka.entity.dto.BaseDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 /**
- * The entity for table sys_admin. Using for saving information of administrator.
+ * The View Object for table sys_admin. Using for saving information of administrator.
  * <p>
  * *****************************************************************
  * Name               Action            Time          Description  *
@@ -17,53 +18,28 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@TableName(value = Constants.DATABASE_NAME + "." + "`sys_admin`")
-public class SysAdmin extends BaseDto {
-    /**
-     * 角色id(sys_role表的主键)
-     */
+public class AdminInfo extends BaseDto {
     @TableField(value = "`role_id`")
     private Long roleId;
 
-    /**
-     * 管理员的登陆用户名
-     */
+    @TableField(value = "`role_name`")
+    private String roleName;
+
     @TableField(value = "`username`")
     private String username;
 
-    /**
-     * 管理员的登陆密码
-     */
-    @TableField(value = "`password`")
-    private String password;
-
-    /**
-     * 管理员姓名
-     */
     @TableField(value = "`name`")
     private String name;
 
-    /**
-     * 性别(true: 男性; false:女性)
-     */
     @TableField(value = "`gender`")
     private Boolean gender;
 
-    /**
-     * 手机号码
-     */
     @TableField(value = "`phone_number`")
     private String phoneNumber;
 
-    /**
-     * 邮件地址
-     */
     @TableField(value = "`email`")
     private String email;
 
-    /**
-     * 备注
-     */
     @TableField(value = "`remark`")
     private String remark;
 }

@@ -45,11 +45,20 @@
             form.on('submit(btnSubmit)', function (obj) {
                 admin.post('login', obj.field, function () {
                     layer.msg('登入成功', {
-                        offset: '15px'
-                        , icon: 1
-                        , time: 1000
+                        offset: '15px',
+                        icon: 1,
+                        time: 500
                     }, function () {
-                        location.href = '../index';
+                        location.href = '${ctx}/index';
+                    });
+                }, function () {
+                    layer.msg('账号或密码错误', {
+                        offset: '15px',
+                        icon: 2,
+                        time: 1000
+                    }, function () {
+                        $("#password").val('');
+                        $("#username").focus();
                     });
                 });
             });

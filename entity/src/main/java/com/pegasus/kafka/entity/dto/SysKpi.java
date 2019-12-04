@@ -21,12 +21,21 @@ import lombok.Getter;
 @Data
 @TableName(value = Constants.DATABASE_NAME + "." + "`sys_kpi`")
 public class SysKpi extends BaseDto {
+    /**
+     * kpi的主机信息
+     */
     @TableField(value = "`host`")
     private String host;
 
+    /**
+     * kpi指标名称
+     */
     @TableField(value = "`kpi`")
     private Integer kpi;
 
+    /**
+     * kpi值
+     */
     @TableField(value = "`value`")
     private Double value;
 

@@ -1,6 +1,7 @@
 package com.pegasus.kafka.shiro;
 
-import com.pegasus.kafka.entity.dto.SysAdmin;
+import com.pegasus.kafka.common.utils.Common;
+import com.pegasus.kafka.entity.vo.AdminInfo;
 import com.pegasus.kafka.service.dto.SysAdminService;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -24,11 +25,11 @@ public class AuthRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
         UsernamePasswordToken usernamePasswordToken = (UsernamePasswordToken) authenticationToken;
-        SysAdmin sysAdmin = sysAdminService.getByUsername(usernamePasswordToken.getUsername());
-        if (sysAdmin == null) {
+        AdminInfo adminInfo = sysAdminService.getBaseMapper().getByUsernameAndPassword(usernamePasswordToken.getUsername(), Common.hash(new String(usernamePasswordToken.getPassword())));
+        if (adminInfo == null) {
             return null;
         }
-        return new SimpleAuthenticationInfo(sysAdmin, usernamePasswordToken.getPassword(), usernamePasswordToken.getUsername());
+        return new SimpleAuthenticationInfo(adminInfo, usernamePasswordToken.getPassword(), usernamePasswordToken.getUsername());
     }
 
     @Override

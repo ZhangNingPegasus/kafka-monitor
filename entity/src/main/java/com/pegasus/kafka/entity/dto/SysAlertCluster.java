@@ -20,12 +20,21 @@ import lombok.Getter;
 @Data
 @TableName(value = Constants.DATABASE_NAME + "." + "`sys_alert_cluster`")
 public class SysAlertCluster extends BaseDto {
+    /**
+     * 集群主机类型(1. zookeeper; 2: kafka);参见SysAlertCluster.Type类型
+     */
     @TableField(value = "`type`")
     private Integer type;
 
+    /**
+     * 服务器地址
+     */
     @TableField(value = "`server`")
     private String server;
 
+    /**
+     * 警报邮件的发送地址
+     */
     @TableField(value = "`email`")
     private String email;
 

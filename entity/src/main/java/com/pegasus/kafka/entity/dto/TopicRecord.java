@@ -21,21 +21,39 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = false)
 @Data
 public class TopicRecord extends BaseDto {
+    /**
+     * 主题名称（非数据库字段）
+     */
     @TableField(exist = false)
     private String topicName;
 
+    /**
+     * 分区号
+     */
     @TableField(value = "partition_id")
     private Integer partitionId;
 
+    /**
+     * 消息在该分区号下的偏移量
+     */
     @TableField(value = "offset")
     private Long offset;
 
+    /**
+     * 消息键值
+     */
     @TableField(value = "key")
     private String key;
 
+    /**
+     * 消息体的缩微样本
+     */
     @TableField(value = "value")
     private String value;
 
+    /**
+     * 消息时间
+     */
     @TableField(value = "timestamp")
     private Date timestamp;
 

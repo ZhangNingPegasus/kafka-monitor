@@ -19,9 +19,15 @@ import lombok.EqualsAndHashCode;
 @Data
 @TableName(value = Constants.DATABASE_NAME + "." + "`sys_dingding_config`")
 public class SysDingDingConfig extends BaseDto {
+    /**
+     * 钉钉机器人的access_token
+     */
     @TableField(value = "`access_token`")
     private String accessToken;
 
+    /**
+     * 钉钉机器人的加签秘钥
+     */
     @TableField(value = "`secret`")
     private String secret;
 }

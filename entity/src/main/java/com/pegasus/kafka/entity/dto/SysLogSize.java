@@ -19,9 +19,15 @@ import lombok.EqualsAndHashCode;
 @Data
 @TableName(value = Constants.DATABASE_NAME + "." + "`sys_log_size`")
 public class SysLogSize extends BaseDto {
+    /**
+     * 主题名称
+     */
     @TableField(value = "`topic_name`")
     private String topicName;
 
+    /**
+     * 主题对应的信息数量
+     */
     @TableField(value = "`log_size`")
     private Long logSize;
 }

@@ -2,6 +2,7 @@ package com.pegasus.kafka.resolver;
 
 import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.entity.dto.SysAdmin;
+import com.pegasus.kafka.entity.vo.AdminInfo;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebArgumentResolver;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -22,7 +23,7 @@ public class LoginArgumentResolver implements WebArgumentResolver {
         Class<?> parameterType = methodParameter.getParameterType();
         if (parameterType != null) {
             HttpServletRequest request = nativeWebRequest.getNativeRequest(HttpServletRequest.class);
-            if (parameterType.equals(SysAdmin.class)) {
+            if (parameterType.equals(AdminInfo.class)) {
                 return request.getAttribute(Constants.CURRENT_ADMIN_LOGIN);
             }
         }

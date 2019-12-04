@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * The entity for table sys_mail_config. Using for saving the email's config.
+ * The entity for table sys_role. Using for saving information of role.
  * <p>
  * *****************************************************************
  * Name               Action            Time          Description  *
@@ -17,30 +17,23 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@TableName(value = Constants.DATABASE_NAME + "." + "`sys_mail_config`")
-public class SysMailConfig extends BaseDto {
+@TableName(value = Constants.DATABASE_NAME + "." + "`sys_role`")
+public class SysRole extends BaseDto {
     /**
-     * 邮箱服务器地址
+     * 角色名称
      */
-    @TableField(value = "`host`")
-    private String host;
+    @TableField(value = "`name`")
+    private String name;
 
     /**
-     * 邮箱服务器端口
+     * 是否是超级管理员(true:是; false:否)
      */
-    @TableField(value = "`port`")
-    private String port;
+    @TableField(value = "`super_admin`")
+    private Boolean superAdmin;
 
     /**
-     * 邮箱服务器用户名
+     * 角色说明
      */
-    @TableField(value = "`username`")
-    private String username;
-
-    /**
-     * 邮箱服务器密码
-     */
-    @TableField(value = "`password`")
-    private String password;
-
+    @TableField(value = "`remark`")
+    private String remark;
 }

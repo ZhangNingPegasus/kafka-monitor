@@ -19,8 +19,15 @@ import java.util.Date;
  */
 @Data
 public abstract class BaseDto implements Serializable {
+    /**
+     * 自增主键
+     */
     @TableId(value = "id", type = IdType.AUTO)
     public Long id;
+
+    /**
+     * 创建时间
+     */
     @TableField(value = "create_time")
     public Date createTime;
 }

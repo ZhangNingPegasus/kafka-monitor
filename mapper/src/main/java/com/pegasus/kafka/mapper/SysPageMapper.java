@@ -2,11 +2,12 @@ package com.pegasus.kafka.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.pegasus.kafka.entity.dto.SysAdmin;
-import com.pegasus.kafka.entity.vo.AdminInfo;
+import com.pegasus.kafka.entity.dto.SysPage;
+import com.pegasus.kafka.entity.vo.PageInfo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * The mapper for database's schema. Using for administrator's information.
@@ -17,11 +18,8 @@ import org.springframework.stereotype.Repository;
  * *****************************************************************
  */
 @Repository
-public interface SysAdminMapper extends BaseMapper<SysAdmin> {
+public interface SysPageMapper extends BaseMapper<SysPage> {
+    List<PageInfo> list(IPage page, @Param("name") String name);
 
-    IPage<AdminInfo> list(Page page, @Param("name") String name);
-
-    AdminInfo getById(@Param("sysAdminId") Long sysAdminId);
-
-    AdminInfo getByUsernameAndPassword(@Param("username") String username, @Param("password") String password);
+    Long getMaxOrderNum(@Param("parentId") Long parentId);
 }
