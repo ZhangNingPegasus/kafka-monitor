@@ -2,6 +2,7 @@ package com.pegasus.kafka.common.utils;
 
 
 import lombok.Data;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.util.StringUtils;
 
@@ -103,6 +104,21 @@ public class Common {
         try {
             return Long.valueOf(value.trim());
         } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static <T> T toVo(Object source, Class<T> target) {
+        if (source == null) {
+            return null;
+        }
+
+        try {
+            T result = target.newInstance();
+            BeanUtils.copyProperties(result, source);
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }

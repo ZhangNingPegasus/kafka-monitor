@@ -11,10 +11,14 @@
             <div class="layui-card-body">
                 <table id="grid" lay-filter="grid"></table>
                 <script type="text/html" id="grid-bar">
-                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="getDetail"><i
-                                class="layui-icon layui-icon-read"></i>查看</a>
-                    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i
-                                class="layui-icon layui-icon-delete"></i>删除</a>
+                    <@select>
+                        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="getDetail"><i
+                                    class="layui-icon layui-icon-read"></i>查看</a>
+                    </@select>
+                    <@delete>
+                        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i
+                                    class="layui-icon layui-icon-delete"></i>删除</a>
+                    </@delete>
                 </script>
 
                 <script type="text/html" id="colGroupId">

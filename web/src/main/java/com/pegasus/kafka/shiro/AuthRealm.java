@@ -25,10 +25,11 @@ public class AuthRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
         UsernamePasswordToken usernamePasswordToken = (UsernamePasswordToken) authenticationToken;
-        AdminInfo adminInfo = sysAdminService.getBaseMapper().getByUsernameAndPassword(usernamePasswordToken.getUsername(), Common.hash(new String(usernamePasswordToken.getPassword())));
+        AdminInfo adminInfo = sysAdminService.getByUsernameAndPassword(usernamePasswordToken.getUsername(), Common.hash(new String(usernamePasswordToken.getPassword())));
         if (adminInfo == null) {
             return null;
         }
+
         return new SimpleAuthenticationInfo(adminInfo, usernamePasswordToken.getPassword(), usernamePasswordToken.getUsername());
     }
 

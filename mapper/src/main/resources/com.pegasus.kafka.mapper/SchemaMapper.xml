@@ -12,9 +12,9 @@
         SET NAMES utf8mb4;
         SET FOREIGN_KEY_CHECKS = 0;
 
-        CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_admin`  (
+        CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_admin` (
         `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
-        `role_id` bigint(20) NOT NULL COMMENT '角色id(sys_role表的主键)',
+        `sys_role_id` bigint(20) NOT NULL COMMENT '角色id(sys_role表的主键)',
         `username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '管理员的登陆用户名',
         `password` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '管理员的登陆密码',
         `name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '管理员姓名',
@@ -25,7 +25,7 @@
         `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
         PRIMARY KEY (`id`) USING BTREE,
         UNIQUE INDEX `idx_sys_admin_username`(`username`) USING BTREE,
-        INDEX `idx_sys_admin_role_id`(`role_id`) USING BTREE
+        INDEX `idx_sys_admin_sys_role_id`(`sys_role_id`) USING BTREE
         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
 
         CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_role` (
@@ -36,6 +36,34 @@
         `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
         PRIMARY KEY (`id`) USING BTREE,
         UNIQUE INDEX `idx_sys_role_name`(`name`) USING BTREE
+        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+        CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` (
+        `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+        `name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '页面名称',
+        `url` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '页面地址',
+        `is_menu` bit(1) NOT NULL COMMENT '页面是否出现在菜单栏',
+        `is_default` bit(1) NOT NULL COMMENT '是否是默认页(只允许有一个默认页，如果设置多个，以第一个为准)',
+        `icon_class` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'html中的图标样式',
+        `parent_id` bigint(20) UNSIGNED NOT NULL COMMENT '父级id(即本表的主键id)',
+        `order_num` bigint(128) UNSIGNED NOT NULL COMMENT '顺序号(值越小, 排名越靠前)',
+        `remark` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '备注',
+        `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
+        PRIMARY KEY (`id`) USING BTREE,
+        INDEX `idx_sys_page_url`(`url`) USING BTREE
+        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+        CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_permission` (
+        `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+        `sys_role_id` bigint(20) UNSIGNED NOT NULL COMMENT 'sys_role的主键id',
+        `sys_page_id` bigint(20) UNSIGNED NOT NULL COMMENT 'sys_page的主键id',
+        `can_insert` bit(1) NOT NULL COMMENT '是否能新增(true:能; false:不能)',
+        `can_delete` bit(1) NOT NULL COMMENT '是否能删除(true:能; false:不能)',
+        `can_update` bit(1) NOT NULL COMMENT '是否能修改(true:能; false:不能)',
+        `can_select` bit(1) NOT NULL COMMENT '是否能读取(true:能; false:不能)',
+        `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
+        PRIMARY KEY (`id`) USING BTREE,
+        UNIQUE INDEX `idx_sys_permission_sys_role_id_sys_page_id`(`sys_role_id`, `sys_page_id`) USING BTREE
         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
 
         CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_lag` (
@@ -118,12 +146,55 @@
               value="@com.pegasus.kafka.common.constant.Constants@DEFAULT_ADMIN_PASSWORD"/>
         <bind name="SYSTEM_ROLE_NAME"
               value="@com.pegasus.kafka.common.constant.Constants@SYSTEM_ROLE_NAME"/>
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_admin`(`id`, `role_id`,
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_admin`(`id`, `sys_role_id`,
         `username`, `password`, `name`, `gender`, `phone_number`, `email`, `remark`, `create_time`) VALUES
         (1, 1, #{DEFAULT_ADMIN_USERNAME}, #{DEFAULT_ADMIN_PASSWORD} , '系统管理员', b'1', '', 'zhangningkid@163.com', '',
         now());
         INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_role`(`id`, `name`,
         `super_admin`, `remark`, `create_time`) VALUES (1, #{SYSTEM_ROLE_NAME}, b'1', '超级管理员, 拥有最高权限', now());
+
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` VALUES (1, '仪表盘',
+        '/dashboard/index', b'1', b'1', 'layui-icon-engine', 0, 1, '', now());
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` VALUES (2, '集群',
+        '/cluster/tolist', b'1', b'0', 'layui-icon-share', 0, 2, '', now());
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` VALUES (3, '主题',
+        '/topic/tolist', b'1', b'0', 'layui-icon-dialogue', 0, 3, '', now());
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` VALUES (4, '消费者',
+        '/consumer/tolist', b'1', b'0', 'layui-icon-group', 0, 4, '', now());
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` VALUES (5, '消息跟踪',
+        '/record/tolist', b'1', b'0', 'layui-icon-list', 0, 5, '', now());
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` VALUES (6,
+        'ZooKeeper客户端', '/zkCli/tolist', b'1', b'0', 'layui-icon-util', 0, 6, '', now());
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` VALUES (7, '性能指标',
+        '', b'1', b'0', 'layui-icon-console', 0, 7, '', now());
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` VALUES (8,
+        'ZooKeeper性能', '/zkperformance/tolist', b'1', b'0', '', 7, 1, '', now());
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` VALUES (9,
+        'Kafka性能', '/kafkaperformance/tolist', b'1', b'0', '', 7, 2, '', now());
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` VALUES (10, '警告设置',
+        '', b'1', b'0', 'layui-icon-notice', 0, 8, '', now());
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` VALUES (11, '消费组设置',
+        '/alertconsumer/tolist', b'1', b'0', '', 10, 1, '', now());
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` VALUES (12,
+        '集群主机设置', '/alertcluster/tolist', b'1', b'0', '', 10, 2, '', now());
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` VALUES (13, '权限设置',
+        '', b'1', b'0', 'layui-icon-password', 0, 9, '', now());
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` VALUES (14, '管理员配置',
+        '/admin/tolist', b'1', b'0', '', 13, 1, '', now());
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` VALUES (15, '角色管理',
+        '/role/tolist', b'1', b'0', '', 13, 2, '', now());
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` VALUES (16, '权限管理',
+        '/permission/tolist', b'1', b'0', '', 13, 3, '', now());
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` VALUES (17, '系统设置',
+        '', b'1', b'0', 'layui-icon-set', 0, 10, '', now());
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` VALUES (18, '页面配置',
+        '/page/tolist', b'1', b'0', '', 17, 1, '', now());
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` VALUES (19,
+        '邮件发送设置', '/mailconfig/tolist', b'1', b'0', '', 17, 2, '', now());
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` VALUES (20,
+        '钉钉机器人设置', '/dingdingconfig/tolist', b'1', b'0', '', 17, 3, '', now());
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` VALUES (21, '大屏幕',
+        '/dashboard/index', b'1', b'0', 'layui-icon-chart-screen', 0, 11, '', now());
     </insert>
 
     <delete id="deleteExpired">

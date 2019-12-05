@@ -36,15 +36,21 @@
 
                 <script type="text/html" id="grid-toolbar">
                     <div class="layui-btn-container">
-                        <button class="layui-btn layui-btn-sm layuiadmin-btn-admin" lay-event="add">新增角色</button>
+                        <@insert>
+                            <button class="layui-btn layui-btn-sm layuiadmin-btn-admin" lay-event="add">新增角色</button>
+                        </@insert>
                     </div>
                 </script>
 
                 <script type="text/html" id="grid-bar">
-                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i
-                                class="layui-icon layui-icon-edit"></i>编辑</a>
-                    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i
-                                class="layui-icon layui-icon-delete"></i>删除</a>
+                    <@update>
+                        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i
+                                    class="layui-icon layui-icon-edit"></i>编辑</a>
+                    </@update>
+                    <@delete>
+                        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i
+                                    class="layui-icon layui-icon-delete"></i>删除</a>
+                    </@delete>
                 </script>
             </div>
         </div>
@@ -74,8 +80,10 @@
                     {type: 'numbers', title: '序号', width: 50},
                     {field: 'name', title: '角色名称', width: 200},
                     {field: 'superadmin', title: '是否超级管理员', templet: '#colSuperadmin', width: 200},
-                    {field: 'remark', title: '备注'},
-                    {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 150}
+                    {field: 'remark', title: '备注'}
+                    <@select>
+                    , {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 150}
+                    </@select>
                 ]]
             });
 

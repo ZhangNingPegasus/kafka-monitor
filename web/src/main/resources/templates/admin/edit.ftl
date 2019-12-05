@@ -16,7 +16,7 @@
                     <option value="">请选择角色</option>
                     <#list roles as role >
                         <option value="${role.id}"
-                                ${(admin.roleId==role.id)?string('selected="selected"','')}>${role.name}</option>
+                                ${(admin.sysRoleId==role.id)?string('selected="selected"','')}>${role.name}</option>
                     </#list>
                 </select>
             </div>

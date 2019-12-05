@@ -50,8 +50,10 @@
             <div class="layui-card-body">
                 <table id="grid" lay-filter="grid"></table>
                 <script type="text/html" id="grid-bar">
-                    <a class="layui-btn layui-btn-xs" lay-event="sendMsg"><i
-                                class="layui-icon layui-icon-dialogue"></i>重发消息</a>
+                    <@update>
+                        <a class="layui-btn layui-btn-xs" lay-event="sendMsg"><i
+                                    class="layui-icon layui-icon-dialogue"></i>重发消息</a>
+                    </@update>
                     <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="showMsgDetails"><i
                                 class="layui-icon layui-icon-login-wechat" style="color:white"></i>消息详情</a>
                     <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="showConsumerDetails"><i

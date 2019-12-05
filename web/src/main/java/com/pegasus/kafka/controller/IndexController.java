@@ -6,7 +6,6 @@ import com.pegasus.kafka.service.dto.SysAdminService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,20 +24,24 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class IndexController {
 
-    @Autowired
-    private SysAdminService sysAdminService;
+    private final SysAdminService sysAdminService;
 
-    @GetMapping("index")
-    public String toIndex(Model model,
-                          AdminInfo adminInfo) {
-        model.addAttribute("name", adminInfo.getName());
-        return "index";
+    public IndexController(SysAdminService sysAdminService) {
+        this.sysAdminService = sysAdminService;
     }
 
     @GetMapping("/")
     public String toLogin() {
         return "login";
     }
+
+    @GetMapping("index")
+    public String toIndex(Model model,
+                          AdminInfo adminInfo) {
+        model.addAttribute("admin", adminInfo);
+        return "index";
+    }
+
 
     @GetMapping("toinfo")
     public String toInfo(Model model,

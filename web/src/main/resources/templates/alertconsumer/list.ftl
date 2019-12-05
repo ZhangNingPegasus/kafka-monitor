@@ -20,14 +20,20 @@
                 </script>
                 <script type="text/html" id="grid-toolbar">
                     <div class="layui-btn-container">
-                        <button class="layui-btn layui-btn-sm layuiadmin-btn-admin" lay-event="add">创建</button>
+                        <@insert>
+                            <button class="layui-btn layui-btn-sm layuiadmin-btn-admin" lay-event="add">创建</button>
+                        </@insert>
                     </div>
                 </script>
                 <script type="text/html" id="grid-bar">
-                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i
-                                class="layui-icon layui-icon-edit"></i>编辑</a>
-                    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i
-                                class="layui-icon layui-icon-delete"></i>删除</a>
+                    <@update>
+                        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i
+                                    class="layui-icon layui-icon-edit"></i>编辑</a>
+                    </@update>
+                    <@delete>
+                        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i
+                                    class="layui-icon layui-icon-delete"></i>删除</a>
+                    </@delete>
                 </script>
             </div>
         </div>
@@ -56,8 +62,10 @@
                     {field: 'topicName', title: '主题名称'},
                     {field: 'lagThreshold', title: '消息积累报警阀值', width: 250},
                     {field: 'email', title: '通知邮箱', width: 300},
-                    {field: 'createTime', title: '创建时间', templet: '#createTime', width: 200},
-                    {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 160}
+                    {field: 'createTime', title: '创建时间', templet: '#createTime', width: 200}
+                    <@select>
+                    , {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 160}
+                    </@select>
                 ]]
             });
 

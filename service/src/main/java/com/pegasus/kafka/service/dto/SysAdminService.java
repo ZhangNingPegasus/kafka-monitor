@@ -11,6 +11,7 @@ import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.exception.BusinessException;
 import com.pegasus.kafka.common.utils.Common;
 import com.pegasus.kafka.entity.dto.SysAdmin;
+import com.pegasus.kafka.entity.dto.SysRole;
 import com.pegasus.kafka.entity.vo.AdminInfo;
 import com.pegasus.kafka.mapper.SysAdminMapper;
 import org.apache.shiro.SecurityUtils;
@@ -30,6 +31,12 @@ import java.util.List;
 @Service
 public class SysAdminService extends ServiceImpl<SysAdminMapper, SysAdmin> {
 
+    private final SysRoleService sysRoleService;
+
+    public SysAdminService(SysRoleService sysRoleService) {
+        this.sysRoleService = sysRoleService;
+    }
+
     @TranRead
     public IPage<AdminInfo> list(Integer pageNum, Integer pageSize, String name) {
         if (!StringUtils.isEmpty(name)) {
@@ -43,6 +50,17 @@ public class SysAdminService extends ServiceImpl<SysAdminMapper, SysAdmin> {
         QueryWrapper<SysAdmin> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(SysAdmin::getUsername, username);
         return this.baseMapper.selectOne(queryWrapper);
+    }
+
+    @TranRead
+    public AdminInfo getByUsernameAndPassword(String username, String password) {
+        AdminInfo adminInfo = this.baseMapper.getByUsernameAndPassword(username, password);
+        if (adminInfo == null) {
+            return null;
+        }
+        SysRole sysRole = sysRoleService.getById(adminInfo.getSysRoleId());
+        adminInfo.setSysRole(sysRole);
+        return adminInfo;
     }
 
 
@@ -107,7 +125,7 @@ public class SysAdminService extends ServiceImpl<SysAdminMapper, SysAdmin> {
         SysAdmin sysAdmin = this.getByUsername(username);
         if (sysAdmin == null) {
             sysAdmin = new SysAdmin();
-            sysAdmin.setRoleId(roleId);
+            sysAdmin.setSysRoleId(roleId);
             sysAdmin.setUsername(username);
             sysAdmin.setPassword(Common.hash(password));
             sysAdmin.setName(name);
@@ -125,7 +143,7 @@ public class SysAdminService extends ServiceImpl<SysAdminMapper, SysAdmin> {
         UpdateWrapper<SysAdmin> updateWrapper = new UpdateWrapper<>();
         updateWrapper.lambda()
                 .eq(SysAdmin::getId, id)
-                .set(SysAdmin::getRoleId, roleId)
+                .set(SysAdmin::getSysRoleId, roleId)
                 .set(SysAdmin::getName, name)
                 .set(SysAdmin::getGender, gender)
                 .set(SysAdmin::getPhoneNumber, phoneNumber)
@@ -137,7 +155,7 @@ public class SysAdminService extends ServiceImpl<SysAdminMapper, SysAdmin> {
     @TranRead
     public List<SysAdmin> getByRoleId(Long roleId) {
         QueryWrapper<SysAdmin> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(SysAdmin::getRoleId, roleId);
+        queryWrapper.lambda().eq(SysAdmin::getSysRoleId, roleId);
         return this.list(queryWrapper);
     }
 }

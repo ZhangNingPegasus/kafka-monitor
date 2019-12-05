@@ -1,8 +1,11 @@
 package com.pegasus.kafka.shiro;
 
+import com.pegasus.kafka.entity.vo.AdminInfo;
+import com.pegasus.kafka.service.dto.SysPageService;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.credential.SimpleCredentialsMatcher;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * The credential matcher for shiro
@@ -14,9 +17,13 @@ import org.apache.shiro.authc.credential.SimpleCredentialsMatcher;
  */
 public class CredentialsMatcher extends SimpleCredentialsMatcher {
 
+    @Autowired
+    private SysPageService sysPageService;
 
     @Override
     public boolean doCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) {
+        AdminInfo appVo = (AdminInfo) info.getPrincipals().getPrimaryPrincipal();
+        sysPageService.fillPages(appVo);
         return true;
     }
 }

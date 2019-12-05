@@ -28,7 +28,7 @@
                     </li>
                     <li class="layui-nav-item" style="margin-right: 10px" lay-unselect>
                         <a href="javascript:">
-                            <cite>${name}</cite>
+                            <cite>${admin.name}</cite>
                         </a>
                         <dl class="layui-nav-child">
                             <dd><a lay-href="${ctx}/toinfo">基本资料</a></dd>
@@ -46,105 +46,36 @@
                     </div>
                     <ul class="layui-nav layui-nav-tree" lay-shrink="all" id="LAY-system-side-menu"
                         lay-filter="layadmin-system-side-menu">
-                        <li data-name="dashboard" class="layui-nav-item">
-                            <a href="javascript:" lay-href="${ctx}/dashboard/index" lay-tips="仪表盘" lay-direction="2">
-                                <i class="layui-icon layui-icon-engine"></i>
-                                <cite>仪表盘</cite>
-                            </a>
-                        </li>
-                        <li data-name="dashboard" class="layui-nav-item">
-                            <a href="javascript:" lay-href="${ctx}/cluster/tolist" lay-tips="集群" lay-direction="2">
-                                <i class="layui-icon layui-icon-share"></i>
-                                <cite>集群</cite>
-                            </a>
-                        </li>
-                        <li data-name="dashboard" class="layui-nav-item">
-                            <a href="javascript:" lay-href="${ctx}/topic/tolist" lay-tips="主题" lay-direction="2">
-                                <i class="layui-icon layui-icon-dialogue"></i>
-                                <cite>主题</cite>
-                            </a>
-                        </li>
-                        <li data-name="consumer" class="layui-nav-item">
-                            <a href="javascript:" lay-href="${ctx}/consumer/tolist" lay-tips="消费者" lay-direction="2">
-                                <i class="layui-icon layui-icon-group"></i>
-                                <cite>消费者</cite>
-                            </a>
-                        </li>
-                        <li data-name="recordTrack" class="layui-nav-item">
-                            <a href="javascript:" lay-href="${ctx}/record/tolist" lay-tips="消息跟踪" lay-direction="2">
-                                <i class="layui-icon layui-icon-list"></i>
-                                <cite>消息跟踪</cite>
-                            </a>
-                        </li>
-                        <li data-name="zkCli" class="layui-nav-item">
-                            <a href="javascript:" lay-href="${ctx}/zkCli/tolist" lay-tips="zookeeper客户端"
-                               lay-direction="2">
-                                <i class="layui-icon layui-icon-util"></i>
-                                <cite>ZooKeeper客户端</cite>
-                            </a>
-                        </li>
-                        <li data-name="performance" class="layui-nav-item">
-                            <a href="javascript:" lay-tips="性能监控"
-                               lay-direction="2">
-                                <i class="layui-icon layui-icon-console"></i>
-                                <cite>性能指标</cite>
-                            </a>
-                            <dl class="layui-nav-child">
-                                <dd><a lay-href="${ctx}/zkperformance/tolist">
-                                        ZooKeeper性能</a></dd>
-                                <dd><a lay-href="${ctx}/kafkaperformance/tolist">
-                                        Kafka性能</a></dd>
-                            </dl>
-                        </li>
-                        <li data-name="alerm" class="layui-nav-item">
-                            <a href="javascript:" lay-tips="警告设置"
-                               lay-direction="2">
-                                <i class="layui-icon layui-icon-notice"></i>
-                                <cite>警告设置</cite>
-                            </a>
-                            <dl class="layui-nav-child">
-                                <dd><a lay-href="${ctx}/alertconsumer/tolist">
-                                        消费组设置</a></dd>
-                                <dd><a lay-href="${ctx}/alertcluster/tolist">
-                                        集群主机设置</a></dd>
-                            </dl>
-                        </li>
-                        <li data-name="privileges" class="layui-nav-item">
-                            <a href="javascript:" lay-tips="权限设置"
-                               lay-direction="2">
-                                <i class="layui-icon layui-icon-password"></i>
-                                <cite>权限设置</cite>
-                            </a>
-                            <dl class="layui-nav-child">
-                                <dd><a lay-href="${ctx}/admin/tolist">
-                                        管理员配置</a></dd>
-                                <dd><a lay-href="${ctx}/role/tolist">
-                                        角色管理</a></dd>
-                                <dd><a lay-href="${ctx}/permission/tolist">
-                                        权限管理</a></dd>
-                            </dl>
-                        </li>
-                        <li data-name="setting" class="layui-nav-item">
-                            <a href="javascript:" lay-tips="系统设置"
-                               lay-direction="2">
-                                <i class="layui-icon layui-icon-set"></i>
-                                <cite>系统设置</cite>
-                            </a>
-                            <dl class="layui-nav-child">
-                                <dd><a lay-href="${ctx}/page/tolist">
-                                        页面配置</a></dd>
-                                <dd><a lay-href="${ctx}/mailconfig/tolist">
-                                        邮件发送设置</a></dd>
-                                <dd><a lay-href="${ctx}/dingdingconfig/tolist">
-                                        钉钉机器人设置</a></dd>
-                            </dl>
-                        </li>
-                        <li data-name="bigscreen" class="layui-nav-item">
-                            <a href="javascript:" lay-href="${ctx}/dashboard/index" lay-tips="大屏幕" lay-direction="2">
-                                <i class="layui-icon layui-icon-chart-screen"></i>
-                                <cite>大屏幕</cite>
-                            </a>
-                        </li>
+                        <#if admin.permissions??>
+                            <#list admin.permissions as page>
+                                <li data-name="config" class="layui-nav-item <#if page_index==0>layui-nav-itemed</#if>">
+                                    <a href="javascript:;"
+                                            <#if page.url!=''> lay-href="${ctx}${page.url}"</#if>
+                                       lay-tips="<#if page.remark!=''>${page.remark}<#else>${page.name}</#if>"
+                                       lay-direction="2">
+                                        <i class="layui-icon ${page.iconClass}"></i><cite>${page.name}</cite>
+                                    </a>
+                                    <#list page.children as child>
+                                        <dl class="layui-nav-child">
+                                            <#if child.children?? && child.children?size gt 0>
+                                                <dd class="layui-nav-itemed">
+                                                    <a href="javascript:;">${child.name}</a>
+                                                    <dl class="layui-nav-child">
+                                                        <#list child.children as gs>
+                                                            <dd><a lay-href="${ctx}${gs.url}">${gs.name}</a></dd>
+                                                        </#list>
+                                                    </dl>
+                                                </dd>
+                                            <#else>
+                                                <dd>
+                                                    <a lay-href="${ctx}${child.url}" target="_blank">${child.name}</a>
+                                                </dd>
+                                            </#if>
+                                        </dl>
+                                    </#list>
+                                </li>
+                            </#list>
+                        </#if>
                     </ul>
                 </div>
             </div>
@@ -165,14 +96,15 @@
                 </div>
                 <div class="layui-tab" lay-unauto lay-allowClose="true" lay-filter="layadmin-layout-tabs">
                     <ul class="layui-tab-title" id="LAY_app_tabsheader">
-                        <li lay-id="${ctx}/dashboard/index" lay-attr="${ctx}/dashboard/index" class="layui-this"><i
+                        <li lay-id="${ctx}${admin.defaultPage!''}" lay-attr="${ctx}${admin.defaultPage!''}"
+                            class="layui-this"><i
                                     class="layui-icon layui-icon-home"></i></li>
                     </ul>
                 </div>
             </div>
             <div class="layui-body" id="LAY_app_body">
                 <div class="layadmin-tabsbody-item layui-show">
-                    <iframe src="${ctx}/dashboard/index" style="border:0" class="layadmin-iframe"></iframe>
+                    <iframe src="${ctx}${admin.defaultPage!''}" style="border:0" class="layadmin-iframe"></iframe>
                 </div>
             </div>
             <div class="layadmin-body-shade" layadmin-event="shade"></div>

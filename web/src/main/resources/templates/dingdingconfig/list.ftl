@@ -26,11 +26,13 @@
 
             <div class="layui-form-item">
                 <div class="layui-input-block">
-                    <button type="button" class="layui-btn" lay-submit="" lay-filter="btnConfirm">保存</button>
-                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
-                    <#if (config.id)??>
-                        <button id="btnTest" type="button" class="layui-btn layui-btn-normal">测试</button>
-                    </#if>
+                    <@update>
+                        <button type="button" class="layui-btn" lay-submit="" lay-filter="btnConfirm">保存</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                        <#if (config.id)??>
+                            <button id="btnTest" type="button" class="layui-btn layui-btn-normal">测试</button>
+                        </#if>
+                    </@update>
                 </div>
             </div>
         </form>

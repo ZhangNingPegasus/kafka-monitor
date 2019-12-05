@@ -22,8 +22,8 @@ public class SysAdmin extends BaseDto {
     /**
      * 角色id(sys_role表的主键)
      */
-    @TableField(value = "`role_id`")
-    private Long roleId;
+    @TableField(value = "`sys_role_id`")
+    private Long sysRoleId;
 
     /**
      * 管理员的登陆用户名

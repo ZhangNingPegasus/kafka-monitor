@@ -3,6 +3,7 @@ package com.pegasus.kafka.entity.vo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.pegasus.kafka.entity.dto.BaseDto;
+import com.pegasus.kafka.entity.dto.SysRole;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -19,8 +20,8 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class AdminInfo extends BaseDto {
-    @TableField(value = "`role_id`")
-    private Long roleId;
+    @TableField(value = "`sys_role_id`")
+    private Long sysRoleId;
 
     @TableField(value = "`role_name`")
     private String roleName;
@@ -42,4 +43,13 @@ public class AdminInfo extends BaseDto {
 
     @TableField(value = "`remark`")
     private String remark;
+
+    @TableField(exist = false)
+    private String defaultPage;
+
+    @TableField(exist = false)
+    private SysRole sysRole;
+
+    @TableField(exist = false)
+    private List<PageInfo> permissions;
 }

@@ -8,9 +8,23 @@
     <div class="layui-card">
         <div class="layui-form layui-card-header layuiadmin-card-header-auto">
             <div class="layui-form-item">
+                <div class="layui-inline">角色名称</div>
+                <div class="layui-inline">
+                    <select name="sysRoleId">
+                        <option value="">请选择角色</option>
+                        <#list roles as role>
+                            <option value="${role.id}">${role.name}</option>
+                        </#list>
+                    </select>
+                </div>
                 <div class="layui-inline">页面名称</div>
-                <div class="layui-inline" style="width:500px">
-                    <input type="text" name="name" placeholder="请输入页面名称" autocomplete="off" class="layui-input">
+                <div class="layui-inline">
+                    <select name="sysPageId">
+                        <option value="">请选择页面</option>
+                        <#list pages as page>
+                            <option value="${page.id}">${page.name}</option>
+                        </#list>
+                    </select>
                 </div>
                 <div class="layui-inline">
                     <button class="layui-btn layuiadmin-btn-admin" lay-submit lay-filter="search">
@@ -43,13 +57,50 @@
                                 class="layui-icon layui-icon-delete"></i>删除</a>
                 </@delete>
             </script>
+
+            <script type="text/html" id="canInsert">
+                <input
+                    <@no_update>
+                        disabled="disabled"
+                    </@no_update>
+                        type="checkbox" name="insert" lay-skin="switch" lay-text="有|无" lay-filter="editPermission"
+                        value="{{ d.canInsert }}" data-json="{{ encodeURIComponent(JSON.stringify(d)) }}" {{
+                        d.canInsert== 1 ? 'checked' : '' }}>
+            </script>
+            <script type="text/html" id="canDelete">
+                <input
+                    <@no_update>
+                        disabled="disabled"
+                    </@no_update>
+                        type="checkbox" name="delete" lay-skin="switch" lay-text="有|无" lay-filter="editPermission"
+                        value="{{ d.canDelete }}" data-json="{{ encodeURIComponent(JSON.stringify(d)) }}" {{
+                        d.canDelete== 1 ? 'checked' : '' }}>
+            </script>
+            <script type="text/html" id="canUpdate">
+                <input
+                    <@no_update>
+                        disabled="disabled"
+                    </@no_update>
+                        type="checkbox" name="update" lay-skin="switch" lay-text="有|无" lay-filter="editPermission"
+                        value="{{ d.canUpdate }}" data-json="{{ encodeURIComponent(JSON.stringify(d)) }}" {{
+                        d.canUpdate== 1 ? 'checked' : '' }}>
+            </script>
+            <script type="text/html" id="canSelect">
+                <input
+                    <@no_update>
+                        disabled="disabled"
+                    </@no_update>
+                        type="checkbox" name="select" lay-skin="switch" lay-text="有|无" lay-filter="editPermission"
+                        value="{{ d.canSelect }}" data-json="{{ encodeURIComponent(JSON.stringify(d)) }}" {{
+                        d.canSelect== 1 ? 'checked' : '' }}>
+            </script>
         </div>
 
     </div>
 </div>
 <script type="text/javascript">
     layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table'], function () {
-        const admin = layui.admin, form = layui.form, table = layui.table;
+        const $ = layui.$, admin = layui.admin, form = layui.form, table = layui.table;
         form.on('submit(search)', function (data) {
             const field = data.field;
             table.reload('grid', {where: field});
@@ -65,44 +116,33 @@
             even: true,
             cols: [[
                 {type: 'checkbox'},
-                {type: 'numbers', title: '序号'},
-                {field: 'name', title: '页面名称', width: 200},
-                {field: 'parentName', title: '父级菜单', width: 150},
-                {field: 'url', title: 'URL地址', width: 200},
-                {
-                    title: '菜单图标', width: 100, templet: function (d) {
-                        return '<i class="layui-icon ' + d.iconClass + '" style="color: #1E9FFF;"></i>';
-                    }
-                },
-                {
-                    title: '是否是菜单', width: 120, templet: function (d) {
-                        return d.isMenu ? "是" : "否"
-                    }
-                },
-                {
-                    title: '是否首页', width: 120, templet: function (d) {
-                        return d.isDefault ? "是" : "否"
-                    }
-                },
-                {field: 'description', title: '描述信息'}
-                <@select>
-                , {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 160}
-                </@select>
+                {field: 'roleName', title: '角色名称'},
+                {field: 'pageName', title: '页面名称'},
+                {field: 'canInsert', title: '新增权限', unresize: true, templet: '#canInsert', width: 100},
+                {field: 'canDelete', title: '删除权限', unresize: true, templet: '#canDelete', width: 100},
+                {field: 'canUpdate', title: '修改权限', unresize: true, templet: '#canUpdate', width: 100},
+                {field: 'canSelect', title: '查询权限', unresize: true, templet: '#canSelect', width: 100}
             ]]
+        });
+
+        form.on('switch(editPermission)', function (obj) {
+            let json = JSON.parse(decodeURIComponent($(this).data('json')));
+            json = table.clearCacheKey(json);
+            admin.post("edit", {id: json.id, type: this.name, hasPermission: obj.elem.checked});
         });
 
         table.on('toolbar(grid)', function (obj) {
             const checkStatus = table.checkStatus(obj.config.id);
             switch (obj.event) {
                 case 'batchDel':
-                    const data = checkStatus.data;
+                    var data = checkStatus.data;
                     if (data.length > 0) {
                         layer.confirm(admin.DEL_QUESTION, function (index) {
-                            let keys = "";
-                            for (let j = 0, len = data.length; j < len; j++) {
+                            var keys = "";
+                            for (var j = 0, len = data.length; j < len; j++) {
                                 keys = keys + data[j].id + ","
                             }
-                            admin.post("del", {ids: keys}, function () {
+                            admin.post('del', {ids: keys}, function () {
                                 table.reload('grid');
                                 layer.close(index);
                             });
@@ -116,7 +156,7 @@
                         type: 2,
                         title: admin.ADD,
                         content: 'toadd.html',
-                        area: ['400px', '560px'],
+                        area: ['450px', '445px'],
                         btn: admin.BUTTONS,
                         resize: false,
                         yes: function (index, layero) {
@@ -124,7 +164,6 @@
                                 submit = layero.find('iframe').contents().find('#' + submitID);
                             iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
                                 const field = data.field;
-                                console.log(field);
                                 admin.post('add', field, function () {
                                     table.reload('grid');
                                     layer.close(index);
@@ -137,43 +176,6 @@
                         }
                     });
                     break;
-            }
-            ;
-        });
-
-        table.on('tool(grid)', function (obj) {
-            const data = obj.data;
-            if (obj.event === 'del') {
-                layer.confirm(admin.DEL_QUESTION, function (index) {
-                    admin.post("del", {ids: data.id}, function () {
-                        table.reload('grid');
-                        layer.close(index);
-                    });
-                });
-            } else if (obj.event = 'edit') {
-                layer.open({
-                    type: 2,
-                    title: admin.EDIT,
-                    content: 'toedit.html?id=' + data.id,
-                    area: ['400px', '610px'],
-                    btn: admin.BUTTONS,
-                    resize: false,
-                    yes: function (index, layero) {
-                        const iframeWindow = window['layui-layer-iframe' + index], submitID = 'btn_confirm',
-                            submit = layero.find('iframe').contents().find('#' + submitID);
-                        iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
-                            const field = data.field;
-                            admin.post('edit', admin.toJson(field), function () {
-                                table.reload('grid');
-                                layer.close(index);
-                            }, function (result) {
-                                admin.error(admin.OPT_FAILURE, result.error);
-                                layer.close(index);
-                            });
-                        });
-                        submit.trigger('click');
-                    }
-                });
             }
         });
     });

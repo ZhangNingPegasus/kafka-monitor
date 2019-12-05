@@ -36,17 +36,23 @@
 
                 <script type="text/html" id="grid-toolbar">
                     <div class="layui-btn-container">
-                        <button class="layui-btn layui-btn-sm layuiadmin-btn-admin" lay-event="add">新增管理员</button>
+                        <@insert>
+                            <button class="layui-btn layui-btn-sm layuiadmin-btn-admin" lay-event="add">新增管理员</button>
+                        </@insert>
                     </div>
                 </script>
 
                 <script type="text/html" id="grid-bar">
-                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i
-                                class="layui-icon layui-icon-edit"></i>编辑</a>
-                    <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="repwd"><i
-                                class="layui-icon layui-icon-password"></i>密码重置</a>
-                    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i
-                                class="layui-icon layui-icon-delete"></i>删除</a>
+                    <@update>
+                        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i
+                                    class="layui-icon layui-icon-edit"></i>编辑</a>
+                        <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="repwd"><i
+                                    class="layui-icon layui-icon-password"></i>密码重置</a>
+                    </@update>
+                    <@delete>
+                        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i
+                                    class="layui-icon layui-icon-delete"></i>删除</a>
+                    </@delete>
                 </script>
             </div>
         </div>
@@ -80,8 +86,10 @@
                     {field: 'gender', title: '性别', templet: '#colGender', width: 100},
                     {field: 'phoneNumber', title: '手机号', width: 200},
                     {field: 'email', title: '邮箱地址', width: 200},
-                    {field: 'remark', title: '备注'},
-                    {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 235}
+                    {field: 'remark', title: '备注'}
+                    <@select>
+                    , {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 235}
+                    </@select>
                 ]]
             });
 
@@ -143,7 +151,7 @@
                 } else if (obj.event === 'edit') {
                     layer.open({
                         type: 2,
-                        title: '<i class="layui-icon layui-icon-edit" style="color: #1E9FFF;"></i>&nbsp;编辑主题',
+                        title: '<i class="layui-icon layui-icon-edit" style="color: #1E9FFF;"></i>&nbsp;编辑管理员',
                         content: 'toedit?id=' + data.id,
                         area: ['880px', '400px'],
                         btn: admin.BUTTONS,

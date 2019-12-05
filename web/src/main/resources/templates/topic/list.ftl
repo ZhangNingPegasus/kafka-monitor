@@ -26,15 +26,17 @@
             <div class="layui-card-body">
                 <table id="grid" lay-filter="grid"></table>
 
-                <script type="text/html" id="colTopicName">
-                    {{#  if(d.error || d.logSize < 0){ }}
-                    <a title="{{ d.error }}" href="javascript:void(0)" class="topicName layui-table-link">
-                        <a href="javascript:void(0)" class="topicName layui-table-link"><span class="layui-badge">{{ d.topicName }}</span></a>
-                    </a>
-                    {{#  } else { }}
-                    <a href="javascript:void(0)" class="topicName layui-table-link">{{ d.topicName }}</a>
-                    {{#  } }}
-                </script>
+                <@select>
+                    <script type="text/html" id="colTopicName">
+                        {{#  if(d.error || d.logSize < 0){ }}
+                        <a title="{{ d.error }}" href="javascript:void(0)" class="topicName layui-table-link">
+                            <a href="javascript:void(0)" class="topicName layui-table-link"><span class="layui-badge">{{ d.topicName }}</span></a>
+                        </a>
+                        {{#  } else { }}
+                        <a href="javascript:void(0)" class="topicName layui-table-link">{{ d.topicName }}</a>
+                        {{#  } }}
+                    </script>
+                </@select>
 
                 <script type="text/html" id="colTodayLogSize">
                     {{#  if(d.error || d.logSize < 0){ }}
@@ -102,17 +104,23 @@
 
                 <script type="text/html" id="grid-toolbar">
                     <div class="layui-btn-container">
-                        <button class="layui-btn layui-btn-sm layuiadmin-btn-admin" lay-event="add">创建</button>
+                        <@insert>
+                            <button class="layui-btn layui-btn-sm layuiadmin-btn-admin" lay-event="add">创建</button>
+                        </@insert>
                     </div>
                 </script>
 
                 <script type="text/html" id="grid-bar">
-                    <a class="layui-btn layui-btn-xs" lay-event="sendMsg"><i
-                                class="layui-icon layui-icon-dialogue"></i>发送消息</a>
-                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i
-                                class="layui-icon layui-icon-edit"></i>编辑</a>
-                    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i
-                                class="layui-icon layui-icon-delete"></i>删除</a>
+                    <@update>
+                        <a class="layui-btn layui-btn-xs" lay-event="sendMsg"><i
+                                    class="layui-icon layui-icon-dialogue"></i>发送消息</a>
+                        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i
+                                    class="layui-icon layui-icon-edit"></i>编辑</a>
+                    </@update>
+                    <@delete>
+                        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i
+                                    class="layui-icon layui-icon-delete"></i>删除</a>
+                    </@delete>
                 </script>
             </div>
         </div>
@@ -148,8 +156,10 @@
                     {field: 'partitionNum', title: '分区数', templet: '#colPartitionNum', width: 100},
                     {field: 'partitionIndex', title: '分区索引', templet: '#colPartitionIndex', width: 120},
                     {field: 'createTime', title: '创建时间', templet: '#colCreateTime', width: 170},
-                    {field: 'modifyTime', title: '修改时间', templet: '#colModifyTime', width: 170},
-                    {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 240}
+                    {field: 'modifyTime', title: '修改时间', templet: '#colModifyTime', width: 170}
+                    <@select>
+                    , {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 240}
+                    </@select>
                 ]],
                 done: function () {
                     $("a[class='topicName layui-table-link']").click(function () {
