@@ -20,7 +20,7 @@ import java.util.Set;
 @Data
 @JsonSerialize
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class KafkaConsumerInfo implements Serializable {
+public class KafkaConsumerVo implements Serializable {
     private String groupId;
     private String node;
     private Integer topicCount;

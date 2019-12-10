@@ -135,7 +135,13 @@
                             table.reload('grid');
                             table.reload('gridMBean');
                         });
-                    })
+                    },function () {
+                        $("#divGridtHeader").html("共有<span class=\"layui-badge layui-bg-blue\">" + logsize.toString() + "</span>条消息" +  "&nbsp;&nbsp;&nbsp;&nbsp;<button id=\"btnRefresh\" type=\"button\" class=\"layui-btn layui-btn-xs\">刷新</button>");
+                        $("#btnRefresh").click(function () {
+                            table.reload('grid');
+                            table.reload('gridMBean');
+                        });
+                    });
                 }
             });
 

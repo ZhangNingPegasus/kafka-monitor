@@ -3,7 +3,7 @@ package com.pegasus.kafka.job;
 import com.pegasus.kafka.common.utils.ZooKeeperKpiUtils;
 import com.pegasus.kafka.entity.dto.SysAlertCluster;
 import com.pegasus.kafka.entity.po.DingDingMessage;
-import com.pegasus.kafka.entity.vo.KafkaBrokerInfo;
+import com.pegasus.kafka.entity.vo.KafkaBrokerVo;
 import com.pegasus.kafka.service.alert.AlertService;
 import com.pegasus.kafka.service.alert.DingDingService;
 import com.pegasus.kafka.service.alert.MailService;
@@ -75,7 +75,7 @@ public class AlertSchedule {
         if (list == null || list.size() < 1) {
             return;
         }
-        List<KafkaBrokerInfo> kafkaBrokerInfoList = kafkaBrokerService.listAllBrokers();
+        List<KafkaBrokerVo> KafkaBrokerVofoList = kafkaBrokerService.listAllBrokers();
         List<SysAlertCluster> zooKeepers = list.stream().filter(p -> p.getType().equals(SysAlertCluster.Type.ZOOKEEPER.getCode())).collect(Collectors.toList());
         List<SysAlertCluster> kafkas = list.stream().filter(p -> p.getType().equals(SysAlertCluster.Type.KAFKA.getCode())).collect(Collectors.toList());
 
@@ -100,7 +100,7 @@ public class AlertSchedule {
             String[] split = kafka.getServer().split(":");
             String ip = split[0];
             String port = split[1];
-            List<KafkaBrokerInfo> result = kafkaBrokerInfoList.stream().filter(p -> p.getHost().equals(ip) && p.getPort().equals(port)).collect(Collectors.toList());
+            List<KafkaBrokerVo> result = KafkaBrokerVofoList.stream().filter(p -> p.getHost().equals(ip) && p.getPort().equals(port)).collect(Collectors.toList());
             if (result.size() < 1) {
                 AlertService.Alert alert = new AlertService.Alert();
                 alert.setEmail(kafka.getEmail());

@@ -3,7 +3,7 @@ package com.pegasus.kafka.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.pegasus.kafka.entity.dto.SysPage;
-import com.pegasus.kafka.entity.vo.PageInfo;
+import com.pegasus.kafka.entity.vo.PageVo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -19,7 +19,7 @@ import java.util.List;
  */
 @Repository
 public interface SysPageMapper extends BaseMapper<SysPage> {
-    List<PageInfo> list(IPage page, @Param("name") String name);
+    List<PageVo> list(IPage page, @Param("name") String name);
 
     Long getMaxOrderNum(@Param("parentId") Long parentId);
 }

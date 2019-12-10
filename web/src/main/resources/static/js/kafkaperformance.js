@@ -1,4 +1,4 @@
-function kafkaChart(text, data) {
+function kafkaChart(text, data, isPercent) {
     return {
         title: {
             text: text
@@ -42,9 +42,15 @@ function kafkaChart(text, data) {
                 end: 100
             }
         ],
-        yAxis: {
-            type: 'value'
-        },
+        yAxis: [{
+            type: 'value',
+            axisLabel: {
+                show: true,
+                interval: 'auto',
+                formatter: '{value}' + (isPercent ? ' %' : '')
+            },
+            show: true
+        }],
         xAxis: {
             type: 'category',
             boundaryGap: false,

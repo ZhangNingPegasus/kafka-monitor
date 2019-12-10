@@ -5,7 +5,7 @@ import com.pegasus.kafka.common.response.ResultCode;
 import com.pegasus.kafka.common.utils.Common;
 import com.pegasus.kafka.common.utils.ZooKeeperKpiUtils;
 import com.pegasus.kafka.entity.dto.SysKpi;
-import com.pegasus.kafka.entity.vo.ZooKeeperInfo;
+import com.pegasus.kafka.entity.vo.ZooKeeperVo;
 import com.pegasus.kafka.service.property.KafkaMonitorProperty;
 import lombok.Data;
 import org.apache.curator.framework.CuratorFramework;
@@ -44,17 +44,17 @@ public class KafkaZkService implements InitializingBean, DisposableBean {
         this.kafkaMonitorProperty = kafkaMonitorProperty;
     }
 
-    public List<ZooKeeperInfo> listZooKeeperCluster() {
+    public List<ZooKeeperVo> listZooKeeperCluster() {
         String[] zks = kafkaMonitorProperty.getZookeeper().split(",");
-        List<ZooKeeperInfo> result = new ArrayList<>(zks.length);
+        List<ZooKeeperVo> result = new ArrayList<>(zks.length);
         for (String zk : zks) {
-            ZooKeeperInfo zooKeeperInfo = new ZooKeeperInfo();
-            zooKeeperInfo.setHost(zk.split(":")[0]);
-            zooKeeperInfo.setPort(zk.split(":")[1].split("/")[0]);
-            ZkStatus status = status(zooKeeperInfo.getHost(), zooKeeperInfo.getPort());
-            zooKeeperInfo.setMode(status.getMode());
-            zooKeeperInfo.setVersion(status.getVersion());
-            result.add(zooKeeperInfo);
+            ZooKeeperVo zooKeeperVo = new ZooKeeperVo();
+            zooKeeperVo.setHost(zk.split(":")[0]);
+            zooKeeperVo.setPort(zk.split(":")[1].split("/")[0]);
+            ZkStatus status = status(zooKeeperVo.getHost(), zooKeeperVo.getPort());
+            zooKeeperVo.setMode(status.getMode());
+            zooKeeperVo.setVersion(status.getVersion());
+            result.add(zooKeeperVo);
         }
         return result;
     }
@@ -181,7 +181,7 @@ public class KafkaZkService implements InitializingBean, DisposableBean {
 
     public List<SysKpi> kpi(Date now) {
         List<SysKpi> result = new ArrayList<>(SysKpi.ZK_KPI.values().length);
-        List<ZooKeeperInfo> zooKeeperInfos = this.listZooKeeperCluster();
+        List<ZooKeeperVo> zooKeeperVoList = this.listZooKeeperCluster();
         for (SysKpi.ZK_KPI kpi : SysKpi.ZK_KPI.values()) {
             if (StringUtils.isEmpty(kpi.getName())) {
                 continue;
@@ -190,7 +190,7 @@ public class KafkaZkService implements InitializingBean, DisposableBean {
             sysKpi.setKpi(kpi.getCode());
             sysKpi.setCreateTime(now);
             StringBuilder host = new StringBuilder();
-            for (ZooKeeperInfo zookeeper : zooKeeperInfos) {
+            for (ZooKeeperVo zookeeper : zooKeeperVoList) {
                 String ip = zookeeper.getHost();
                 String port = zookeeper.getPort();
                 host.append(String.format("%s,", ip));

@@ -2,4 +2,38 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.pegasus.kafka.mapper.SysLagMapper">
+    <select id="listTopLag" resultType="com.pegasus.kafka.entity.dto.SysLag">
+    SELECT
+    DISTINCT
+    a.consumer_name,
+    a.lag
+    FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_lag` AS a
+    INNER JOIN
+    (
+        SELECT
+        consumer_name,
+        MAX(create_time) AS create_time
+        FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_lag`
+        GROUP BY consumer_name
+        LIMIT ${top}
+    ) AS b ON a.consumer_name = b.consumer_name AND a.create_time = b.create_time
+    ORDER BY a.lag DESC
+    </select>
+
+    <insert id="batchSave">
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_lag`
+        (
+        `consumer_name`,
+        `topic_name`,
+        `lag`
+        )
+        VALUES
+        <foreach collection="sysLagList" item="item" separator=",">
+            (
+            #{item.consumerName},
+            #{item.topicName},
+            #{item.lag}
+            )
+        </foreach>
+    </insert>
 </mapper>

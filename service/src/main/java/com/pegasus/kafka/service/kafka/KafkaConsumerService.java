@@ -2,9 +2,10 @@ package com.pegasus.kafka.service.kafka;
 
 import com.pegasus.kafka.common.exception.BusinessException;
 import com.pegasus.kafka.common.response.ResultCode;
-import com.pegasus.kafka.entity.vo.KafkaConsumerInfo;
-import com.pegasus.kafka.entity.vo.OffsetInfo;
+import com.pegasus.kafka.entity.vo.KafkaConsumerVo;
+import com.pegasus.kafka.entity.vo.OffsetVo;
 import com.pegasus.kafka.service.core.KafkaService;
+import com.pegasus.kafka.service.dto.SysLagService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,26 +21,29 @@ import java.util.List;
 @Service
 public class KafkaConsumerService {
     private final KafkaService kafkaService;
+    private final SysLagService sysLagService;
 
-    public KafkaConsumerService(KafkaService kafkaService) {
+    public KafkaConsumerService(KafkaService kafkaService, SysLagService sysLagService) {
         this.kafkaService = kafkaService;
+        this.sysLagService = sysLagService;
     }
 
-    public List<KafkaConsumerInfo> listKafkaConsumers(String searchGroupId) throws Exception {
+    public List<KafkaConsumerVo> listKafkaConsumers(String searchGroupId) throws Exception {
         return kafkaService.listKafkaConsumers(searchGroupId);
     }
 
-    public List<KafkaConsumerInfo> listKafkaConsumers() throws Exception {
+    public List<KafkaConsumerVo> listKafkaConsumers() throws Exception {
         return listKafkaConsumers(null);
     }
 
-    public List<OffsetInfo> listOffsetInfo(String groupId, String topicName) throws Exception {
-        return kafkaService.listOffsetInfo(groupId, topicName);
+    public List<OffsetVo> listOffsetVo(String groupId, String topicName) throws Exception {
+        return kafkaService.listOffsetVo(groupId, topicName);
     }
 
     public void delete(String consumerGroupId) {
         try {
             kafkaService.deleteConsumerGroups(consumerGroupId);
+            sysLagService.deleteConsumerName(consumerGroupId);
         } catch (Exception e) {
             throw new BusinessException(ResultCode.CONSUMER_IS_RUNNING);
         }

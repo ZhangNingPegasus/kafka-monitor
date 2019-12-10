@@ -5,8 +5,7 @@ import com.pegasus.kafka.common.response.Result;
 import com.pegasus.kafka.common.utils.Common;
 import com.pegasus.kafka.entity.dto.SysPermission;
 import com.pegasus.kafka.entity.dto.SysRole;
-import com.pegasus.kafka.entity.vo.AdminInfo;
-import com.pegasus.kafka.entity.vo.PermissionInfo;
+import com.pegasus.kafka.entity.vo.PermissionVo;
 import com.pegasus.kafka.service.dto.SysPageService;
 import com.pegasus.kafka.service.dto.SysPermissionService;
 import com.pegasus.kafka.service.dto.SysRoleService;
@@ -46,16 +45,14 @@ public class PermissionController {
     }
 
     @GetMapping("tolist")
-    public String toList(Model model,
-                         AdminInfo adminInfo) {
+    public String toList(Model model) {
         model.addAttribute("roles", sysRoleService.list(new QueryWrapper<SysRole>().lambda().eq(SysRole::getSuperAdmin, false).orderByAsc(SysRole::getCreateTime)));
         model.addAttribute("pages", sysPageService.list().stream().filter(p -> !StringUtils.isEmpty(p.getUrl())).collect(Collectors.toList()));
         return String.format("%s/%s", PREFIX, "list");
     }
 
     @GetMapping("toadd")
-    public String toAdd(Model model,
-                        AdminInfo adminInfo) {
+    public String toAdd(Model model) {
         model.addAttribute("roles", sysRoleService.list(new QueryWrapper<SysRole>().lambda().eq(SysRole::getSuperAdmin, false).orderByAsc(SysRole::getCreateTime)));
         model.addAttribute("pages", sysPageService.list().stream().filter(p -> !StringUtils.isEmpty(p.getUrl())).collect(Collectors.toList()));
         return String.format("%s/%s", PREFIX, "add");
@@ -63,10 +60,10 @@ public class PermissionController {
 
     @PostMapping("list")
     @ResponseBody
-    public Result<List<PermissionInfo>> list(@RequestParam(value = "page", required = true) Integer pageNum,
-                                             @RequestParam(value = "limit", required = true) Integer pageSize,
-                                             @RequestParam(value = "sysRoleId", required = false) Long sysRoleId,
-                                             @RequestParam(value = "sysPageId", required = false) Long sysPageId) {
+    public Result<List<PermissionVo>> list(@RequestParam(value = "page", required = true) Integer pageNum,
+                                           @RequestParam(value = "limit", required = true) Integer pageSize,
+                                           @RequestParam(value = "sysRoleId", required = false) Long sysRoleId,
+                                           @RequestParam(value = "sysPageId", required = false) Long sysPageId) {
         return Result.ok(sysPermissionService.list(pageNum, pageSize, sysRoleId, sysPageId));
     }
 

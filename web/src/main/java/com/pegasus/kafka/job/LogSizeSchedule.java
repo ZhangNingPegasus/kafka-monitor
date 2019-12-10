@@ -42,12 +42,12 @@ public class LogSizeSchedule {
         Date now = new Date();
         SysLogSizeService.Matrix matrix = sysLogSizeService.kpi(now);
         try {
-            sysLogSizeService.saveBatch(matrix.getSysLogSizeList());
+            sysLogSizeService.batchSave(matrix.getSysLogSizeList());
         } catch (Exception ignored) {
             ignored.printStackTrace();
         }
         try {
-            sysLagService.saveBatch(matrix.getSysLagList());
+            sysLagService.batchSave(matrix.getSysLagList());
         } catch (Exception ignored) {
             ignored.printStackTrace();
         }

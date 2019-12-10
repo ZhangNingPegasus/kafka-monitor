@@ -3,8 +3,8 @@ package com.pegasus.kafka.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.pegasus.kafka.entity.dto.SysPermission;
-import com.pegasus.kafka.entity.vo.PageInfo;
-import com.pegasus.kafka.entity.vo.PermissionInfo;
+import com.pegasus.kafka.entity.vo.PageVo;
+import com.pegasus.kafka.entity.vo.PermissionVo;
 import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -25,9 +25,9 @@ import java.util.Map;
 public interface SysPermissionMapper extends BaseMapper<SysPermission> {
 
     @MapKey("id")
-    Map<Long, PageInfo> getPermission(@Nullable @Param("sysAdminId") Long sysAdminId);
+    Map<Long, PageVo> getPermission(@Nullable @Param("sysAdminId") Long sysAdminId);
 
-    List<PermissionInfo> list(IPage<PermissionInfo> page,
-                              @Nullable @Param("sysRoleId") Long sysRoleId,
-                              @Nullable @Param("sysPageId") Long sysPageId);
+    List<PermissionVo> list(IPage<PermissionVo> page,
+                            @Nullable @Param("sysRoleId") Long sysRoleId,
+                            @Nullable @Param("sysPageId") Long sysPageId);
 }

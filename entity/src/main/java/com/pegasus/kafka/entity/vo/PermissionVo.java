@@ -6,10 +6,8 @@ import com.pegasus.kafka.entity.dto.BaseDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.List;
-
 /**
- * The View Object for table sys_page. Using for managing monitor's pages.
+ * The View Object for table sys_permission.
  * <p>
  * *****************************************************************
  * Name               Action            Time          Description  *
@@ -18,36 +16,21 @@ import java.util.List;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class PageInfo extends BaseDto {
+public class PermissionVo extends BaseDto {
     @TableField("id")
     private Long id;
 
-    @TableField("name")
-    private String name;
+    @TableField("page_id")
+    private Long pageId;
 
-    @TableField("url")
-    private String url;
+    @TableField("page_name")
+    private String pageName;
 
-    @TableField("is_menu")
-    private Boolean isMenu;
+    @TableField("role_id")
+    private Long roleId;
 
-    @TableField(value = "`is_default`")
-    private Boolean isDefault;
-
-    @TableField("icon_class")
-    private String iconClass;
-
-    @TableField("parent_id")
-    private Long parentId;
-
-    @TableField("parent_name")
-    private String parentName;
-
-    @TableField("order_num")
-    private Long orderNum;
-
-    @TableField("remark")
-    private String remark;
+    @TableField("role_name")
+    private String roleName;
 
     @TableField("can_insert")
     private Boolean canInsert;
@@ -60,7 +43,4 @@ public class PageInfo extends BaseDto {
 
     @TableField("can_select")
     private Boolean canSelect;
-
-    @TableField(exist = false)
-    private List<PageInfo> children;
 }

@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.pegasus.kafka.common.response.Result;
 import com.pegasus.kafka.common.utils.Common;
 import com.pegasus.kafka.entity.dto.SysPage;
-import com.pegasus.kafka.entity.vo.PageInfo;
+import com.pegasus.kafka.entity.vo.PageVo;
 import com.pegasus.kafka.service.dto.SysPageService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -57,9 +57,9 @@ public class PageController {
 
     @PostMapping("list")
     @ResponseBody
-    public Result<List<PageInfo>> list(@RequestParam(value = "page", required = true) Integer pageNum,
-                                       @RequestParam(value = "limit", required = true) Integer pageSize,
-                                       @RequestParam(value = "name", required = false) String name) {
+    public Result<List<PageVo>> list(@RequestParam(value = "page", required = true) Integer pageNum,
+                                     @RequestParam(value = "limit", required = true) Integer pageSize,
+                                     @RequestParam(value = "name", required = false) String name) {
         return Result.ok(sysPageService.list(pageNum, pageSize, name));
     }
 
@@ -88,6 +88,9 @@ public class PageController {
             }
             if (sysPage.getIsMenu() == null) {
                 sysPage.setIsMenu(false);
+            }
+            if (sysPage.getIsBlank() == null) {
+                sysPage.setIsBlank(false);
             }
             sysPageService.updateById(sysPage);
         }

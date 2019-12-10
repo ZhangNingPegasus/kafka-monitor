@@ -2,9 +2,9 @@ package com.pegasus.kafka.controller;
 
 import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.response.Result;
-import com.pegasus.kafka.entity.vo.KafkaTopicInfo;
-import com.pegasus.kafka.entity.vo.KafkaTopicPartitionInfo;
-import com.pegasus.kafka.entity.vo.MBeanInfo;
+import com.pegasus.kafka.entity.vo.KafkaTopicVo;
+import com.pegasus.kafka.entity.vo.KafkaTopicPartitionVo;
+import com.pegasus.kafka.entity.vo.MBeanVo;
 import com.pegasus.kafka.service.kafka.KafkaBrokerService;
 import com.pegasus.kafka.service.kafka.KafkaTopicService;
 import org.springframework.stereotype.Controller;
@@ -57,11 +57,11 @@ public class TopicController {
     @GetMapping("toedit")
     public String toAdd(Model model, @RequestParam(name = "topicName", required = true) String topicName) throws Exception {
         topicName = topicName.trim();
-        List<KafkaTopicInfo> topicInfoList = kafkaTopicService.listTopics(topicName, KafkaTopicService.SearchType.EQUALS, false, true, false, false, false);
+        List<KafkaTopicVo> topicInfoList = kafkaTopicService.listTopics(topicName, KafkaTopicService.SearchType.EQUALS, false, true, false, false, false);
         if (topicInfoList != null && topicInfoList.size() > 0) {
-            KafkaTopicInfo topicVo = topicInfoList.get(0);
-            List<KafkaTopicPartitionInfo> topicDetails = kafkaTopicService.listTopicDetails(topicName);
-            for (KafkaTopicPartitionInfo topicDetail : topicDetails) {
+            KafkaTopicVo topicVo = topicInfoList.get(0);
+            List<KafkaTopicPartitionVo> topicDetails = kafkaTopicService.listTopicDetails(topicName);
+            for (KafkaTopicPartitionVo topicDetail : topicDetails) {
                 if (topicDetail.getReplicas() != null) {
                     model.addAttribute("replicasNum", topicDetail.getReplicas().size());
                     break;
@@ -89,14 +89,14 @@ public class TopicController {
 
     @PostMapping("list")
     @ResponseBody
-    public Result<List<KafkaTopicInfo>> list(@RequestParam(value = "topicName", required = false) String topicName,
-                                             @RequestParam(value = "page", required = true) Integer pageNum,
-                                             @RequestParam(value = "limit", required = true) Integer pageSize) throws Exception {
+    public Result<List<KafkaTopicVo>> list(@RequestParam(value = "topicName", required = false) String topicName,
+                                           @RequestParam(value = "page", required = true) Integer pageNum,
+                                           @RequestParam(value = "limit", required = true) Integer pageSize) throws Exception {
         if (!StringUtils.isEmpty(topicName)) {
             topicName = topicName.trim();
         }
         pageNum = Math.min(pageNum, Constants.MAX_PAGE_NUM);
-        List<KafkaTopicInfo> topicInfoList = kafkaTopicService.listTopics(topicName, KafkaTopicService.SearchType.LIKE, true, true, true, true, true);
+        List<KafkaTopicVo> topicInfoList = kafkaTopicService.listTopics(topicName, KafkaTopicService.SearchType.LIKE, true, true, true, true, true);
         return Result.ok(topicInfoList.stream().skip(pageSize * (pageNum - 1))
                 .limit(pageSize).collect(Collectors.toList()), topicInfoList.size());
     }
@@ -117,14 +117,14 @@ public class TopicController {
 
     @PostMapping("listTopicMBean")
     @ResponseBody
-    public Result<List<MBeanInfo>> listTopicMBean(@RequestParam(name = "topicName", required = true) String topicName) throws Exception {
+    public Result<List<MBeanVo>> listTopicMBean(@RequestParam(name = "topicName", required = true) String topicName) throws Exception {
         return Result.ok(kafkaTopicService.listTopicMBean(topicName.trim()));
     }
 
 
     @PostMapping("listTopicDetails")
     @ResponseBody
-    public Result<List<KafkaTopicPartitionInfo>> listTopicDetails(@RequestParam(name = "topicName", required = true) String topicName) throws Exception {
+    public Result<List<KafkaTopicPartitionVo>> listTopicDetails(@RequestParam(name = "topicName", required = true) String topicName) throws Exception {
         return Result.ok(kafkaTopicService.listTopicDetails(topicName.trim()));
     }
 

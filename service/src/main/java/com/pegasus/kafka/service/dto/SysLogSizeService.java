@@ -6,11 +6,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pegasus.kafka.common.annotation.TranRead;
 import com.pegasus.kafka.common.annotation.TranSave;
 import com.pegasus.kafka.common.constant.Constants;
+import com.pegasus.kafka.common.exception.BusinessException;
 import com.pegasus.kafka.entity.dto.SysLag;
 import com.pegasus.kafka.entity.dto.SysLogSize;
-import com.pegasus.kafka.entity.vo.KafkaConsumerInfo;
-import com.pegasus.kafka.entity.vo.KafkaTopicInfo;
-import com.pegasus.kafka.entity.vo.OffsetInfo;
+import com.pegasus.kafka.entity.vo.KafkaConsumerVo;
+import com.pegasus.kafka.entity.vo.KafkaTopicVo;
+import com.pegasus.kafka.entity.vo.OffsetVo;
+import com.pegasus.kafka.entity.vo.TopicRecordCountVo;
 import com.pegasus.kafka.mapper.SysLogSizeMapper;
 import com.pegasus.kafka.service.alert.AlertService;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
@@ -48,27 +50,27 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
         Matrix result = new Matrix();
         List<SysLag> sysLagList = new ArrayList<>(KafkaTopicRecord.BATCH_SIZE);
         Map<String, Long> sysLogSizeMap = new HashMap<>(KafkaTopicRecord.BATCH_SIZE);
-        List<KafkaConsumerInfo> kafkaConsumerInfos = kafkaConsumerService.listKafkaConsumers();
-        for (KafkaConsumerInfo kafkaConsumerInfo : kafkaConsumerInfos) {
-            Set<String> topicNames = kafkaConsumerInfo.getTopicNames();
+        List<KafkaConsumerVo> kafkaConsumerVoList = kafkaConsumerService.listKafkaConsumers();
+        for (KafkaConsumerVo kafkaConsumerVo : kafkaConsumerVoList) {
+            Set<String> topicNames = kafkaConsumerVo.getTopicNames();
             for (String topicName : topicNames) {
                 if (Constants.KAFKA_SYSTEM_TOPIC.contains(topicName)) {
                     continue;
                 }
                 Long logSize = 0L;
-                Long lag = 0L;
+                long lag = 0L;
                 try {
-                    List<OffsetInfo> offsetInfos = kafkaConsumerService.listOffsetInfo(kafkaConsumerInfo.getGroupId(), topicName);
-                    for (OffsetInfo offsetInfo : offsetInfos) {
-                        if (offsetInfo.getLag() != null && offsetInfo.getLag() >= 0) {
-                            lag += offsetInfo.getLag();
+                    List<OffsetVo> offsetVoList = kafkaConsumerService.listOffsetVo(kafkaConsumerVo.getGroupId(), topicName);
+                    for (OffsetVo offsetVo : offsetVoList) {
+                        if (offsetVo.getLag() != null && offsetVo.getLag() >= 0) {
+                            lag += offsetVo.getLag();
                         } else {
-                            alertService.offer(String.format("订阅组[%s]订阅的主题[%s]有部分分区不可用,请检查.", offsetInfo.getConsumerId(), topicName));
+                            alertService.offer(String.format("订阅组[%s]订阅的主题[%s]有部分分区不可用,请检查.", offsetVo.getConsumerId(), topicName));
                         }
-                        logSize += offsetInfo.getLogSize();
+                        logSize += offsetVo.getLogSize();
                     }
                     SysLag sysLag = new SysLag();
-                    sysLag.setConsumerName(kafkaConsumerInfo.getGroupId());
+                    sysLag.setConsumerName(kafkaConsumerVo.getGroupId());
                     sysLag.setTopicName(topicName);
                     sysLag.setLag(lag);
                     sysLag.setCreateTime(now);
@@ -89,11 +91,11 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
                 sysLogSizeList.add(sysLogSize);
             }
         } else {
-            List<KafkaTopicInfo> kafkaTopicInfoList = kafkaTopicService.listTopics(false, false, false, true, false);
-            for (KafkaTopicInfo kafkaTopicInfo : kafkaTopicInfoList) {
+            List<KafkaTopicVo> kafkaTopicVoList = kafkaTopicService.listTopics(false, false, false, true, false);
+            for (KafkaTopicVo kafkaTopicVo : kafkaTopicVoList) {
                 SysLogSize sysLogSize = new SysLogSize();
-                sysLogSize.setTopicName(kafkaTopicInfo.getTopicName());
-                sysLogSize.setLogSize(kafkaTopicInfo.getLogSize());
+                sysLogSize.setTopicName(kafkaTopicVo.getTopicName());
+                sysLogSize.setLogSize(kafkaTopicVo.getLogSize());
                 sysLogSize.setCreateTime(now);
                 sysLogSizeList.add(sysLogSize);
             }
@@ -130,6 +132,9 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
 
     @TranRead
     public Long getHistoryLogSize(String topicName, int days) {
+        if (days < 1) {
+            throw new BusinessException("天数必须大于0");
+        }
         Calendar calendar = Calendar.getInstance();
         calendar.set(calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
@@ -144,6 +149,36 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
 
         Long result = this.baseMapper.getHistoryLogSize(topicName, from, to);
         return result == null ? 0L : result;
+    }
+
+    @TranRead
+    public Long getTotalRecordCount() {
+        return this.baseMapper.getTotalRecordCount();
+    }
+
+    @TranSave
+    public void batchSave(List<SysLogSize> sysLogSizeList) {
+        if (sysLogSizeList == null || sysLogSizeList.size() < 1) {
+            return;
+        }
+        this.baseMapper.batchSave(sysLogSizeList);
+    }
+
+    public List<TopicRecordCountVo> listTotalRecordCount(int top) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DATE),
+                0,
+                0,
+                0);
+        Date from0 = calendar.getTime();
+        Date to0 = DateUtils.addDays(from0, 1);
+
+        Date from1 = DateUtils.addDays(from0, -1);
+        Date to1 = DateUtils.addDays(from1, 1);
+
+        return this.baseMapper.listTotalRecordCount(top, from0, to0, from1, to1);
     }
 
     @Data

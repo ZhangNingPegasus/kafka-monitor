@@ -1,6 +1,6 @@
 package com.pegasus.kafka.shiro;
 
-import com.pegasus.kafka.entity.vo.AdminInfo;
+import com.pegasus.kafka.entity.vo.AdminVo;
 import com.pegasus.kafka.service.dto.SysPageService;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -22,7 +22,7 @@ public class CredentialsMatcher extends SimpleCredentialsMatcher {
 
     @Override
     public boolean doCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) {
-        AdminInfo appVo = (AdminInfo) info.getPrincipals().getPrimaryPrincipal();
+        AdminVo appVo = (AdminVo) info.getPrincipals().getPrimaryPrincipal();
         sysPageService.fillPages(appVo);
         return true;
     }

@@ -18,7 +18,7 @@
         LEFT OUTER JOIN ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_role` role ON admin.`sys_role_id`= role.`id`
     </sql>
 
-    <select id="list" resultType="com.pegasus.kafka.entity.vo.AdminInfo">
+    <select id="list" resultType="com.pegasus.kafka.entity.vo.AdminVo">
         <include refid="select"></include>
         WHERE 1 = 1
         <if test="name!=null">
@@ -27,13 +27,13 @@
         ORDER BY admin.`username` ASC
     </select>
 
-    <select id="getById" resultType="com.pegasus.kafka.entity.vo.AdminInfo">
+    <select id="getById" resultType="com.pegasus.kafka.entity.vo.AdminVo">
         <include refid="select"></include>
         WHERE admin.`id` = #{sysAdminId}
         ORDER BY admin.`username` ASC
     </select>
 
-    <select id="getByUsernameAndPassword" resultType="com.pegasus.kafka.entity.vo.AdminInfo">
+    <select id="getByUsernameAndPassword" resultType="com.pegasus.kafka.entity.vo.AdminVo">
         <include refid="select"></include>
         WHERE admin.`username` = #{username} AND
         admin.`password` = #{password}

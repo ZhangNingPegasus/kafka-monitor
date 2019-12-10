@@ -3,7 +3,7 @@ package com.pegasus.kafka.entity.dto;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.pegasus.kafka.common.utils.Common;
-import com.pegasus.kafka.entity.vo.KafkaTopicRecordInfo;
+import com.pegasus.kafka.entity.vo.KafkaTopicRecordVo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -57,8 +57,8 @@ public class TopicRecord extends BaseDto {
     @TableField(value = "timestamp")
     private Date timestamp;
 
-    public KafkaTopicRecordInfo toVo() {
-        KafkaTopicRecordInfo result = new KafkaTopicRecordInfo();
+    public KafkaTopicRecordVo toVo() {
+        KafkaTopicRecordVo result = new KafkaTopicRecordVo();
         result.setTopicName(this.getTopicName());
         result.setPartitionId(this.getPartitionId().toString());
         result.setOffset(this.getOffset().toString());

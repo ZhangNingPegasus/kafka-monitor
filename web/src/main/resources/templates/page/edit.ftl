@@ -55,6 +55,13 @@
         </div>
     </div>
     <div class="layui-form-item">
+        <label class="layui-form-label">是否新窗口</label>
+        <div class="layui-input-inline">
+            <input <#if page.isBlank==true>checked="checked"</#if> type="checkbox" name="isBlank" lay-verify="required"
+                   class="layui-input" title="新窗口">
+        </div>
+    </div>
+    <div class="layui-form-item">
         <label class="layui-form-label">排序号</label>
         <div class="layui-input-inline" style="width:250px">
             <input value="${page.orderNum}" placeholder="请填写排序号(值越小,越靠前)" type="text" name="orderNum"

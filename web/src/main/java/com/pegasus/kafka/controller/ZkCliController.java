@@ -2,7 +2,7 @@ package com.pegasus.kafka.controller;
 
 import com.pegasus.kafka.common.response.Result;
 import com.pegasus.kafka.common.utils.ZooKeeperKpiUtils;
-import com.pegasus.kafka.entity.vo.ZooKeeperInfo;
+import com.pegasus.kafka.entity.vo.ZooKeeperVo;
 import com.pegasus.kafka.service.core.KafkaZkService;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -40,12 +40,12 @@ public class ZkCliController {
     @ResponseBody
     public Result<String> zkInfo() {
         try {
-            List<ZooKeeperInfo> zooKeeperInfos = kafkaZkService.listZooKeeperCluster();
-            if (zooKeeperInfos.size() > 0) {
-                ZooKeeperInfo zooKeeperInfo = zooKeeperInfos.get(0);
+            List<ZooKeeperVo> zooKeeperVoList = kafkaZkService.listZooKeeperCluster();
+            if (zooKeeperVoList.size() > 0) {
+                ZooKeeperVo zooKeeperInfo = zooKeeperVoList.get(0);
                 ZooKeeperKpiUtils.ZooKeeperKpi zooKeeperKpi = ZooKeeperKpiUtils.listKpi(zooKeeperInfo.getHost(), Integer.parseInt(zooKeeperInfo.getPort()));
                 if (!StringUtils.isEmpty(zooKeeperKpi.getZkNumAliveConnections())) {
-                    List<String> result = zooKeeperInfos.stream().map(p -> String.format("%s:%s", p.getHost(), p.getPort())).collect(Collectors.toList());
+                    List<String> result = zooKeeperVoList.stream().map(p -> String.format("%s:%s", p.getHost(), p.getPort())).collect(Collectors.toList());
                     return Result.ok(result.toString());
                 }
             }

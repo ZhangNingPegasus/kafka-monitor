@@ -1,7 +1,7 @@
 package com.pegasus.kafka.template;
 
-import com.pegasus.kafka.entity.vo.AdminInfo;
-import com.pegasus.kafka.entity.vo.PageInfo;
+import com.pegasus.kafka.entity.vo.AdminVo;
+import com.pegasus.kafka.entity.vo.PageVo;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -24,11 +24,11 @@ public abstract class AuthDirective {
 
         switch (operation) {
             case INSERT:
-                return checkPermission(uri, PageInfo::getCanInsert);
+                return checkPermission(uri, PageVo::getCanInsert);
             case DELETE:
-                return checkPermission(uri, PageInfo::getCanDelete);
+                return checkPermission(uri, PageVo::getCanDelete);
             case UPDATE:
-                return checkPermission(uri, PageInfo::getCanUpdate);
+                return checkPermission(uri, PageVo::getCanUpdate);
             case SELECT:
                 return checkPermission(uri, (permission) -> permission.getCanDelete() || permission.getCanInsert() || permission.getCanUpdate()
                         || permission.getCanSelect());
@@ -37,12 +37,12 @@ public abstract class AuthDirective {
     }
 
     private boolean checkPermission(String uri, HandlePermission handlePermission) {
-        AdminInfo adminInfo = (AdminInfo) SecurityUtils.getSubject().getPrincipal();
-        if (adminInfo == null) {
+        AdminVo adminVo = (AdminVo) SecurityUtils.getSubject().getPrincipal();
+        if (adminVo == null) {
             return false;
-        } else if (adminInfo.getSysRole().getSuperAdmin()) {
+        } else if (adminVo.getSysRole().getSuperAdmin()) {
             return true;
-        } else if (adminInfo.getPermissions() == null || adminInfo.getPermissions().size() < 1) {
+        } else if (adminVo.getPermissions() == null || adminVo.getPermissions().size() < 1) {
             return false;
         }
 
@@ -50,20 +50,20 @@ public abstract class AuthDirective {
             uri = "";
         }
 
-        PageInfo pageInfo = getByUri(adminInfo.getPermissions(), uri);
-        if (pageInfo != null) {
-            return handlePermission.check(pageInfo);
+        PageVo pageVo = getByUri(adminVo.getPermissions(), uri);
+        if (pageVo != null) {
+            return handlePermission.check(pageVo);
         }
 
         return false;
     }
 
-    private PageInfo getByUri(List<PageInfo> pageInfoList, String uri) {
-        for (PageInfo pageInfo : pageInfoList) {
-            if (pageInfo.getUrl().equals(uri)) {
-                return pageInfo;
-            } else if (pageInfo.getChildren() != null && pageInfo.getChildren().size() > 0) {
-                return getByUri(pageInfo.getChildren(), uri);
+    private PageVo getByUri(List<PageVo> pageVoList, String uri) {
+        for (PageVo pageVo : pageVoList) {
+            if (pageVo.getUrl().equals(uri)) {
+                return pageVo;
+            } else if (pageVo.getChildren() != null && pageVo.getChildren().size() > 0) {
+                return getByUri(pageVo.getChildren(), uri);
             }
         }
         return null;
@@ -77,7 +77,7 @@ public abstract class AuthDirective {
     }
 
     private interface HandlePermission {
-        boolean check(PageInfo pageInfo);
+        boolean check(PageVo pageVo);
     }
 
 }

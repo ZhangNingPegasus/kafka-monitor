@@ -40,7 +40,7 @@ public class SchemaService extends ServiceImpl<SchemaMapper, TopicRecord> {
     @TranSave
     public void deleteExpired(Set<String> tableNames) {
         Date now = new Date();
-        Date date = DateUtils.addDays(now, -7);
+        Date date = DateUtils.addDays(now, -Constants.SAVING_DAYS);
         this.baseMapper.deleteExpired(tableNames, date);
     }
 

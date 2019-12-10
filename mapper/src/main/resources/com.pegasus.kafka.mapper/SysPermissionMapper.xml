@@ -3,7 +3,7 @@
 
 <mapper namespace="com.pegasus.kafka.mapper.SysPermissionMapper">
 
-    <select id="getPermission" resultType="com.pegasus.kafka.entity.vo.PageInfo">
+    <select id="getPermission" resultType="com.pegasus.kafka.entity.vo.PageVo">
         SELECT
         page.id,
         page.`name`,
@@ -30,7 +30,7 @@
         </if>
     </select>
 
-    <select id="list" resultType="com.pegasus.kafka.entity.vo.PermissionInfo">
+    <select id="list" resultType="com.pegasus.kafka.entity.vo.PermissionVo">
         SELECT
         p.id,
         page.id AS page_id,

@@ -7,7 +7,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * The view object for ajax's response. Using for show the kafka's JMX's MBean information.
+ * The view object for ajax's response. Using for show the kafka's zookeeper information.
  * <p>
  * *****************************************************************
  * Name               Action            Time          Description  *
@@ -17,14 +17,9 @@ import java.io.Serializable;
 @Data
 @JsonSerialize
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class MBeanInfo implements Serializable {
-    private String name;
-    private String oneMinute;
-    private String fiveMinute;
-    private String fifteenMinute;
-    private String meanRate;
-    private Double dblOneMinute;
-    private Double dblFiveMinute;
-    private Double dblFifteenMinute;
-    private Double dblMeanRate;
+public class ZooKeeperVo implements Serializable {
+    private String host;
+    private String port;
+    private String mode;
+    private String version;
 }

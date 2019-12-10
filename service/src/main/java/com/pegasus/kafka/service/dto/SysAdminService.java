@@ -12,7 +12,7 @@ import com.pegasus.kafka.common.exception.BusinessException;
 import com.pegasus.kafka.common.utils.Common;
 import com.pegasus.kafka.entity.dto.SysAdmin;
 import com.pegasus.kafka.entity.dto.SysRole;
-import com.pegasus.kafka.entity.vo.AdminInfo;
+import com.pegasus.kafka.entity.vo.AdminVo;
 import com.pegasus.kafka.mapper.SysAdminMapper;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.stereotype.Service;
@@ -38,7 +38,7 @@ public class SysAdminService extends ServiceImpl<SysAdminMapper, SysAdmin> {
     }
 
     @TranRead
-    public IPage<AdminInfo> list(Integer pageNum, Integer pageSize, String name) {
+    public IPage<AdminVo> list(Integer pageNum, Integer pageSize, String name) {
         if (!StringUtils.isEmpty(name)) {
             name = name.trim();
         }
@@ -53,14 +53,14 @@ public class SysAdminService extends ServiceImpl<SysAdminMapper, SysAdmin> {
     }
 
     @TranRead
-    public AdminInfo getByUsernameAndPassword(String username, String password) {
-        AdminInfo adminInfo = this.baseMapper.getByUsernameAndPassword(username, password);
-        if (adminInfo == null) {
+    public AdminVo getByUsernameAndPassword(String username, String password) {
+        AdminVo adminVo = this.baseMapper.getByUsernameAndPassword(username, password);
+        if (adminVo == null) {
             return null;
         }
-        SysRole sysRole = sysRoleService.getById(adminInfo.getSysRoleId());
-        adminInfo.setSysRole(sysRole);
-        return adminInfo;
+        SysRole sysRole = sysRoleService.getById(adminVo.getSysRoleId());
+        adminVo.setSysRole(sysRole);
+        return adminVo;
     }
 
 
@@ -111,12 +111,12 @@ public class SysAdminService extends ServiceImpl<SysAdminMapper, SysAdmin> {
         sysAdmin.setRemark(remark);
         this.baseMapper.updateById(sysAdmin);
 
-        AdminInfo currentAdminInfo = (AdminInfo) SecurityUtils.getSubject().getPrincipal();
-        currentAdminInfo.setName(name);
-        currentAdminInfo.setGender(gender);
-        currentAdminInfo.setPhoneNumber(phoneNumber);
-        currentAdminInfo.setEmail(email);
-        currentAdminInfo.setRemark(remark);
+        AdminVo currentAdminVo = (AdminVo) SecurityUtils.getSubject().getPrincipal();
+        currentAdminVo.setName(name);
+        currentAdminVo.setGender(gender);
+        currentAdminVo.setPhoneNumber(phoneNumber);
+        currentAdminVo.setEmail(email);
+        currentAdminVo.setRemark(remark);
         return true;
     }
 

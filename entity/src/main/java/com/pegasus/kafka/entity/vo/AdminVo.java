@@ -19,7 +19,7 @@ import java.util.List;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class AdminInfo extends BaseDto {
+public class AdminVo extends BaseDto {
     @TableField(value = "`sys_role_id`")
     private Long sysRoleId;
 
@@ -51,5 +51,5 @@ public class AdminInfo extends BaseDto {
     private SysRole sysRole;
 
     @TableField(exist = false)
-    private List<PageInfo> permissions;
+    private List<PageVo> permissions;
 }

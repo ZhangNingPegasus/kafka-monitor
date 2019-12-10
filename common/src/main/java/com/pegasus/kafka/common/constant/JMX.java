@@ -22,8 +22,17 @@ public class JMX {
     public static final String REPLICATION_BYTES_OUT_PER_SEC = "kafka.server:type=BrokerTopicMetrics,name=ReplicationBytesOutPerSec";
 
     public static final String OPERATING_SYSTEM = "java.lang:type=OperatingSystem";
+    public static final String THREADING = "java.lang:type=Threading";
+
     public static final String TOTAL_PHYSICAL_MEMORY_SIZE = "TotalPhysicalMemorySize";
     public static final String FREE_PHYSICAL_MEMORY_SIZE = "FreePhysicalMemorySize";
+    public static final String SYSTEM_CPU_LOAD = "SystemCpuLoad";
+    public static final String PROCESS_CPU_LOAD = "ProcessCpuLoad";
+
+    public static final String THREAD_COUNT = "ThreadCount";
+
+    public static final String NAME = "Name";
+    public static final String VERSION = "Version";
 
     public final static String MESSAGES_IN = "Messages in /sec";
     public final static String BYTES_IN = "Bytes in /sec";

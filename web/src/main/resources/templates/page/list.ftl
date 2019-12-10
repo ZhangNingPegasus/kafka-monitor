@@ -84,6 +84,11 @@
                         return d.isDefault ? "是" : "否"
                     }
                 },
+                {
+                    title: '是否新窗口', width: 120, templet: function (d) {
+                        return d.isBlank ? "是" : "否"
+                    }
+                },
                 {field: 'description', title: '描述信息'}
                 <@select>
                 , {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 160}

@@ -3,8 +3,7 @@ package com.pegasus.kafka.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.response.Result;
-import com.pegasus.kafka.entity.dto.SysAdmin;
-import com.pegasus.kafka.entity.vo.AdminInfo;
+import com.pegasus.kafka.entity.vo.AdminVo;
 import com.pegasus.kafka.service.dto.SysAdminService;
 import com.pegasus.kafka.service.dto.SysRoleService;
 import org.springframework.stereotype.Controller;
@@ -58,11 +57,11 @@ public class AdminController {
 
     @PostMapping("list")
     @ResponseBody
-    public Result<List<AdminInfo>> list(@RequestParam(value = "name", required = false) String name,
-                                        @RequestParam(value = "page", required = true) Integer pageNum,
-                                        @RequestParam(value = "limit", required = true) Integer pageSize) {
+    public Result<List<AdminVo>> list(@RequestParam(value = "name", required = false) String name,
+                                      @RequestParam(value = "page", required = true) Integer pageNum,
+                                      @RequestParam(value = "limit", required = true) Integer pageSize) {
         pageNum = Math.min(pageNum, Constants.MAX_PAGE_NUM);
-        IPage<AdminInfo> sysAdmins = sysAdminService.list(pageNum, pageSize, name);
+        IPage<AdminVo> sysAdmins = sysAdminService.list(pageNum, pageSize, name);
         return Result.ok(sysAdmins);
     }
 

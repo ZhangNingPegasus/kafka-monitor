@@ -5,8 +5,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pegasus.kafka.common.annotation.TranRead;
 import com.pegasus.kafka.entity.dto.SysPermission;
-import com.pegasus.kafka.entity.vo.PageInfo;
-import com.pegasus.kafka.entity.vo.PermissionInfo;
+import com.pegasus.kafka.entity.vo.PageVo;
+import com.pegasus.kafka.entity.vo.PermissionVo;
 import com.pegasus.kafka.mapper.SysPermissionMapper;
 import org.springframework.stereotype.Service;
 
@@ -25,14 +25,14 @@ import java.util.Map;
 public class SysPermissionService extends ServiceImpl<SysPermissionMapper, SysPermission> {
 
     @TranRead
-    public Map<Long, PageInfo> getPermissionPages(Long sysAdminId) {
+    public Map<Long, PageVo> getPermissionPages(Long sysAdminId) {
         return this.baseMapper.getPermission(sysAdminId);
     }
 
     @TranRead
     public IPage list(Integer pageNum, Integer pageSize, Long sysRoleId, Long sysPageId) {
-        IPage<PermissionInfo> page = new Page<>(pageNum, pageSize);
-        List<PermissionInfo> list = this.baseMapper.list(page, sysRoleId, sysPageId);
+        IPage<PermissionVo> page = new Page<>(pageNum, pageSize);
+        List<PermissionVo> list = this.baseMapper.list(page, sysRoleId, sysPageId);
         page.setRecords(list);
         return page;
     }

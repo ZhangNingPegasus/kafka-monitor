@@ -14,7 +14,7 @@
         WHERE 1 = 1
         <if test="from!=null and to !=null">
             AND `create_time` &gt;= #{from}
-            AND `create_time` &lt;= #{to}
+            AND `create_time` &lt; #{to}
         </if>
         GROUP BY `topic_name`
         ) a
@@ -35,4 +35,90 @@
         ORDER BY `create_time` DESC
         LIMIT 1
     </select>
+
+
+    <select id="getTotalRecordCount" resultType="java.lang.Long">
+    SELECT
+    IFNULL(SUM(log_size), 0)
+    FROM
+    (
+        SELECT
+        DISTINCT a.topic_name, a.log_size
+        FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_log_size` a
+        INNER JOIN
+        (
+            SELECT
+             topic_name,
+             MAX(create_time) AS create_time
+            FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_log_size`
+            GROUP BY topic_name
+        ) b ON a.topic_name = b.topic_name AND a.create_time = b.create_time
+    ) rec
+    </select>
+
+    <insert id="batchSave">
+        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_log_size`
+        (
+        `topic_name`,
+        `log_size`
+        )
+        VALUES
+        <foreach collection="sysLogSizeList" item="item" separator=",">
+            (
+            #{item.topicName},
+            #{item.logSize}
+            )
+        </foreach>
+    </insert>
+
+    <select id="listTotalRecordCount" resultType="com.pegasus.kafka.entity.vo.TopicRecordCountVo">
+        SELECT
+        a.topic_name,
+        a.day0_log_size AS log_size,
+        (a.day0_log_size-b.day1_log_size) / a.day0_log_size AS growth_rate
+        FROM
+        (
+        SELECT
+        DISTINCT
+        a.topic_name,
+        a.log_size AS day0_log_size,
+        a.create_time
+        FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_log_size` AS a
+        INNER JOIN
+        (
+        SELECT
+        topic_name,
+        MAX(create_time) AS create_time
+        FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_log_size`
+        WHERE create_time &gt;= #{from0}
+        AND create_time &lt; #{to0}
+        GROUP BY topic_name
+        ) AS b ON a.topic_name = b.topic_name AND a.create_time = b.create_time
+        ORDER BY a.log_size DESC
+        LIMIT #{top}
+        ) a
+        LEFT OUTER JOIN
+        (
+        SELECT
+        DISTINCT
+        a.topic_name,
+        a.log_size AS day1_log_size,
+        a.create_time
+        FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_log_size` AS a
+        INNER JOIN
+        (
+        SELECT
+        topic_name,
+        MAX(create_time) AS create_time
+        FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_log_size`
+        WHERE create_time &gt;= #{from1}
+        AND create_time &lt; #{to1}
+        GROUP BY topic_name
+        ) AS b ON a.topic_name = b.topic_name AND a.create_time = b.create_time
+        ORDER BY a.log_size DESC
+        LIMIT #{top}
+        ) b ON a.topic_name = b.topic_name
+        ORDER BY log_size DESC
+    </select>
+
 </mapper>

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.pegasus.kafka.entity.dto.TopicRecord;
 import com.pegasus.kafka.entity.dto.TopicRecordValue;
+import com.pegasus.kafka.entity.po.MaxOffset;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -51,4 +52,7 @@ public interface TopicRecordMapper extends BaseMapper<TopicRecord> {
     void dropTable(@Param(value = "tableName") String tableName);
 
 
+    Long getRecordsCount(@Param(value = "tableName") String tableName, @Param(value = "from") Date from, @Param(value = "to") Date to);
+
+    List<MaxOffset> getMaxOffset(@Param(value = "tableName") String tableName);
 }

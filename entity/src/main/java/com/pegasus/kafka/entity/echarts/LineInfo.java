@@ -34,6 +34,4 @@ public class LineInfo implements Serializable {
         private Boolean smooth;
         private JSONObject areaStyle;
     }
-
-
 }

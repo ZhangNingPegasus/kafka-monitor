@@ -10,8 +10,8 @@ import com.google.common.collect.Sets;
 import com.pegasus.kafka.common.annotation.TranRead;
 import com.pegasus.kafka.common.utils.Common;
 import com.pegasus.kafka.entity.dto.SysPage;
-import com.pegasus.kafka.entity.vo.AdminInfo;
-import com.pegasus.kafka.entity.vo.PageInfo;
+import com.pegasus.kafka.entity.vo.AdminVo;
+import com.pegasus.kafka.entity.vo.PageVo;
 import com.pegasus.kafka.mapper.SysPageMapper;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -37,11 +37,11 @@ public class SysPageService extends ServiceImpl<SysPageMapper, SysPage> {
     }
 
     @TranRead
-    public IPage<PageInfo> list(Integer pageNum,
-                                Integer pageSize,
-                                @Nullable String name) {
-        IPage<PageInfo> page = new Page<>(pageNum, pageSize);
-        List<PageInfo> list = this.baseMapper.list(page, name);
+    public IPage<PageVo> list(Integer pageNum,
+                              Integer pageSize,
+                              @Nullable String name) {
+        IPage<PageVo> page = new Page<>(pageNum, pageSize);
+        List<PageVo> list = this.baseMapper.list(page, name);
         page.setRecords(list);
         return page;
     }
@@ -53,61 +53,61 @@ public class SysPageService extends ServiceImpl<SysPageMapper, SysPage> {
 
 
     @TranRead
-    public void fillPages(AdminInfo adminInfo) {
-        if (adminInfo == null) {
+    public void fillPages(AdminVo adminVo) {
+        if (adminVo == null) {
             return;
         }
-        adminInfo.setPermissions(getPages(adminInfo));
+        adminVo.setPermissions(getPages(adminVo));
     }
 
     @TranRead
-    List<PageInfo> getPages(AdminInfo adminInfo) {
+    List<PageVo> getPages(AdminVo adminVo) {
         List<SysPage> allPages = list(new QueryWrapper<SysPage>().lambda().eq(SysPage::getIsMenu, true).orderByAsc(SysPage::getParentId).orderByAsc(SysPage::getOrderNum));
         Map<Long, SysPage> allPageMap = toMap(allPages);
 
         // 非顶级集合
-        List<PageInfo> nonRootPageList = new ArrayList<>();
+        List<PageVo> nonRootPageList = new ArrayList<>();
         // 顶级集合
-        List<PageInfo> rootPageList = new ArrayList<>();
-        Map<Long, PageInfo> permission = sysPermissionService.getPermissionPages(adminInfo.getId());
+        List<PageVo> rootPageList = new ArrayList<>();
+        Map<Long, PageVo> permission = sysPermissionService.getPermissionPages(adminVo.getId());
 
         for (SysPage sysPage : allPages) {
-            if (!adminInfo.getSysRole().getSuperAdmin() && !permission.containsKey(sysPage.getId())) {
+            if (!adminVo.getSysRole().getSuperAdmin() && !permission.containsKey(sysPage.getId())) {
                 continue;
             }
             if (sysPage.getParentId() == 0) {
-                PageInfo rootPageInfo = Common.toVo(sysPage, PageInfo.class);
-                PageInfo permissionPageInfo = permission.get(rootPageInfo.getId());
-                if (permissionPageInfo != null) {
-                    rootPageInfo.setCanInsert(permissionPageInfo.getCanInsert());
-                    rootPageInfo.setCanDelete(permissionPageInfo.getCanDelete());
-                    rootPageInfo.setCanUpdate(permissionPageInfo.getCanUpdate());
-                    rootPageInfo.setCanSelect(permissionPageInfo.getCanSelect());
+                PageVo rootPageVo = Common.toVo(sysPage, PageVo.class);
+                PageVo permissionPageVo = permission.get(rootPageVo.getId());
+                if (permissionPageVo != null) {
+                    rootPageVo.setCanInsert(permissionPageVo.getCanInsert());
+                    rootPageVo.setCanDelete(permissionPageVo.getCanDelete());
+                    rootPageVo.setCanUpdate(permissionPageVo.getCanUpdate());
+                    rootPageVo.setCanSelect(permissionPageVo.getCanSelect());
                 }
-                rootPageList.add(rootPageInfo);
+                rootPageList.add(rootPageVo);
             } else {
-                nonRootPageList.add(Common.toVo(sysPage, PageInfo.class));
+                nonRootPageList.add(Common.toVo(sysPage, PageVo.class));
             }
 
             if (sysPage.getIsDefault()) {
-                adminInfo.setDefaultPage(sysPage.getUrl());
+                adminVo.setDefaultPage(sysPage.getUrl());
             }
         }
 
-        for (PageInfo pageInfo : nonRootPageList) {
-            SysPage sysPageParent = allPageMap.get(pageInfo.getParentId());
+        for (PageVo pageVo : nonRootPageList) {
+            SysPage sysPageParent = allPageMap.get(pageVo.getParentId());
             if (sysPageParent != null) {
-                Optional<PageInfo> first = rootPageList.stream().filter(p -> p.getId().equals(sysPageParent.getId())).findFirst();
+                Optional<PageVo> first = rootPageList.stream().filter(p -> p.getId().equals(sysPageParent.getId())).findFirst();
                 if (!first.isPresent()) {
-                    PageInfo rootPageInfo = Common.toVo(sysPageParent, PageInfo.class);
-                    PageInfo permissionPageInfo = permission.get(rootPageInfo.getId());
-                    if (permissionPageInfo != null) {
-                        rootPageInfo.setCanInsert(permissionPageInfo.getCanInsert());
-                        rootPageInfo.setCanDelete(permissionPageInfo.getCanDelete());
-                        rootPageInfo.setCanUpdate(permissionPageInfo.getCanUpdate());
-                        rootPageInfo.setCanSelect(permissionPageInfo.getCanSelect());
+                    PageVo rootPageVo = Common.toVo(sysPageParent, PageVo.class);
+                    PageVo permissionPageVo = permission.get(rootPageVo.getId());
+                    if (permissionPageVo != null) {
+                        rootPageVo.setCanInsert(permissionPageVo.getCanInsert());
+                        rootPageVo.setCanDelete(permissionPageVo.getCanDelete());
+                        rootPageVo.setCanUpdate(permissionPageVo.getCanUpdate());
+                        rootPageVo.setCanSelect(permissionPageVo.getCanSelect());
                     }
-                    rootPageList.add(rootPageInfo);
+                    rootPageList.add(rootPageVo);
                 }
             }
         }
@@ -115,7 +115,7 @@ public class SysPageService extends ServiceImpl<SysPageMapper, SysPage> {
 
         if (ObjectUtils.isNotNull(rootPageList) || ObjectUtils.isNotNull(nonRootPageList)) {
             Set<Long> map = Sets.newHashSetWithExpectedSize(nonRootPageList.size());
-            rootPageList.forEach(rootPage -> getChild(adminInfo, permission, rootPage, nonRootPageList, map));
+            rootPageList.forEach(rootPage -> getChild(adminVo, permission, rootPage, nonRootPageList, map));
             filter(rootPageList);
             return rootPageList;
         }
@@ -131,10 +131,10 @@ public class SysPageService extends ServiceImpl<SysPageMapper, SysPage> {
         return result;
     }
 
-    private void filter(List<PageInfo> pageInfoList) {
-        Iterator<PageInfo> iterator = pageInfoList.iterator();
+    private void filter(List<PageVo> pageVoList) {
+        Iterator<PageVo> iterator = pageVoList.iterator();
         while (iterator.hasNext()) {
-            PageInfo page = iterator.next();
+            PageVo page = iterator.next();
             if (StringUtils.isEmpty(page.getUrl()) && (page.getChildren() == null || page.getChildren().size() < 1)) {
                 iterator.remove();
             } else {
@@ -143,25 +143,25 @@ public class SysPageService extends ServiceImpl<SysPageMapper, SysPage> {
         }
     }
 
-    private void getChild(AdminInfo adminInfo,
-                          Map<Long, PageInfo> permission,
-                          PageInfo parentPage,
-                          List<PageInfo> childrenPageList,
+    private void getChild(AdminVo adminVo,
+                          Map<Long, PageVo> permission,
+                          PageVo parentPage,
+                          List<PageVo> childrenPageList,
                           Set<Long> set) {
-        List<PageInfo> childList = Lists.newArrayList();
+        List<PageVo> childList = Lists.newArrayList();
         childrenPageList.stream().//
                 filter(p -> !set.contains(p.getId())). // 判断是否已循环过当前对象
                 filter(p -> p.getParentId().equals(parentPage.getId())). // 判断是否父子关系
                 filter(p -> set.size() <= childrenPageList.size()).// set集合大小不能超过childrenPageList的大小
                 forEach(p -> {
-            if (adminInfo.getSysRole().getSuperAdmin() || StringUtils.isEmpty(p.getUrl()) || permission.containsKey(p.getId())) {
+            if (adminVo.getSysRole().getSuperAdmin() || StringUtils.isEmpty(p.getUrl()) || permission.containsKey(p.getId())) {
                 // 放入set, 递归循环时可以跳过这个页面，提高循环效率
                 set.add(p.getId());
                 // 递归获取当前类目的子类目
-                getChild(adminInfo, permission, p, childrenPageList, set);
+                getChild(adminVo, permission, p, childrenPageList, set);
 
                 if (permission.containsKey(p.getId())) {
-                    PageInfo page = permission.get(p.getId());
+                    PageVo page = permission.get(p.getId());
                     p.setCanInsert(page.getCanInsert());
                     p.setCanDelete(page.getCanDelete());
                     p.setCanUpdate(page.getCanUpdate());

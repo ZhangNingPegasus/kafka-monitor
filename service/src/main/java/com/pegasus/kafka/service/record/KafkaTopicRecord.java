@@ -2,6 +2,7 @@ package com.pegasus.kafka.service.record;
 
 import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.entity.dto.TopicRecord;
+import com.pegasus.kafka.entity.po.MaxOffset;
 import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.dto.TopicRecordService;
 import org.apache.kafka.clients.CommonClientConfigs;
@@ -9,6 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,7 @@ import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, DisposableBean {
     public static final Integer BATCH_SIZE = 2048;
@@ -42,7 +45,7 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
         this.topicRecordService = topicRecordService;
         this.topicRecords = new ArrayBlockingQueue<>(BATCH_SIZE * 2048);
         this.discardCount = new AtomicLong(0L);
-        this.consumerGroupdId = String.format("%s#%s", Constants.KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_MESSAGE, this.topicName);
+        this.consumerGroupdId = String.format("%s__%s", Constants.KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_MESSAGE, this.topicName);
     }
 
     @Override
@@ -67,8 +70,17 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
     public void start() {
         new Thread(() -> {
             try {
+                List<MaxOffset> maxOffsetList = topicRecordService.getMaxOffset(this.topicName);
                 kafkaConsumer = new KafkaConsumer<>(properties);
-                kafkaConsumer.subscribe(Collections.singleton(this.topicName));
+                if (maxOffsetList != null && maxOffsetList.size() > 0) {
+                    kafkaConsumer.assign(maxOffsetList.stream().map(p -> new TopicPartition(this.topicName, p.getPartitionId())).collect(Collectors.toList()));
+                    for (MaxOffset maxOffset : maxOffsetList) {
+                        TopicPartition p = new TopicPartition(this.topicName, maxOffset.getPartitionId());
+                        kafkaConsumer.seek(p, maxOffset.getOffset() + 1);
+                    }
+                } else {
+                    kafkaConsumer.subscribe(Collections.singleton(this.topicName));
+                }
                 setRunning(true);
                 this.worker = new Thread(new AsyncRunnable(), String.format("Kafka_Monitor_Trace_Record_Thread_%s_%s", this.topicName, UUID.randomUUID().toString()));
                 this.worker.setDaemon(true);
@@ -135,7 +147,7 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
 
             while (true) {
                 List<TopicRecord> topicRecordList = new ArrayList<>(BATCH_SIZE);
-                for (Integer i = 0; i < BATCH_SIZE; i++) {
+                for (int i = 0; i < BATCH_SIZE; i++) {
                     TopicRecord topicRecord = null;
                     try {
                         topicRecord = topicRecords.poll(5, TimeUnit.MILLISECONDS);

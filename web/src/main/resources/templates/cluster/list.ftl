@@ -111,7 +111,7 @@
                                             top: '1%',
                                             left: '7%',
                                             bottom: '1%',
-                                            right: '12%',
+                                            right: '26%',
                                             symbolSize: 7,
                                             label: {
                                                 normal: {

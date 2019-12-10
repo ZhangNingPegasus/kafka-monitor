@@ -38,4 +38,24 @@ public class SysLagService extends ServiceImpl<SysLagMapper, SysLag> {
         queryWrapper.lambda().eq(SysLag::getTopicName, topicName);
         return this.remove(queryWrapper);
     }
+
+    @TranSave
+    public boolean deleteConsumerName(String consumerName) {
+        QueryWrapper<SysLag> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(SysLag::getConsumerName, consumerName);
+        return this.remove(queryWrapper);
+    }
+
+    @TranRead
+    public List<SysLag> listTopLag(int top) {
+        return this.baseMapper.listTopLag(top);
+    }
+
+    @TranSave
+    public void batchSave(List<SysLag> sysLagList) {
+        if (sysLagList == null || sysLagList.size() < 1) {
+            return;
+        }
+        this.baseMapper.batchSave(sysLagList);
+    }
 }

@@ -148,6 +148,7 @@
                         area: ['880px', '820px']
                     });
                 } else if (obj.event === 'showConsumerDetails') {
+                    data.topicName = topicName;
                     layer.open({
                         type: 2,
                         title: '<i class="layui-icon layui-icon-user" style="color: #1E9FFF;"></i>&nbsp;消费详情',

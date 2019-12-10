@@ -6,14 +6,13 @@ import com.pegasus.kafka.common.annotation.TranRead;
 import com.pegasus.kafka.common.annotation.TranSave;
 import com.pegasus.kafka.entity.dto.TopicRecord;
 import com.pegasus.kafka.entity.dto.TopicRecordValue;
+import com.pegasus.kafka.entity.po.MaxOffset;
 import com.pegasus.kafka.mapper.TopicRecordMapper;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * The service for dynamic table. Saving topics' records.
@@ -34,6 +33,9 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
 
     @TranSave
     public void batchSave(String topicName, List<TopicRecord> topicRecordList) {
+        if (topicRecordList == null || topicRecordList.size() < 1) {
+            return;
+        }
         String tableName = convertToTableName(topicName);
         String recordTableName = convertToRecordTableName(topicName);
         Set<String> tableNames = schemaService.listTables();
@@ -118,4 +120,28 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
     }
 
 
+    public Long getRecordsCount(String topicName, int days) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DATE),
+                0,
+                0,
+                0);
+        Date now = calendar.getTime();
+
+        Date from = DateUtils.addDays(now, -days);
+        Date to = DateUtils.addDays(from, 1);
+        Long result = this.baseMapper.getRecordsCount(convertToTableName(topicName), from, to);
+        return result == null ? 0L : result;
+    }
+
+    @TranRead
+    public List<MaxOffset> getMaxOffset(String topicName) {
+        try {
+            return this.baseMapper.getMaxOffset(convertToTableName(topicName));
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
 }

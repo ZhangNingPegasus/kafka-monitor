@@ -17,7 +17,7 @@ import java.io.Serializable;
 @Data
 @JsonSerialize
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class KafkaTopicInfo implements Serializable {
+public class KafkaTopicVo implements Serializable {
     private String topicName;
     private Integer consumerStatus;
     private Long lag;
@@ -35,12 +35,12 @@ public class KafkaTopicInfo implements Serializable {
     private Long modifyTimeLong;
     private String error;
 
-    public KafkaTopicInfo(String topicName, Integer consumerStatus) {
+    public KafkaTopicVo(String topicName, Integer consumerStatus) {
         this.topicName = topicName;
         this.consumerStatus = consumerStatus;
     }
 
-    public KafkaTopicInfo() {
+    public KafkaTopicVo() {
 
     }
 

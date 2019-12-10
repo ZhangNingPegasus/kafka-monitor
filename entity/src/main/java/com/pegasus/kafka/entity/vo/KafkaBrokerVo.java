@@ -17,7 +17,7 @@ import java.io.Serializable;
 @Data
 @JsonSerialize
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class KafkaBrokerInfo implements Serializable {
+public class KafkaBrokerVo implements Serializable {
     private String name;
     private String host;
     private String port;

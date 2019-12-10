@@ -46,8 +46,8 @@ public class RecordController {
 
     @GetMapping("tolist")
     public String toList(Model model) throws Exception {
-        List<KafkaTopicInfo> kafkaTopicInfoList = kafkaTopicService.listTopics(false, false, false, false, false);
-        model.addAttribute("topics", kafkaTopicInfoList);
+        List<KafkaTopicVo> kafkaTopicVoList = kafkaTopicService.listTopics(false, false, false, false, false);
+        model.addAttribute("topics", kafkaTopicVoList);
         return String.format("%s/list", PREFIX);
     }
 
@@ -81,18 +81,18 @@ public class RecordController {
 
     @PostMapping("listTopicPartitions")
     @ResponseBody
-    public Result<List<KafkaTopicPartitionInfo>> listTopicPartitions(@RequestParam(name = "topicName", required = true) String topicName) throws Exception {
+    public Result<List<KafkaTopicPartitionVo>> listTopicPartitions(@RequestParam(name = "topicName", required = true) String topicName) throws Exception {
         return Result.ok(kafkaTopicService.listTopicDetails(topicName));
     }
 
     @PostMapping("list")
     @ResponseBody
-    public Result<List<KafkaTopicRecordInfo>> list(@RequestParam(name = "topicName", required = false, defaultValue = "") String topicName,
-                                                   @RequestParam(name = "partitionId", required = false) Integer partitionId,
-                                                   @RequestParam(name = "key", required = false, defaultValue = "") String key,
-                                                   @RequestParam(name = "createTimeRange", required = false, defaultValue = "") String createTimeRange,
-                                                   @RequestParam(value = "page", required = true) Integer pageNum,
-                                                   @RequestParam(value = "limit", required = true) Integer pageSize) throws Exception {
+    public Result<List<KafkaTopicRecordVo>> list(@RequestParam(name = "topicName", required = false, defaultValue = "") String topicName,
+                                                 @RequestParam(name = "partitionId", required = false) Integer partitionId,
+                                                 @RequestParam(name = "key", required = false, defaultValue = "") String key,
+                                                 @RequestParam(name = "createTimeRange", required = false, defaultValue = "") String createTimeRange,
+                                                 @RequestParam(value = "page", required = true) Integer pageNum,
+                                                 @RequestParam(value = "limit", required = true) Integer pageSize) throws Exception {
         topicName = topicName.trim();
         key = key.trim();
         createTimeRange = createTimeRange.trim();
@@ -130,24 +130,24 @@ public class RecordController {
 
     @PostMapping("listTopicConsumers")
     @ResponseBody
-    public Result<List<KafkaRecordConsumeInfo>> listTopicConsumers(@RequestParam(name = "topicName", required = true, defaultValue = "") String topicName,
-                                                                   @RequestParam(name = "partitionId", required = false) Integer partitionId,
-                                                                   @RequestParam(name = "offset", required = false, defaultValue = "") Long offset) throws Exception {
+    public Result<List<KafkaRecordConsumeVo>> listTopicConsumers(@RequestParam(name = "topicName", required = true, defaultValue = "") String topicName,
+                                                                 @RequestParam(name = "partitionId", required = false) Integer partitionId,
+                                                                 @RequestParam(name = "offset", required = false, defaultValue = "") Long offset) throws Exception {
 
-        List<KafkaConsumerInfo> allConsumers = kafkaConsumerService.listKafkaConsumers();
-        List<KafkaConsumerInfo> kafkaConsumerInfoList = allConsumers.stream().filter(p -> p.getTopicNames().contains(topicName)).collect(Collectors.toList());
+        List<KafkaConsumerVo> allConsumers = kafkaConsumerService.listKafkaConsumers();
+        List<KafkaConsumerVo> kafkaConsumerVoList = allConsumers.stream().filter(p -> p.getTopicNames().contains(topicName)).collect(Collectors.toList());
 
-        List<KafkaRecordConsumeInfo> result = new ArrayList<>(kafkaConsumerInfoList.size());
+        List<KafkaRecordConsumeVo> result = new ArrayList<>(kafkaConsumerVoList.size());
 
-        for (KafkaConsumerInfo kafkaConsumerInfo : kafkaConsumerInfoList) {
-            List<OffsetInfo> offsetInfos = kafkaConsumerService.listOffsetInfo(kafkaConsumerInfo.getGroupId(), topicName);
-            Optional<OffsetInfo> first = offsetInfos.stream().filter(p -> p.getPartitionId().equals(partitionId)).findFirst();
+        for (KafkaConsumerVo kafkaConsumerVo : kafkaConsumerVoList) {
+            List<OffsetVo> offsetVoList = kafkaConsumerService.listOffsetVo(kafkaConsumerVo.getGroupId(), topicName);
+            Optional<OffsetVo> first = offsetVoList.stream().filter(p -> p.getPartitionId().equals(partitionId)).findFirst();
             if (first.isPresent()) {
-                OffsetInfo offsetInfo = first.get();
-                KafkaRecordConsumeInfo recordConsumeInfo = new KafkaRecordConsumeInfo();
-                recordConsumeInfo.setGroupId(kafkaConsumerInfo.getGroupId());
-                recordConsumeInfo.setIsConsume((offsetInfo.getOffset() >= offset) ? 1 : 0);
-                result.add(recordConsumeInfo);
+                OffsetVo offsetVo = first.get();
+                KafkaRecordConsumeVo recordConsumeVo = new KafkaRecordConsumeVo();
+                recordConsumeVo.setGroupId(kafkaConsumerVo.getGroupId());
+                recordConsumeVo.setIsConsume((offsetVo.getOffset() >= offset) ? 1 : 0);
+                result.add(recordConsumeVo);
             }
         }
         return Result.ok(result);

@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pegasus.kafka.common.response.Result;
 import com.pegasus.kafka.entity.dto.SysAlertConsumer;
-import com.pegasus.kafka.entity.vo.KafkaConsumerInfo;
-import com.pegasus.kafka.entity.vo.KafkaTopicInfo;
+import com.pegasus.kafka.entity.vo.KafkaConsumerVo;
+import com.pegasus.kafka.entity.vo.KafkaTopicVo;
 import com.pegasus.kafka.service.dto.SysAlertConsumerService;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
 import com.pegasus.kafka.service.kafka.KafkaTopicService;
@@ -49,8 +49,8 @@ public class AlertConsumerController {
 
     @GetMapping("toadd")
     public String toAdd(Model model) throws Exception {
-        List<KafkaConsumerInfo> kafkaConsumerInfoList = kafkaConsumerService.listKafkaConsumers();
-        model.addAttribute("consumers", kafkaConsumerInfoList);
+        List<KafkaConsumerVo> kafkaConsumerVoList = kafkaConsumerService.listKafkaConsumers();
+        model.addAttribute("consumers", kafkaConsumerVoList);
         return String.format("%s/add", PREFIX);
     }
 
@@ -58,8 +58,8 @@ public class AlertConsumerController {
     public String toEdit(Model model,
                          @PathVariable(required = true, value = "id") String id) throws Exception {
         SysAlertConsumer sysAlertConsumer = sysAlertConsumerService.getById(id);
-        List<KafkaConsumerInfo> kafkaConsumerInfoList = kafkaConsumerService.listKafkaConsumers();
-        model.addAttribute("consumers", kafkaConsumerInfoList);
+        List<KafkaConsumerVo> kafkaConsumerVoList = kafkaConsumerService.listKafkaConsumers();
+        model.addAttribute("consumers", kafkaConsumerVoList);
         model.addAttribute("item", sysAlertConsumer);
         model.addAttribute("topics", listTopics(sysAlertConsumer.getGroupId()).getData());
         return String.format("%s/edit", PREFIX);
@@ -77,8 +77,8 @@ public class AlertConsumerController {
     @PostMapping("listTopics")
     @ResponseBody
     public Result<List<String>> listTopics(@RequestParam(value = "groupId", required = true) String groupId) throws Exception {
-        List<KafkaTopicInfo> kafkaTopicInfoList = kafkaTopicService.listTopics(false, false, true, false, false);
-        List<String> topicNames = kafkaTopicInfoList.stream().filter(p -> Arrays.asList(p.getSubscribeGroupIds()).contains(groupId)).map(KafkaTopicInfo::getTopicName).distinct().collect(Collectors.toList());
+        List<KafkaTopicVo> kafkaTopicVoList = kafkaTopicService.listTopics(false, false, true, false, false);
+        List<String> topicNames = kafkaTopicVoList.stream().filter(p -> Arrays.asList(p.getSubscribeGroupIds()).contains(groupId)).map(KafkaTopicVo::getTopicName).distinct().collect(Collectors.toList());
         return Result.ok(topicNames);
     }
 

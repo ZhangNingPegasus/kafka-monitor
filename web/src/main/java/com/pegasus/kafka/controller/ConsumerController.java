@@ -3,9 +3,9 @@ package com.pegasus.kafka.controller;
 import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.response.Result;
 import com.pegasus.kafka.entity.echarts.TreeInfo;
-import com.pegasus.kafka.entity.vo.KafkaConsumerInfo;
-import com.pegasus.kafka.entity.vo.KafkaTopicInfo;
-import com.pegasus.kafka.entity.vo.OffsetInfo;
+import com.pegasus.kafka.entity.vo.KafkaConsumerVo;
+import com.pegasus.kafka.entity.vo.KafkaTopicVo;
+import com.pegasus.kafka.entity.vo.OffsetVo;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -50,11 +50,11 @@ public class ConsumerController {
 
     @PostMapping("list")
     @ResponseBody
-    public Result<List<KafkaConsumerInfo>> list(HttpSession httpSession) {
+    public Result<List<KafkaConsumerVo>> list(HttpSession httpSession) {
         try {
-            List<KafkaConsumerInfo> kafkaConsumerInfos = kafkaConsumerService.listKafkaConsumers();
-            httpSession.setAttribute(Constants.SESSION_KAFKA_CONSUMER_INFO, kafkaConsumerInfos);
-            return Result.ok(kafkaConsumerInfos);
+            List<KafkaConsumerVo> kafkaConsumerVoList = kafkaConsumerService.listKafkaConsumers();
+            httpSession.setAttribute(Constants.SESSION_KAFKA_CONSUMER_INFO, kafkaConsumerVoList);
+            return Result.ok(kafkaConsumerVoList);
         } catch (Exception e) {
             return Result.ok();
         }
@@ -65,30 +65,30 @@ public class ConsumerController {
     public Result<TreeInfo> getChartData(HttpSession httpSession) {
         TreeInfo root = new TreeInfo("消费者 - 主题");
         root.setStyle(TreeInfo.Style.info());
-        List<KafkaConsumerInfo> kafkaConsumerInfos = (List<KafkaConsumerInfo>) httpSession.getAttribute(Constants.SESSION_KAFKA_CONSUMER_INFO);
+        List<KafkaConsumerVo> kafkaConsumerVoList = (List<KafkaConsumerVo>) httpSession.getAttribute(Constants.SESSION_KAFKA_CONSUMER_INFO);
         httpSession.removeAttribute(Constants.SESSION_KAFKA_CONSUMER_INFO);
-        if (kafkaConsumerInfos != null) {
-            List<TreeInfo> consuerGroupTreeInfoList = new ArrayList<>(kafkaConsumerInfos.size());
+        if (kafkaConsumerVoList != null) {
+            List<TreeInfo> consuerGroupTreeInfoList = new ArrayList<>(kafkaConsumerVoList.size());
 
-            for (KafkaConsumerInfo kafkaConsumerInfo : kafkaConsumerInfos) {
-                TreeInfo consumerGroup = new TreeInfo(kafkaConsumerInfo.getGroupId());
+            for (KafkaConsumerVo kafkaConsumerVo : kafkaConsumerVoList) {
+                TreeInfo consumerGroup = new TreeInfo(kafkaConsumerVo.getGroupId());
 
-                if (kafkaConsumerInfo.getNotActiveTopicNames().size() == kafkaConsumerInfo.getTopicNames().size()) {
+                if (kafkaConsumerVo.getNotActiveTopicNames().size() == kafkaConsumerVo.getTopicNames().size()) {
                     consumerGroup.setStyle(TreeInfo.Style.warn());
-                } else if (kafkaConsumerInfo.getActiveTopicNames().size() == kafkaConsumerInfo.getTopicNames().size()) {
+                } else if (kafkaConsumerVo.getActiveTopicNames().size() == kafkaConsumerVo.getTopicNames().size()) {
                     consumerGroup.setStyle(TreeInfo.Style.success());
                 } else {
                     consumerGroup.setStyle(TreeInfo.Style.info());
                 }
 
-                List<TreeInfo> topicTreeInfoList = new ArrayList<>(kafkaConsumerInfo.getTopicCount());
-                for (String activeTopicName : kafkaConsumerInfo.getActiveTopicNames()) {
+                List<TreeInfo> topicTreeInfoList = new ArrayList<>(kafkaConsumerVo.getTopicCount());
+                for (String activeTopicName : kafkaConsumerVo.getActiveTopicNames()) {
                     TreeInfo topicInfo = new TreeInfo(activeTopicName);
                     topicInfo.setStyle(TreeInfo.Style.success());
                     topicTreeInfoList.add(topicInfo);
                 }
 
-                for (String notActiveTopicName : kafkaConsumerInfo.getNotActiveTopicNames()) {
+                for (String notActiveTopicName : kafkaConsumerVo.getNotActiveTopicNames()) {
                     TreeInfo topicInfo = new TreeInfo(notActiveTopicName);
                     topicInfo.setItemStyle(TreeInfo.Style.warn());
                     topicInfo.setLineStyle(TreeInfo.Style.warn());
@@ -108,57 +108,55 @@ public class ConsumerController {
 
     @PostMapping("listConsumerDetails")
     @ResponseBody
-    public Result<List<KafkaTopicInfo>> listConsumerDetails(@RequestParam(required = true, name = "groupId") String groupId) throws Exception {
+    public Result<List<KafkaTopicVo>> listConsumerDetails(@RequestParam(required = true, name = "groupId") String groupId) throws Exception {
         groupId = groupId.trim();
-        List<KafkaTopicInfo> result = new ArrayList<>();
-        List<KafkaConsumerInfo> kafkaConsumerInfos = kafkaConsumerService.listKafkaConsumers(groupId);
+        List<KafkaTopicVo> result = new ArrayList<>();
+        List<KafkaConsumerVo> kafkaConsumerVoList = kafkaConsumerService.listKafkaConsumers(groupId);
 
-        if (kafkaConsumerInfos != null && kafkaConsumerInfos.size() > 0) {
-            KafkaConsumerInfo kafkaConsumerInfo = kafkaConsumerInfos.get(0);
+        if (kafkaConsumerVoList != null && kafkaConsumerVoList.size() > 0) {
+            KafkaConsumerVo kafkaConsumerVo = kafkaConsumerVoList.get(0);
 
-            for (String topicName : kafkaConsumerInfo.getActiveTopicNames()) {
-                KafkaTopicInfo kafkaTopicInfo = new KafkaTopicInfo(topicName, 1);
-                result.add(kafkaTopicInfo);
+            for (String topicName : kafkaConsumerVo.getActiveTopicNames()) {
+                KafkaTopicVo kafkaTopicVo = new KafkaTopicVo(topicName, 1);
+                result.add(kafkaTopicVo);
             }
 
-            for (String notActiveTopicName : kafkaConsumerInfo.getNotActiveTopicNames()) {
-                KafkaTopicInfo kafkaTopicInfo = new KafkaTopicInfo(notActiveTopicName, 0);
-                result.add(kafkaTopicInfo);
+            for (String notActiveTopicName : kafkaConsumerVo.getNotActiveTopicNames()) {
+                KafkaTopicVo kafkaTopicVo = new KafkaTopicVo(notActiveTopicName, 0);
+                result.add(kafkaTopicVo);
             }
 
         }
 
-        for (KafkaTopicInfo kafkaTopicInfo : result) {
-            Long lag = 0L;
+        for (KafkaTopicVo kafkaTopicVo : result) {
+            long lag = 0L;
             try {
-                List<OffsetInfo> offsetInfos = kafkaConsumerService.listOffsetInfo(groupId, kafkaTopicInfo.getTopicName());
+                List<OffsetVo> offsetVoList = kafkaConsumerService.listOffsetVo(groupId, kafkaTopicVo.getTopicName());
 
-                for (OffsetInfo offsetInfo : offsetInfos) {
-                    if (offsetInfo.getLag() != null && offsetInfo.getLag() > 0) {
-                        lag += offsetInfo.getLag();
+                for (OffsetVo offsetVo : offsetVoList) {
+                    if (offsetVo.getLag() != null && offsetVo.getLag() > 0) {
+                        lag += offsetVo.getLag();
                     }
-                    if (offsetInfo.getLogSize() < 0L) {
-                        kafkaTopicInfo.setError(offsetInfo.getConsumerId());
+                    if (offsetVo.getLogSize() < 0L) {
+                        kafkaTopicVo.setError(offsetVo.getConsumerId());
                     }
                 }
             } catch (Exception ignored) {
                 lag = -1L;
             }
-
-            kafkaTopicInfo.setLag(lag);
+            kafkaTopicVo.setLag(lag);
         }
-
         return Result.ok(result);
     }
 
-    @PostMapping("listOffsetInfo")
+    @PostMapping("listOffsetVo")
     @ResponseBody
-    public Result<List<OffsetInfo>> listOffsetInfo(@RequestParam(required = true, name = "groupId") String groupId,
-                                                   @RequestParam(required = true, name = "topicName") String topicName) {
+    public Result<List<OffsetVo>> listOffsetVo(@RequestParam(required = true, name = "groupId") String groupId,
+                                                 @RequestParam(required = true, name = "topicName") String topicName) {
         groupId = groupId.trim();
         topicName = topicName.trim();
         try {
-            return Result.ok(kafkaConsumerService.listOffsetInfo(groupId, topicName));
+            return Result.ok(kafkaConsumerService.listOffsetVo(groupId, topicName));
         } catch (Exception ignored) {
             return Result.ok();
         }

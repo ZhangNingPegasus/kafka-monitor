@@ -2,8 +2,8 @@ package com.pegasus.kafka.controller;
 
 import com.pegasus.kafka.common.response.Result;
 import com.pegasus.kafka.entity.echarts.TreeInfo;
-import com.pegasus.kafka.entity.vo.KafkaBrokerInfo;
-import com.pegasus.kafka.entity.vo.ZooKeeperInfo;
+import com.pegasus.kafka.entity.vo.KafkaBrokerVo;
+import com.pegasus.kafka.entity.vo.ZooKeeperVo;
 import com.pegasus.kafka.service.core.KafkaZkService;
 import com.pegasus.kafka.service.kafka.KafkaBrokerService;
 import org.springframework.stereotype.Controller;
@@ -44,13 +44,13 @@ public class ClusterController {
 
     @PostMapping("list")
     @ResponseBody
-    public Result<List<KafkaBrokerInfo>> list() throws Exception {
+    public Result<List<KafkaBrokerVo>> list() throws Exception {
         return Result.ok(kafkaClusterService.listAllBrokers());
     }
 
     @PostMapping("listZk")
     @ResponseBody
-    public Result<List<ZooKeeperInfo>> listZk() {
+    public Result<List<ZooKeeperVo>> listZk() {
         return Result.ok(kafkaZkService.listZooKeeperCluster());
     }
 
@@ -59,10 +59,10 @@ public class ClusterController {
     public Result<TreeInfo> getChartData() throws Exception {
         TreeInfo root = new TreeInfo("Kafka集群");
 
-        List<KafkaBrokerInfo> allBrokers = kafkaClusterService.listAllBrokers();
+        List<KafkaBrokerVo> allBrokers = kafkaClusterService.listAllBrokers();
 
         List<TreeInfo> children = new ArrayList<>(allBrokers.size());
-        for (KafkaBrokerInfo broker : allBrokers) {
+        for (KafkaBrokerVo broker : allBrokers) {
             TreeInfo treeInfo = new TreeInfo(String.format("[%s] : %s", broker.getName(), broker.getHost()));
             treeInfo.setStyle(TreeInfo.Style.success());
             children.add(treeInfo);

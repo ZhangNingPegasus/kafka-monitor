@@ -199,15 +199,15 @@
                         _initChart('Total Produce Requests (/sec)', 'totalProduceRequestsChart', data.data.totalProduceRequests);
                         _initChart('Replication Bytes Out (byte/sec)', 'replicationBytesOutChart', data.data.replicationBytesOut);
                         _initChart('Replication Bytes In (byte/sec)', 'replicationBytesInChart', data.data.replicationBytesIn);
-                        _initChart('内存已使用百分比', 'osUsedMemoryChart', data.data.osFreeMemory);
+                        _initChart('内存已使用百分比', 'osUsedMemoryChart', data.data.osFreeMemory, true);
                     });
 
 
-                    function _initChart(title, eleId, data) {
+                    function _initChart(title, eleId, data, isPercent) {
                         const ele = $('#' + eleId).children('div');
                         ele.removeAttr("_echarts_instance_").empty();
                         const echart = echarts.init(ele[0], layui.echartsTheme);
-                        echart.setOption(kafkaChart(title, data));
+                        echart.setOption(kafkaChart(title, data, isPercent));
                         window.onresize = echart.resize;
                     }
 

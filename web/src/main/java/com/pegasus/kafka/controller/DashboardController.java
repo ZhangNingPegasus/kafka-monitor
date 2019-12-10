@@ -124,6 +124,9 @@ public class DashboardController {
                 Long logSize = null;
                 if (curLogSize != null) {
                     logSize = curLogSize - (preLogSize == null ? 0 : preLogSize);
+                    if (logSize < 0) {
+                        logSize = 0L;
+                    }
                 }
                 Double seconds = 60.0D;
                 if (curDate != null && preDate != null) {
@@ -260,13 +263,13 @@ public class DashboardController {
             timesList.add(sdf.format(date));
         }
         List<Double> data = new ArrayList<>();
-        data.add((double) (logsize - day1));
-        data.add((double) (day1 - day2));
-        data.add((double) (day2 - day3));
-        data.add((double) (day3 - day4));
-        data.add((double) (day4 - day5));
-        data.add((double) (day5 - day6));
-        data.add((double) (day6 - day7));
+        data.add((double) ((logsize - day1 > 0) ? logsize - day1 : 0L));
+        data.add((double) ((day1 - day2 > 0) ? day1 - day2 : 0L));
+        data.add((double) ((day2 - day3 > 0) ? day2 - day3 : 0L));
+        data.add((double) ((day3 - day4 > 0) ? day3 - day4 : 0L));
+        data.add((double) ((day4 - day5 > 0) ? day4 - day5 : 0L));
+        data.add((double) ((day5 - day6 > 0) ? day5 - day6 : 0L));
+        data.add((double) ((day6 - day7 > 0) ? day6 - day7 : 0L));
 
         List<LineInfo.Series> seriesList = new ArrayList<>();
         LineInfo.Series series = new LineInfo.Series();

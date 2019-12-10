@@ -82,6 +82,7 @@ public class WebConfig extends WebMvcConfigurationSupport {
                 .excludePathPatterns("/") // 排除登录页面
                 .excludePathPatterns("/css/**") // 排除拦截静态资源
                 .excludePathPatterns("/js/**") // 排除拦截静态资源
+                .excludePathPatterns("/images/**") // 排除拦截静态资源
                 .excludePathPatterns("/fonts/**") // 排除拦截静态资源
                 .excludePathPatterns("/layuiadmin/**") // 排除拦截静态资源
                 .excludePathPatterns("/favicon.ico") // 排除拦截静态资源

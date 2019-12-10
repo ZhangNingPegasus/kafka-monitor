@@ -1,7 +1,7 @@
 package com.pegasus.kafka.controller;
 
 import com.pegasus.kafka.common.response.Result;
-import com.pegasus.kafka.entity.vo.AdminInfo;
+import com.pegasus.kafka.entity.vo.AdminVo;
 import com.pegasus.kafka.service.dto.SysAdminService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -37,16 +37,16 @@ public class IndexController {
 
     @GetMapping("index")
     public String toIndex(Model model,
-                          AdminInfo adminInfo) {
-        model.addAttribute("admin", adminInfo);
+                          AdminVo adminVo) {
+        model.addAttribute("admin", adminVo);
         return "index";
     }
 
 
     @GetMapping("toinfo")
     public String toInfo(Model model,
-                         AdminInfo adminInfo) {
-        model.addAttribute("admin", sysAdminService.getBaseMapper().getById(adminInfo.getId()));
+                         AdminVo adminVo) {
+        model.addAttribute("admin", sysAdminService.getBaseMapper().getById(adminVo.getId()));
         return "info";
     }
 
@@ -73,10 +73,10 @@ public class IndexController {
 
     @PostMapping("repwd")
     @ResponseBody
-    public Result<?> repwd(AdminInfo adminInfo,
+    public Result<?> repwd(AdminVo adminVo,
                            @RequestParam(name = "oldPassword", required = true) String oldPassword,
                            @RequestParam(name = "password", required = true) String password) {
-        if (sysAdminService.changePassword(adminInfo.getId(), oldPassword, password)) {
+        if (sysAdminService.changePassword(adminVo.getId(), oldPassword, password)) {
             return Result.ok();
         } else {
             return Result.error("密码修改失败");
@@ -85,13 +85,13 @@ public class IndexController {
 
     @PostMapping("reinfo")
     @ResponseBody
-    public Result<?> reinfo(AdminInfo adminInfo,
+    public Result<?> reinfo(AdminVo adminVo,
                             @RequestParam(name = "name", required = true) String name,
                             @RequestParam(name = "gender", required = true) Boolean gender,
                             @RequestParam(name = "phoneNumber", required = true) String phoneNumber,
                             @RequestParam(name = "email", required = true) String email,
                             @RequestParam(name = "remark", required = true) String remark) {
-        sysAdminService.updateInfo(adminInfo.getId(), name, gender, phoneNumber, email, remark);
+        sysAdminService.updateInfo(adminVo.getId(), name, gender, phoneNumber, email, remark);
         return Result.ok();
 
     }

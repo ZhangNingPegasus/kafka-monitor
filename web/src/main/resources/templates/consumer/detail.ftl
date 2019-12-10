@@ -139,7 +139,7 @@
             function showOffsetDetails(topicName) {
                 table.render({
                     elem: '#gridOffset',
-                    url: 'listOffsetInfo?groupId=${groupId}&topicName=' + topicName,
+                    url: 'listOffsetVo?groupId=${groupId}&topicName=' + topicName,
                     method: 'post',
                     cellMinWidth: 80,
                     page: false,

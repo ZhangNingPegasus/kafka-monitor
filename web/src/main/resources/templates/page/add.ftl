@@ -49,6 +49,12 @@
         </div>
     </div>
     <div class="layui-form-item">
+        <label class="layui-form-label">是否新窗口</label>
+        <div class="layui-input-inline">
+            <input type="checkbox" name="isBlank" lay-verify="required" class="layui-input" title="新窗口">
+        </div>
+    </div>
+    <div class="layui-form-item">
         <label class="layui-form-label">描述信息</label>
         <div class="layui-input-inline" style="width:250px">
             <textarea name="remark" placeholder="请填写描述信息" class="layui-textarea" style="resize: none"></textarea>

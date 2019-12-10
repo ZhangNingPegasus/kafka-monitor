@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pegasus.kafka.entity.dto.SysAdmin;
-import com.pegasus.kafka.entity.vo.AdminInfo;
+import com.pegasus.kafka.entity.vo.AdminVo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -19,9 +19,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SysAdminMapper extends BaseMapper<SysAdmin> {
 
-    IPage<AdminInfo> list(Page page, @Param("name") String name);
+    IPage<AdminVo> list(Page page, @Param("name") String name);
 
-    AdminInfo getById(@Param("sysAdminId") Long sysAdminId);
+    AdminVo getById(@Param("sysAdminId") Long sysAdminId);
 
-    AdminInfo getByUsernameAndPassword(@Param("username") String username, @Param("password") String password);
+    AdminVo getByUsernameAndPassword(@Param("username") String username, @Param("password") String password);
 }

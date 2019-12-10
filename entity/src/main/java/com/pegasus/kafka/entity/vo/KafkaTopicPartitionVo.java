@@ -21,7 +21,7 @@ import java.util.List;
 @Data
 @JsonSerialize
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class KafkaTopicPartitionInfo implements Serializable {
+public class KafkaTopicPartitionVo implements Serializable {
     private String topicName;
     private String partitionId;
     private Long logsize;

@@ -88,8 +88,8 @@ public class KafkaService {
         });
     }
 
-    public List<KafkaTopicPartitionInfo> listTopicDetails(String topicName, boolean needLogsize) throws Exception {
-        final List<KafkaTopicPartitionInfo> result = new ArrayList<>();
+    public List<KafkaTopicPartitionVo> listTopicDetails(String topicName, boolean needLogsize) throws Exception {
+        final List<KafkaTopicPartitionVo> result = new ArrayList<>();
         AtomicReference<DescribeTopicsResult> describeTopicsResult = new AtomicReference<>();
 
         kafkaAdminClientDo(kafkaAdminClient -> describeTopicsResult.set(kafkaAdminClient.describeTopics(Collections.singletonList(topicName))));
@@ -99,22 +99,22 @@ public class KafkaService {
         for (Map.Entry<String, TopicDescription> pair : topicDescriptionMap.entrySet()) {
             TopicDescription topicDescription = pair.getValue();
             for (TopicPartitionInfo partition : topicDescription.partitions()) {
-                KafkaTopicPartitionInfo topicPartitionVo = new KafkaTopicPartitionInfo();
+                KafkaTopicPartitionVo topicPartitionVo = new KafkaTopicPartitionVo();
                 topicPartitionVo.setTopicName(pair.getKey());
                 topicPartitionVo.setPartitionId(Integer.toString(partition.partition()));
                 if (partition.leader() == null) {
                     topicPartitionVo.setLogsize(-1L);
                 } else {
-                    topicPartitionVo.setLeader(new KafkaTopicPartitionInfo.PartionInfo(
+                    topicPartitionVo.setLeader(new KafkaTopicPartitionVo.PartionInfo(
                             Integer.toString(partition.leader().id()),
                             partition.leader().host(),
                             Integer.toString(partition.leader().port()),
                             partition.leader().rack()
                     ));
 
-                    List<KafkaTopicPartitionInfo.PartionInfo> partitionVoList = new ArrayList<>();
+                    List<KafkaTopicPartitionVo.PartionInfo> partitionVoList = new ArrayList<>();
                     for (Node replica : partition.replicas()) {
-                        partitionVoList.add(new KafkaTopicPartitionInfo.PartionInfo(
+                        partitionVoList.add(new KafkaTopicPartitionVo.PartionInfo(
                                 Integer.toString(replica.id()),
                                 replica.host(),
                                 Integer.toString(replica.port()),
@@ -123,9 +123,9 @@ public class KafkaService {
                     }
                     topicPartitionVo.setReplicas(partitionVoList);
 
-                    List<KafkaTopicPartitionInfo.PartionInfo> isrList = new ArrayList<>();
+                    List<KafkaTopicPartitionVo.PartionInfo> isrList = new ArrayList<>();
                     for (Node isr : partition.isr()) {
-                        isrList.add(new KafkaTopicPartitionInfo.PartionInfo(
+                        isrList.add(new KafkaTopicPartitionVo.PartionInfo(
                                 Integer.toString(isr.id()),
                                 isr.host(),
                                 Integer.toString(isr.port()),
@@ -140,7 +140,7 @@ public class KafkaService {
 
         if (needLogsize) {
             kafkaConsumerDo(kafkaConsumer -> {
-                for (KafkaTopicPartitionInfo topicPartitionVo : result) {
+                for (KafkaTopicPartitionVo topicPartitionVo : result) {
                     if (topicPartitionVo.getLeader() != null) {
                         topicPartitionVo.setLogsize(listLogSize(kafkaConsumer, topicPartitionVo.getTopicName(), Integer.valueOf(topicPartitionVo.getPartitionId())));
                     }
@@ -154,12 +154,25 @@ public class KafkaService {
         TopicPartition tp = new TopicPartition(topicName, partitionId);
         kafkaConsumer.assign(Collections.singleton(tp));
         Map<TopicPartition, Long> endLogSize = kafkaConsumer.endOffsets(Collections.singleton(tp));
-        Map<TopicPartition, Long> startLogSize = kafkaConsumer.beginningOffsets(Collections.singleton(tp));
-        return endLogSize.get(tp) - startLogSize.get(tp);
+//        Map<TopicPartition, Long> startLogSize = kafkaConsumer.beginningOffsets(Collections.singleton(tp));
+//        return endLogSize.get(tp) - startLogSize.get(tp);
+        return endLogSize.get(tp);
     }
 
-    public List<KafkaConsumerInfo> listKafkaConsumers(String searchGroupId) throws Exception {
-        List<KafkaConsumerInfo> result = new ArrayList<>();
+    public List<String> listAllConsumers() throws Exception {
+        AtomicReference<List<String>> result = new AtomicReference<>(new ArrayList<>(1024));
+        kafkaAdminClientDo(adminClient -> {
+            ListConsumerGroupsResult listConsumerGroupsResult = adminClient.listConsumerGroups();
+            Collection<ConsumerGroupListing> consumerGroupListings = listConsumerGroupsResult.all().get();
+            for (ConsumerGroupListing consumerGroupListing : consumerGroupListings) {
+                result.get().add(consumerGroupListing.groupId());
+            }
+        });
+        return result.get();
+    }
+
+    public List<KafkaConsumerVo> listKafkaConsumers(String searchGroupId) throws Exception {
+        List<KafkaConsumerVo> result = new ArrayList<>();
         kafkaAdminClientDo(adminClient -> {
             ListConsumerGroupsResult listConsumerGroupsResult = adminClient.listConsumerGroups();
             Collection<ConsumerGroupListing> consumerGroupListings = listConsumerGroupsResult.all().get();
@@ -175,19 +188,19 @@ public class KafkaService {
                     Node coordinator = describeConsumerGroupsResult.all().get().get(groupId).coordinator();
                     Collection<MemberDescription> members = describeConsumerGroupsResult.describedGroups().get(groupId).get().members();
 
-                    KafkaConsumerInfo kafkaConsumerInfo = new KafkaConsumerInfo();
-                    kafkaConsumerInfo.setGroupId(groupId);
-                    kafkaConsumerInfo.setNode(String.format("%s : %s", coordinator.host(), coordinator.port()));
+                    KafkaConsumerVo kafkaConsumerVo = new KafkaConsumerVo();
+                    kafkaConsumerVo.setGroupId(groupId);
+                    kafkaConsumerVo.setNode(String.format("%s : %s", coordinator.host(), coordinator.port()));
 
-                    List<KafkaConsumerInfo.Meta> metaList = new ArrayList<>();
+                    List<KafkaConsumerVo.Meta> metaList = new ArrayList<>();
                     for (MemberDescription member : members) {
-                        KafkaConsumerInfo.Meta meta = new KafkaConsumerInfo.Meta();
+                        KafkaConsumerVo.Meta meta = new KafkaConsumerVo.Meta();
                         meta.setConsumerId(member.consumerId());
                         meta.setNode(member.host().replaceAll("/", ""));
 
-                        List<KafkaConsumerInfo.TopicSubscriber> topicSubscriberList = new ArrayList<>();
+                        List<KafkaConsumerVo.TopicSubscriber> topicSubscriberList = new ArrayList<>();
                         for (TopicPartition topicPartition : member.assignment().topicPartitions()) {
-                            KafkaConsumerInfo.TopicSubscriber topicSubscriber = new KafkaConsumerInfo.TopicSubscriber();
+                            KafkaConsumerVo.TopicSubscriber topicSubscriber = new KafkaConsumerVo.TopicSubscriber();
                             topicSubscriber.setTopicName(topicPartition.topic());
                             topicSubscriber.setPartitionId(topicPartition.partition());
                             topicSubscriberList.add(topicSubscriber);
@@ -196,13 +209,13 @@ public class KafkaService {
                         meta.setTopicSubscriberList(topicSubscriberList);
                         metaList.add(meta);
                     }
-                    KafkaConsumerInfo.Meta noActiveMeta = new KafkaConsumerInfo.Meta();
-                    List<KafkaConsumerInfo.TopicSubscriber> noActivetopicSubscriberList = new ArrayList<>();
+                    KafkaConsumerVo.Meta noActiveMeta = new KafkaConsumerVo.Meta();
+                    List<KafkaConsumerVo.TopicSubscriber> noActivetopicSubscriberList = new ArrayList<>();
                     noActiveMeta.setConsumerId("");
                     noActiveMeta.setNode(" - ");
                     ListConsumerGroupOffsetsResult listConsumerGroupOffsetsResult = adminClient.listConsumerGroupOffsets(groupId);
                     for (Map.Entry<TopicPartition, OffsetAndMetadata> entry : listConsumerGroupOffsetsResult.partitionsToOffsetAndMetadata().get().entrySet()) {
-                        KafkaConsumerInfo.TopicSubscriber topicSubscriber = new KafkaConsumerInfo.TopicSubscriber();
+                        KafkaConsumerVo.TopicSubscriber topicSubscriber = new KafkaConsumerVo.TopicSubscriber();
                         topicSubscriber.setTopicName(entry.getKey().topic());
                         topicSubscriber.setPartitionId(entry.getKey().partition());
                         if (!hasOwnerTopics.contains(entry.getKey().topic())) {
@@ -214,17 +227,17 @@ public class KafkaService {
                         metaList.add(noActiveMeta);
                     }
 
-                    kafkaConsumerInfo.setMetaList(metaList);
-                    result.add(kafkaConsumerInfo);
+                    kafkaConsumerVo.setMetaList(metaList);
+                    result.add(kafkaConsumerVo);
                 }
             }
         });
 
-        for (KafkaConsumerInfo kafkaConsumerInfo : result) {
+        for (KafkaConsumerVo kafkaConsumerVo : result) {
             Set<String> topicNameSet = new HashSet<>();
             Set<String> activeTopicSet = new HashSet<>();
-            for (KafkaConsumerInfo.Meta meta : kafkaConsumerInfo.getMetaList()) {
-                for (KafkaConsumerInfo.TopicSubscriber topicSubscriber : meta.getTopicSubscriberList()) {
+            for (KafkaConsumerVo.Meta meta : kafkaConsumerVo.getMetaList()) {
+                for (KafkaConsumerVo.TopicSubscriber topicSubscriber : meta.getTopicSubscriberList()) {
                     topicNameSet.add(topicSubscriber.getTopicName());
                     if (!StringUtils.isEmpty(meta.getConsumerId())) {
                         activeTopicSet.add(topicSubscriber.getTopicName());
@@ -232,75 +245,74 @@ public class KafkaService {
                 }
             }
 
-            kafkaConsumerInfo.setTopicNames(topicNameSet);
-            kafkaConsumerInfo.setActiveTopicNames(activeTopicSet);
+            kafkaConsumerVo.setTopicNames(topicNameSet);
+            kafkaConsumerVo.setActiveTopicNames(activeTopicSet);
             Set<String> notActiveTopicNames = new HashSet<>(topicNameSet.size());
             notActiveTopicNames.addAll(topicNameSet);
             notActiveTopicNames.removeAll(activeTopicSet);
-            kafkaConsumerInfo.setNotActiveTopicNames(notActiveTopicNames);
-
-            kafkaConsumerInfo.setActiveTopicCount(activeTopicSet.size());
-            kafkaConsumerInfo.setTopicCount(topicNameSet.size());
+            kafkaConsumerVo.setNotActiveTopicNames(notActiveTopicNames);
+            kafkaConsumerVo.setActiveTopicCount(activeTopicSet.size());
+            kafkaConsumerVo.setTopicCount(topicNameSet.size());
         }
         return result;
     }
 
-    public List<KafkaConsumerInfo> listKafkaConsumers() throws Exception {
+    public List<KafkaConsumerVo> listKafkaConsumers() throws Exception {
         return listKafkaConsumers(null);
     }
 
-    public List<OffsetInfo> listOffsetInfo(String groupId, String topicName) throws Exception {
-        List<OffsetInfo> result = new ArrayList<>();
+    public List<OffsetVo> listOffsetVo(String groupId, String topicName) throws Exception {
+        List<OffsetVo> result = new ArrayList<>();
 
         List<String> partitionIds = this.listPartitionIds(topicName);
         Map<Integer, Long> partitionOffset = this.listOffset(groupId, topicName, partitionIds);
         Map<TopicPartition, Long> partitionLogSize = this.listLogSize(topicName, partitionIds);
 
-        List<KafkaConsumerInfo> kafkaConsumerInfos = listKafkaConsumers(groupId);
+        List<KafkaConsumerVo> kafkaConsumerVoList = listKafkaConsumers(groupId);
         for (Map.Entry<TopicPartition, Long> entrySet : partitionLogSize.entrySet()) {
             int partitionId = entrySet.getKey().partition();
             long logSize = entrySet.getValue();
 
-            OffsetInfo offsetInfo = new OffsetInfo();
-            offsetInfo.setPartitionId(partitionId);
-            offsetInfo.setLogSize(logSize);
+            OffsetVo offsetVo = new OffsetVo();
+            offsetVo.setPartitionId(partitionId);
+            offsetVo.setLogSize(logSize);
             if (partitionOffset.containsKey(partitionId)) {
-                offsetInfo.setOffset(partitionOffset.get(partitionId));
-                offsetInfo.setLag(offsetInfo.getOffset() == -1 ? 0 : (offsetInfo.getLogSize() - offsetInfo.getOffset()));
+                offsetVo.setOffset(partitionOffset.get(partitionId));
+                offsetVo.setLag(offsetVo.getOffset() == -1 ? 0 : (offsetVo.getLogSize() - offsetVo.getOffset()));
             } else {
-                offsetInfo.setOffset(null);
-                offsetInfo.setLag(null);
+                offsetVo.setOffset(null);
+                offsetVo.setLag(null);
             }
 
-            offsetInfo.setConsumerId(getConsumerId(kafkaConsumerInfos, topicName, partitionId));
-            result.add(offsetInfo);
+            offsetVo.setConsumerId(getConsumerId(kafkaConsumerVoList, topicName, partitionId));
+            result.add(offsetVo);
         }
 
         if (result.size() < partitionOffset.size()) {
-            for (OffsetInfo offsetInfo : result) {
-                partitionOffset.remove(offsetInfo.getPartitionId());
+            for (OffsetVo offsetVo : result) {
+                partitionOffset.remove(offsetVo.getPartitionId());
             }
 
             for (Map.Entry<Integer, Long> entry : partitionOffset.entrySet()) {
-                OffsetInfo offsetInfo = new OffsetInfo();
-                offsetInfo.setPartitionId(entry.getKey());
-                offsetInfo.setOffset(entry.getValue());
-                offsetInfo.setLogSize(-1L);
-                offsetInfo.setLag(-1L);
-                offsetInfo.setConsumerId(String.format(Constants.PARTITION_NOT_AVAIABLE, entry.getKey()));
-                result.add(offsetInfo);
+                OffsetVo offsetVo = new OffsetVo();
+                offsetVo.setPartitionId(entry.getKey());
+                offsetVo.setOffset(entry.getValue());
+                offsetVo.setLogSize(-1L);
+                offsetVo.setLag(-1L);
+                offsetVo.setConsumerId(String.format(Constants.PARTITION_NOT_AVAIABLE, entry.getKey()));
+                result.add(offsetVo);
             }
         }
         return result;
     }
 
-    private String getConsumerId(List<KafkaConsumerInfo> kafkaConsumerInfoList, String topicName, Integer partitionId) {
-        if (kafkaConsumerInfoList == null) {
+    private String getConsumerId(List<KafkaConsumerVo> kafkaConsumerVoList, String topicName, Integer partitionId) {
+        if (kafkaConsumerVoList == null) {
             return null;
         }
-        for (KafkaConsumerInfo kafkaConsumerInfo : kafkaConsumerInfoList) {
-            for (KafkaConsumerInfo.Meta meta : kafkaConsumerInfo.getMetaList()) {
-                for (KafkaConsumerInfo.TopicSubscriber topicSubscriber : meta.getTopicSubscriberList()) {
+        for (KafkaConsumerVo kafkaConsumerVo : kafkaConsumerVoList) {
+            for (KafkaConsumerVo.Meta meta : kafkaConsumerVo.getMetaList()) {
+                for (KafkaConsumerVo.TopicSubscriber topicSubscriber : meta.getTopicSubscriberList()) {
                     if (topicSubscriber.getTopicName().equals(topicName) && topicSubscriber.getPartitionId().equals(partitionId)) {
                         return meta.getConsumerId();
                     }
@@ -332,17 +344,17 @@ public class KafkaService {
 
     private Map<TopicPartition, Long> listLogSize(String topicName, List<String> partitionIds) throws Exception {
         Map<TopicPartition, Long> result = new HashMap<>();
-        List<KafkaTopicPartitionInfo> topicDetails = this.listTopicDetails(topicName, false);
+        List<KafkaTopicPartitionVo> topicDetails = this.listTopicDetails(topicName, false);
 
         kafkaConsumerDo(kafkaConsumer -> {
             Set<TopicPartition> tps = new HashSet<>();
             for (String partitionId : partitionIds) {
-                Optional<KafkaTopicPartitionInfo> first = topicDetails.stream().filter(p -> p.getPartitionId().equals(partitionId)).findFirst();
+                Optional<KafkaTopicPartitionVo> first = topicDetails.stream().filter(p -> p.getPartitionId().equals(partitionId)).findFirst();
                 if (!first.isPresent()) {
                     continue;
                 }
-                KafkaTopicPartitionInfo kafkaTopicPartitionInfo = first.get();
-                if (kafkaTopicPartitionInfo.getLeader() == null) {
+                KafkaTopicPartitionVo kafkaTopicPartitionVo = first.get();
+                if (kafkaTopicPartitionVo.getLeader() == null) {
                     continue;
                 }
                 TopicPartition tp = new TopicPartition(topicName, Integer.parseInt(partitionId));
@@ -365,17 +377,17 @@ public class KafkaService {
 
     public String listTopicSize(String topicName) throws Exception {
         long totalSize = 0L;
-        List<KafkaTopicPartitionInfo> topicDetails = listTopicDetails(topicName, false);
-        List<KafkaBrokerInfo> brokerVoList = listBrokerInfos();
+        List<KafkaTopicPartitionVo> topicDetails = listTopicDetails(topicName, false);
+        List<KafkaBrokerVo> brokerVoList = listBrokerInfos();
 
-        for (KafkaTopicPartitionInfo topicDetail : topicDetails) {
+        for (KafkaTopicPartitionVo topicDetail : topicDetails) {
             if (topicDetail.getLeader() == null) {
                 continue;
             }
-            KafkaTopicPartitionInfo.PartionInfo leader = topicDetail.getLeader();
-            Optional<KafkaBrokerInfo> first = brokerVoList.stream().filter(p -> p.getHost().equals(leader.getHost())).findFirst();
+            KafkaTopicPartitionVo.PartionInfo leader = topicDetail.getLeader();
+            Optional<KafkaBrokerVo> first = brokerVoList.stream().filter(p -> p.getHost().equals(leader.getHost())).findFirst();
             if (first.isPresent()) {
-                KafkaBrokerInfo brokerVo = first.get();
+                KafkaBrokerVo brokerVo = first.get();
                 String size = kafkaJmxService.getData(brokerVo, String.format("kafka.log:type=Log,name=Size,topic=%s,partition=%s", topicName, topicDetail.getPartitionId()), "Value");
                 totalSize += Long.parseLong(size);
             }
@@ -383,11 +395,11 @@ public class KafkaService {
         return Common.convertSize(totalSize);
     }
 
-    public List<KafkaBrokerInfo> listBrokerInfos() throws Exception {
+    public List<KafkaBrokerVo> listBrokerInfos() throws Exception {
         List<String> brokerList = this.listBrokerNames();
-        List<KafkaBrokerInfo> result = new ArrayList<>(brokerList.size());
+        List<KafkaBrokerVo> result = new ArrayList<>(brokerList.size());
         for (String brokerName : brokerList) {
-            KafkaBrokerInfo brokerInfo = this.getBrokerInfo(brokerName);
+            KafkaBrokerVo brokerInfo = this.getBrokerInfo(brokerName);
             brokerInfo.setName(brokerName);
             brokerInfo.setVersion(getKafkaVersion(brokerInfo));
             result.add(brokerInfo);
@@ -395,19 +407,19 @@ public class KafkaService {
         return result;
     }
 
-    public List<MBeanInfo> listTopicMBean(String topicName) throws Exception {
-        Map<String, MBeanInfo> result = new LinkedHashMap<>();
-        List<KafkaBrokerInfo> brokerInfoList = this.listBrokerInfos();
-        for (KafkaBrokerInfo brokerInfo : brokerInfoList) {
-            MBeanInfo bytesIn = mBeanService.bytesInPerSec(brokerInfo, topicName);
-            MBeanInfo bytesOut = mBeanService.bytesOutPerSec(brokerInfo, topicName);
-            MBeanInfo bytesRejected = mBeanService.bytesRejectedPerSec(brokerInfo, topicName);
-            MBeanInfo failedFetchRequest = mBeanService.failedFetchRequestsPerSec(brokerInfo, topicName);
-            MBeanInfo failedProduceRequest = mBeanService.failedProduceRequestsPerSec(brokerInfo, topicName);
-            MBeanInfo messageIn = mBeanService.messagesInPerSec(brokerInfo, topicName);
-            MBeanInfo produceMessageConversions = mBeanService.produceMessageConversionsPerSec(brokerInfo, topicName);
-            MBeanInfo totalFetchRequests = mBeanService.totalFetchRequestsPerSec(brokerInfo, topicName);
-            MBeanInfo totalProduceRequests = mBeanService.totalProduceRequestsPerSec(brokerInfo, topicName);
+    public List<MBeanVo> listTopicMBean(String topicName) throws Exception {
+        Map<String, MBeanVo> result = new LinkedHashMap<>();
+        List<KafkaBrokerVo> brokerInfoList = this.listBrokerInfos();
+        for (KafkaBrokerVo brokerInfo : brokerInfoList) {
+            MBeanVo bytesIn = mBeanService.bytesInPerSec(brokerInfo, topicName);
+            MBeanVo bytesOut = mBeanService.bytesOutPerSec(brokerInfo, topicName);
+            MBeanVo bytesRejected = mBeanService.bytesRejectedPerSec(brokerInfo, topicName);
+            MBeanVo failedFetchRequest = mBeanService.failedFetchRequestsPerSec(brokerInfo, topicName);
+            MBeanVo failedProduceRequest = mBeanService.failedProduceRequestsPerSec(brokerInfo, topicName);
+            MBeanVo messageIn = mBeanService.messagesInPerSec(brokerInfo, topicName);
+            MBeanVo produceMessageConversions = mBeanService.produceMessageConversionsPerSec(brokerInfo, topicName);
+            MBeanVo totalFetchRequests = mBeanService.totalFetchRequestsPerSec(brokerInfo, topicName);
+            MBeanVo totalProduceRequests = mBeanService.totalProduceRequestsPerSec(brokerInfo, topicName);
 
             assembleMBeanInfo(result, JMX.MESSAGES_IN, messageIn);
             assembleMBeanInfo(result, JMX.BYTES_IN, bytesIn);
@@ -420,7 +432,7 @@ public class KafkaService {
             assembleMBeanInfo(result, JMX.PRODUCE_MESSAGE_CONVERSIONS, produceMessageConversions);
         }
 
-        for (Map.Entry<String, MBeanInfo> entry : result.entrySet()) {
+        for (Map.Entry<String, MBeanVo> entry : result.entrySet()) {
             if (entry == null || entry.getValue() == null) {
                 continue;
             }
@@ -434,43 +446,43 @@ public class KafkaService {
         return new ArrayList<>(result.values());
     }
 
-    private void assembleMBeanInfo(Map<String, MBeanInfo> mbeans, String mBeanInfoKey, MBeanInfo mBeanInfo) {
-        if (mbeans.containsKey(mBeanInfoKey) && mBeanInfo != null) {
+    private void assembleMBeanInfo(Map<String, MBeanVo> mbeans, String mBeanInfoKey, MBeanVo mBeanVo) {
+        if (mbeans.containsKey(mBeanInfoKey) && mBeanVo != null) {
             DecimalFormat formatter = new DecimalFormat("###.##");
-            MBeanInfo mbeanInfo = mbeans.get(mBeanInfoKey);
-            String fifteenMinuteOld = mbeanInfo.getFifteenMinute() == null ? "0.0" : mbeanInfo.getFifteenMinute();
-            String fifteenMinuteLastest = mBeanInfo.getFifteenMinute() == null ? "0.0" : mBeanInfo.getFifteenMinute();
-            String fiveMinuteOld = mbeanInfo.getFiveMinute() == null ? "0.0" : mbeanInfo.getFiveMinute();
-            String fiveMinuteLastest = mBeanInfo.getFiveMinute() == null ? "0.0" : mBeanInfo.getFiveMinute();
-            String meanRateOld = mbeanInfo.getMeanRate() == null ? "0.0" : mbeanInfo.getMeanRate();
-            String meanRateLastest = mBeanInfo.getMeanRate() == null ? "0.0" : mBeanInfo.getMeanRate();
-            String oneMinuteOld = mbeanInfo.getOneMinute() == null ? "0.0" : mbeanInfo.getOneMinute();
-            String oneMinuteLastest = mBeanInfo.getOneMinute() == null ? "0.0" : mBeanInfo.getOneMinute();
+            MBeanVo existedMBeanVo = mbeans.get(mBeanInfoKey);
+            String fifteenMinuteOld = existedMBeanVo.getFifteenMinute() == null ? "0.0" : existedMBeanVo.getFifteenMinute();
+            String fifteenMinuteLastest = mBeanVo.getFifteenMinute() == null ? "0.0" : mBeanVo.getFifteenMinute();
+            String fiveMinuteOld = existedMBeanVo.getFiveMinute() == null ? "0.0" : existedMBeanVo.getFiveMinute();
+            String fiveMinuteLastest = mBeanVo.getFiveMinute() == null ? "0.0" : mBeanVo.getFiveMinute();
+            String meanRateOld = existedMBeanVo.getMeanRate() == null ? "0.0" : existedMBeanVo.getMeanRate();
+            String meanRateLastest = mBeanVo.getMeanRate() == null ? "0.0" : mBeanVo.getMeanRate();
+            String oneMinuteOld = existedMBeanVo.getOneMinute() == null ? "0.0" : existedMBeanVo.getOneMinute();
+            String oneMinuteLastest = mBeanVo.getOneMinute() == null ? "0.0" : mBeanVo.getOneMinute();
             double fifteenMinute = Common.numberic(fifteenMinuteOld) + Common.numberic(fifteenMinuteLastest);
             double fiveMinute = Common.numberic(fiveMinuteOld) + Common.numberic(fiveMinuteLastest);
             double meanRate = Common.numberic(meanRateOld) + Common.numberic(meanRateLastest);
             double oneMinute = Common.numberic(oneMinuteOld) + Common.numberic(oneMinuteLastest);
-            mbeanInfo.setFifteenMinute(formatter.format(fifteenMinute));
-            mbeanInfo.setFiveMinute(formatter.format(fiveMinute));
-            mbeanInfo.setMeanRate(formatter.format(meanRate));
-            mbeanInfo.setOneMinute(formatter.format(oneMinute));
-            mbeanInfo.setName(mBeanInfoKey);
+            existedMBeanVo.setFifteenMinute(formatter.format(fifteenMinute));
+            existedMBeanVo.setFiveMinute(formatter.format(fiveMinute));
+            existedMBeanVo.setMeanRate(formatter.format(meanRate));
+            existedMBeanVo.setOneMinute(formatter.format(oneMinute));
+            existedMBeanVo.setName(mBeanInfoKey);
         } else {
-            mbeans.put(mBeanInfoKey, mBeanInfo);
+            mbeans.put(mBeanInfoKey, mBeanVo);
         }
     }
 
     public Long getLogSize(String topicName, Out out) throws Exception {
-        Long result = 0L;
+        long result = 0L;
         List<String> listPartitionNames = listPartitionIds(topicName);
-        List<KafkaTopicPartitionInfo> topicDetails = listTopicDetails(topicName, false);
+        List<KafkaTopicPartitionVo> topicDetails = listTopicDetails(topicName, false);
         for (String listPartitionName : listPartitionNames) {
-            Optional<KafkaTopicPartitionInfo> first = topicDetails.stream().filter(p -> listPartitionName.equals(p.getPartitionId())).findFirst();
+            Optional<KafkaTopicPartitionVo> first = topicDetails.stream().filter(p -> listPartitionName.equals(p.getPartitionId())).findFirst();
             if (!first.isPresent()) {
                 continue;
             }
-            KafkaTopicPartitionInfo kafkaTopicPartitionInfo = first.get();
-            if (kafkaTopicPartitionInfo.getLeader() == null) {
+            KafkaTopicPartitionVo kafkaTopicPartitionVo = first.get();
+            if (kafkaTopicPartitionVo.getLeader() == null) {
                 if (out != null) {
                     out.setError(String.format(Constants.PARTITION_NOT_AVAIABLE, listPartitionName));
                 }
@@ -504,7 +516,7 @@ public class KafkaService {
 
     public List<SysKpi> kpi(Date now) throws Exception {
         List<SysKpi> result = new ArrayList<>(SysKpi.KAFKA_KPI.values().length);
-        List<KafkaBrokerInfo> brokers = this.listBrokerInfos();
+        List<KafkaBrokerVo> brokers = this.listBrokerInfos();
 
         for (SysKpi.KAFKA_KPI kpi : SysKpi.KAFKA_KPI.values()) {
             if (StringUtils.isEmpty(kpi.getName())) {
@@ -514,82 +526,94 @@ public class KafkaService {
             sysKpi.setKpi(kpi.getCode());
             sysKpi.setCreateTime(now);
             StringBuilder host = new StringBuilder();
-            for (KafkaBrokerInfo broker : brokers) {
+            for (KafkaBrokerVo broker : brokers) {
                 host.append(broker.getHost()).append(",");
                 switch (kpi) {
                     case KAFKA_MESSAGES_IN:
-                        MBeanInfo msg = mbeanService.messagesInPerSec(broker);
+                        MBeanVo msg = mbeanService.messagesInPerSec(broker);
                         if (msg != null) {
-                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + Common.numberic(msg.getOneMinute())));
+                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + Common.numberic(msg.getOneMinute()));
                         }
                         break;
                     case KAFKA_BYTES_IN:
-                        MBeanInfo bin = mbeanService.bytesInPerSec(broker);
+                        MBeanVo bin = mbeanService.bytesInPerSec(broker);
                         if (bin != null) {
-                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + Common.numberic(bin.getOneMinute())));
+                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + Common.numberic(bin.getOneMinute()));
                         }
                         break;
                     case KAFKA_BYTES_OUT:
-                        MBeanInfo bout = mbeanService.bytesOutPerSec(broker);
+                        MBeanVo bout = mbeanService.bytesOutPerSec(broker);
                         if (bout != null) {
-                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + Common.numberic(bout.getOneMinute())));
+                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + Common.numberic(bout.getOneMinute()));
                         }
                         break;
                     case KAFKA_BYTES_REJECTED:
-                        MBeanInfo bytesRejectedPerSec = mbeanService.bytesRejectedPerSec(broker);
+                        MBeanVo bytesRejectedPerSec = mbeanService.bytesRejectedPerSec(broker);
                         if (bytesRejectedPerSec != null) {
-                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + Common.numberic(bytesRejectedPerSec.getOneMinute())));
+                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + Common.numberic(bytesRejectedPerSec.getOneMinute()));
                         }
                         break;
                     case KAFKA_FAILED_FETCH_REQUEST:
-                        MBeanInfo failedFetchRequestsPerSec = mbeanService.failedFetchRequestsPerSec(broker);
+                        MBeanVo failedFetchRequestsPerSec = mbeanService.failedFetchRequestsPerSec(broker);
                         if (failedFetchRequestsPerSec != null) {
-                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + Common.numberic(failedFetchRequestsPerSec.getOneMinute())));
+                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + Common.numberic(failedFetchRequestsPerSec.getOneMinute()));
                         }
                         break;
                     case KAFKA_FAILED_PRODUCE_REQUEST:
-                        MBeanInfo failedProduceRequestsPerSec = mbeanService.failedProduceRequestsPerSec(broker);
+                        MBeanVo failedProduceRequestsPerSec = mbeanService.failedProduceRequestsPerSec(broker);
                         if (failedProduceRequestsPerSec != null) {
-                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + Common.numberic(failedProduceRequestsPerSec.getOneMinute())));
+                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + Common.numberic(failedProduceRequestsPerSec.getOneMinute()));
                         }
                         break;
                     case KAFKA_TOTAL_FETCH_REQUESTS_PER_SEC:
-                        MBeanInfo totalFetchRequests = mbeanService.totalFetchRequestsPerSec(broker);
+                        MBeanVo totalFetchRequests = mbeanService.totalFetchRequestsPerSec(broker);
                         if (totalFetchRequests != null) {
-                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + Common.numberic(totalFetchRequests.getOneMinute())));
+                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + Common.numberic(totalFetchRequests.getOneMinute()));
                         }
                         break;
                     case KAFKA_TOTAL_PRODUCE_REQUESTS_PER_SEC:
-                        MBeanInfo totalProduceRequestsPerSec = mbeanService.totalProduceRequestsPerSec(broker);
+                        MBeanVo totalProduceRequestsPerSec = mbeanService.totalProduceRequestsPerSec(broker);
                         if (totalProduceRequestsPerSec != null) {
-                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + Common.numberic(totalProduceRequestsPerSec.getOneMinute())));
+                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + Common.numberic(totalProduceRequestsPerSec.getOneMinute()));
                         }
                         break;
                     case KAFKA_REPLICATION_BYTES_IN_PER_SEC:
-                        MBeanInfo replicationBytesInPerSec = mbeanService.replicationBytesInPerSec(broker);
+                        MBeanVo replicationBytesInPerSec = mbeanService.replicationBytesInPerSec(broker);
                         if (replicationBytesInPerSec != null) {
-                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + Common.numberic(replicationBytesInPerSec.getOneMinute())));
+                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + Common.numberic(replicationBytesInPerSec.getOneMinute()));
                         }
                         break;
                     case KAFKA_REPLICATION_BYTES_OUT_PER_SEC:
-                        MBeanInfo replicationBytesOutPerSec = mbeanService.replicationBytesOutPerSec(broker);
+                        MBeanVo replicationBytesOutPerSec = mbeanService.replicationBytesOutPerSec(broker);
                         if (replicationBytesOutPerSec != null) {
-                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + Common.numberic(replicationBytesOutPerSec.getOneMinute())));
+                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + Common.numberic(replicationBytesOutPerSec.getOneMinute()));
                         }
                         break;
                     case KAFKA_PRODUCE_MESSAGE_CONVERSIONS:
-                        MBeanInfo produceMessageConv = mbeanService.produceMessageConversionsPerSec(broker);
+                        MBeanVo produceMessageConv = mbeanService.produceMessageConversionsPerSec(broker);
                         if (produceMessageConv != null) {
-                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + Common.numberic(produceMessageConv.getOneMinute())));
+                            sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + Common.numberic(produceMessageConv.getOneMinute()));
                         }
                         break;
                     case KAFKA_OS_TOTAL_MEMORY:
                         long totalMemory = mbeanService.getOsTotalMemory(broker);
-                        sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + totalMemory));
+                        sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + totalMemory);
                         break;
                     case KAFKA_OS_FREE_MEMORY:
                         long freeMemory = mbeanService.getOsFreeMemory(broker);
-                        sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue() + freeMemory));
+                        sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + freeMemory);
+                        break;
+                    case KAFKA_SYSTEM_CPU_LOAD:
+                        double systemCpuLoad = Double.parseDouble(kafkaJmxService.getData(broker, JMX.OPERATING_SYSTEM, kpi.getName()));
+                        sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + systemCpuLoad);
+                        break;
+                    case KAFKA_PROCESS_CPU_LOAD:
+                        double processCpuLoad = Double.parseDouble(kafkaJmxService.getData(broker, JMX.OPERATING_SYSTEM, kpi.getName()));
+                        sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + processCpuLoad);
+                        break;
+                    case KAFKA_THREAD_COUNT:
+                        Integer threadCount = Integer.parseInt(kafkaJmxService.getData(broker, JMX.THREADING, kpi.getName()));
+                        sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + threadCount);
                         break;
                     default:
                         break;
@@ -604,6 +628,9 @@ public class KafkaService {
 
         Optional<SysKpi> firstOsFree = result.stream().filter(p -> p.getKpi().equals(SysKpi.KAFKA_KPI.KAFKA_OS_FREE_MEMORY.getCode())).findFirst();
         Optional<SysKpi> firstOsTotal = result.stream().filter(p -> p.getKpi().equals(SysKpi.KAFKA_KPI.KAFKA_OS_TOTAL_MEMORY.getCode())).findFirst();
+        Optional<SysKpi> firstSystemCpuLoad = result.stream().filter(p -> p.getKpi().equals(SysKpi.KAFKA_KPI.KAFKA_SYSTEM_CPU_LOAD.getCode())).findFirst();
+        Optional<SysKpi> firstProcessCpuLoad = result.stream().filter(p -> p.getKpi().equals(SysKpi.KAFKA_KPI.KAFKA_PROCESS_CPU_LOAD.getCode())).findFirst();
+        Optional<SysKpi> firstThreadCount = result.stream().filter(p -> p.getKpi().equals(SysKpi.KAFKA_KPI.KAFKA_THREAD_COUNT.getCode())).findFirst();
 
         if (firstOsFree.isPresent() && firstOsTotal.isPresent()) {
             Double osFree = firstOsFree.get().getValue();
@@ -616,13 +643,25 @@ public class KafkaService {
             result.add(sysKpi);
         }
 
+        if (firstSystemCpuLoad.isPresent()) {
+            SysKpi sysKpi = firstSystemCpuLoad.get();
+            sysKpi.setValue((sysKpi.getValue() / brokers.size()) * 100);
+        }
+        if (firstProcessCpuLoad.isPresent()) {
+            SysKpi sysKpi = firstProcessCpuLoad.get();
+            sysKpi.setValue((sysKpi.getValue() / brokers.size()) * 100);
+        }
+        if (firstThreadCount.isPresent()) {
+            SysKpi sysKpi = firstThreadCount.get();
+            sysKpi.setValue((double) (sysKpi.getValue().intValue() / brokers.size()));
+        }
         return result;
     }
 
-    private KafkaBrokerInfo getBrokerInfo(String brokerName) throws Exception {
+    private KafkaBrokerVo getBrokerInfo(String brokerName) throws Exception {
         String brokerInfoJson = kafkaZkService.getData(String.format("%s/%s", Constants.ZK_BROKER_IDS_PATH, brokerName));
         JSONObject jsonObject = new JSONObject(brokerInfoJson);
-        KafkaBrokerInfo brokerVo = new KafkaBrokerInfo();
+        KafkaBrokerVo brokerVo = new KafkaBrokerVo();
         brokerVo.setHost(jsonObject.get("host").toString());
         brokerVo.setPort(jsonObject.get("port").toString());
         brokerVo.setEndpoints(jsonObject.get("endpoints").toString());
@@ -631,11 +670,11 @@ public class KafkaService {
         return brokerVo;
     }
 
-    private List<String> listBrokerNames() throws Exception {
+    public List<String> listBrokerNames() throws Exception {
         return kafkaZkService.getChildren(Constants.ZK_BROKER_IDS_PATH);
     }
 
-    private String getKafkaVersion(KafkaBrokerInfo brokerInfo) {
+    private String getKafkaVersion(KafkaBrokerVo brokerInfo) {
         String result = " - ";
         try {
             result = kafkaJmxService.getData(brokerInfo, String.format("kafka.server:type=app-info,id=%s", brokerInfo.getName()), "Version");
@@ -647,11 +686,11 @@ public class KafkaService {
 
     public String getKafkaBrokerServer() throws Exception {
         StringBuilder kafkaUrls = new StringBuilder();
-        List<KafkaBrokerInfo> brokerInfoList = this.listBrokerInfos();
+        List<KafkaBrokerVo> brokerInfoList = this.listBrokerInfos();
         if (brokerInfoList == null || brokerInfoList.size() < 1) {
             throw new BusinessException(ResultCode.KAFKA_NOT_RUNNING);
         }
-        for (KafkaBrokerInfo brokerInfo : brokerInfoList) {
+        for (KafkaBrokerVo brokerInfo : brokerInfoList) {
             kafkaUrls.append(String.format("%s:%s,", brokerInfo.getHost(), brokerInfo.getPort()));
         }
         if (kafkaUrls.length() > 0) {

@@ -44,6 +44,12 @@ public class SysPage extends BaseDto {
     private Boolean isDefault;
 
     /**
+     * 是否新开窗口打开页面
+     */
+    @TableField(value = "is_blank")
+    private Boolean isBlank;
+
+    /**
      * html中的图标样式
      */
     @TableField(value = "icon_class")

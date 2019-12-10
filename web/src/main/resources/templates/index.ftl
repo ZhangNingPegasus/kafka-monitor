@@ -49,17 +49,25 @@
                         <#if admin.permissions??>
                             <#list admin.permissions as page>
                                 <li data-name="config" class="layui-nav-item <#if page_index==0>layui-nav-itemed</#if>">
-                                    <a href="javascript:;"
-                                            <#if page.url!=''> lay-href="${ctx}${page.url}"</#if>
-                                       lay-tips="<#if page.remark!=''>${page.remark}<#else>${page.name}</#if>"
-                                       lay-direction="2">
-                                        <i class="layui-icon ${page.iconClass}"></i><cite>${page.name}</cite>
-                                    </a>
+                                    <#if page.isBlank>
+                                        <a href="${ctx}${page.url}" target="_blank" lay-direction="2"
+                                           lay-tips="<#if page.remark!=''>${page.remark}<#else>${page.name}</#if>">
+                                            <i class="layui-icon ${page.iconClass}"></i><cite>${page.name}</cite>
+                                        </a>
+                                    <#else>
+                                        <a href="javascript:"
+                                                <#if page.url!=''> lay-href="${ctx}${page.url}"</#if>
+                                           lay-tips="<#if page.remark!=''>${page.remark}<#else>${page.name}</#if>"
+                                           lay-direction="2">
+                                            <i class="layui-icon ${page.iconClass}"></i><cite>${page.name}</cite>
+                                        </a>
+                                    </#if>
+
                                     <#list page.children as child>
                                         <dl class="layui-nav-child">
                                             <#if child.children?? && child.children?size gt 0>
                                                 <dd class="layui-nav-itemed">
-                                                    <a href="javascript:;">${child.name}</a>
+                                                    <a href="javascript:">${child.name}</a>
                                                     <dl class="layui-nav-child">
                                                         <#list child.children as gs>
                                                             <dd><a lay-href="${ctx}${gs.url}">${gs.name}</a></dd>

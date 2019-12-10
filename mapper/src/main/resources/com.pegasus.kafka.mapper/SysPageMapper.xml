@@ -3,13 +3,14 @@
 
 <mapper namespace="com.pegasus.kafka.mapper.SysPageMapper">
 
-    <select id="list" resultType="com.pegasus.kafka.entity.vo.PageInfo">
+    <select id="list" resultType="com.pegasus.kafka.entity.vo.PageVo">
         SELECT
         p.id,
         p.`name`,
         p.url,
         p.is_menu,
         p.is_default,
+        p.is_blank,
         p.icon_class,
         p.parent_id,
         parent.`name` AS parent_name,

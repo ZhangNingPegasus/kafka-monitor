@@ -39,6 +39,7 @@ public class ShiroConfig {
         LinkedHashMap<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         filterChainDefinitionMap.put("/css/**", "anon"); // 静态资源
         filterChainDefinitionMap.put("/js/**", "anon"); // 静态资源
+        filterChainDefinitionMap.put("/images/**", "anon"); // 静态资源
         filterChainDefinitionMap.put("/fonts/**", "anon"); // 静态资源
         filterChainDefinitionMap.put("/layuiadmin/**", "anon"); // 静态资源
         filterChainDefinitionMap.put("/favicon.ico", "anon"); // 静态资源
