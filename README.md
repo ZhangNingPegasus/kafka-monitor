@@ -32,6 +32,8 @@ Supported JDK: jdk8+
 Default Account: admin<br/>
 Default Password: admin<br/>
 
+Any questions or concerns please feel free to contact me by email: 349409664@qq.com
+
 Here are some Kafka-Monitor system screenshots:
 <img src="https://raw.githubusercontent.com/ZhangNingPegasus/kafka-monitor/master/1.png"/>
 <img src="https://raw.githubusercontent.com/ZhangNingPegasus/kafka-monitor/master/2.png"/>

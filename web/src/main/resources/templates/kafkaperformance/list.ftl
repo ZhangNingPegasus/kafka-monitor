@@ -218,6 +218,8 @@
                     elem: '#kafkaTimeRange',
                     type: 'datetime',
                     range: true,
+                    min: -${savingDays-1},
+                    max: 1,
                     done: function () {
                         refreshChart();
                     }

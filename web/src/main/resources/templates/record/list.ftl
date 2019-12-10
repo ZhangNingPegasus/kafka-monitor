@@ -67,7 +67,13 @@
         layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table', 'laydate'], function () {
             const admin = layui.admin, laydate = layui.laydate, $ = layui.$, form = layui.form, table = layui.table;
             let topicName = '';
-            laydate.render({elem: '#createTimeRange', type: 'datetime', range: true});
+            laydate.render({
+                elem: '#createTimeRange',
+                type: 'datetime',
+                range: true,
+                min: -${savingDays-1},
+                max: 1
+            });
 
             const now = new Date();
             now.setDate(now.getDate() + 1);

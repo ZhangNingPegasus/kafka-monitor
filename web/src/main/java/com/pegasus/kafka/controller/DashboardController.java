@@ -1,6 +1,7 @@
 package com.pegasus.kafka.controller;
 
 import com.pegasus.kafka.common.annotation.TranRead;
+import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.ehcache.EhcacheService;
 import com.pegasus.kafka.common.response.Result;
 import com.pegasus.kafka.common.utils.Common;
@@ -55,6 +56,7 @@ public class DashboardController {
 
     @GetMapping("index")
     public String index(Model model) throws Exception {
+        model.addAttribute("savingDays", Constants.SAVING_DAYS);
         model.addAttribute("consumers", kafkaConsumerService.listKafkaConsumers());
         model.addAttribute("topics", kafkaTopicService.listTopics(false, false, false, false, false));
         return String.format("%s/index", PREFIX);

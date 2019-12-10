@@ -1,5 +1,6 @@
 package com.pegasus.kafka.controller;
 
+import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.ehcache.EhcacheService;
 import com.pegasus.kafka.common.response.Result;
 import com.pegasus.kafka.common.utils.Common;
@@ -9,6 +10,7 @@ import com.pegasus.kafka.service.dto.SysKpiService;
 import lombok.Data;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
@@ -49,7 +51,8 @@ public class ZkPerformanceController {
     }
 
     @GetMapping("tolist")
-    public String toList() {
+    public String toList(Model model) {
+        model.addAttribute("savingDays", Constants.SAVING_DAYS);
         return String.format("%s/list", PREFIX);
     }
 

@@ -48,6 +48,7 @@ public class RecordController {
     public String toList(Model model) throws Exception {
         List<KafkaTopicVo> kafkaTopicVoList = kafkaTopicService.listTopics(false, false, false, false, false);
         model.addAttribute("topics", kafkaTopicVoList);
+        model.addAttribute("savingDays", Constants.SAVING_DAYS);
         return String.format("%s/list", PREFIX);
     }
 

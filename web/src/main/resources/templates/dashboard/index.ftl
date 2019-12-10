@@ -231,6 +231,8 @@
                     elem: '#lagCreateTimeRange',
                     type: 'datetime',
                     range: true,
+                    min: -${savingDays-1},
+                    max: 1,
                     done: function () {
                         refreshLagChart();
                     }
@@ -240,6 +242,8 @@
                     elem: '#topicCreateTimeRange',
                     type: 'datetime',
                     range: true,
+                    min: -${savingDays-1},
+                    max: 1,
                     done: function () {
                         refreshTopicTpsChart();
                     }
@@ -249,6 +253,8 @@
                     elem: '#rankCreateTimeRange',
                     type: 'datetime',
                     range: true,
+                    min: -${savingDays-1},
+                    max: 1,
                     done: function () {
                         refreshTopicRankChart();
                     }
