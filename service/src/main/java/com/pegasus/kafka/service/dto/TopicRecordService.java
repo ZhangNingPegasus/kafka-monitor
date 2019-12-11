@@ -24,6 +24,7 @@ import java.util.*;
  */
 @Service
 public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicRecord> {
+    public static final String TABLE_PREFIX = "topic_";
     private final SchemaService schemaService;
 
     public TopicRecordService(SchemaService schemaService) {
@@ -111,12 +112,12 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
         this.baseMapper.createRecordTableIfNotExists(recordTableName);
     }
 
-    private String convertToTableName(String topicName) {
-        return String.format("topic_%s", topicName);
+    public String convertToTableName(String topicName) {
+        return String.format("%s%s", TABLE_PREFIX, topicName);
     }
 
     private String convertToRecordTableName(String topicName) {
-        return String.format("topic_record_%s", topicName);
+        return String.format("%srecord_%s", TABLE_PREFIX, topicName);
     }
 
 
@@ -143,5 +144,10 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
         } catch (Exception ignored) {
             return null;
         }
+    }
+
+    @TranRead
+    public Date getMaxCreateTime(String tableName) {
+        return this.baseMapper.getMaxCreateTime(tableName);
     }
 }

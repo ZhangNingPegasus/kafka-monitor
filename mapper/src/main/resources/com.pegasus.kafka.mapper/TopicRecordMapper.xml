@@ -136,4 +136,10 @@
     GROUP BY partition_id
     </select>
 
+    <select id="getMaxCreateTime" resultType="java.util.Date">
+    SELECT
+    MAX(`create_time`)
+    FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}`
+    </select>
+
 </mapper>
