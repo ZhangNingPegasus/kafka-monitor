@@ -24,13 +24,11 @@ import java.util.stream.Collectors;
 public class DeleteSchedule {
 
     private final Set<String> NO_NEED_TO_DELETE_EXPIRE_RECORDS_TABLES = new HashSet<>(Arrays.asList("sys_admin", "sys_alert_cluster", "sys_alert_consumer", "sys_dingding_config", "sys_mail_config", "sys_page", "sys_permission", "sys_role"));
-    private final SysLogSizeService sysLogSizeService;
     private final SchemaService schemaService;
     private final KafkaService kafkaService;
     private final TopicRecordService topicRecordService;
 
     public DeleteSchedule(SysLogSizeService sysLogSizeService, SchemaService schemaService, KafkaService kafkaService, TopicRecordService topicRecordService) {
-        this.sysLogSizeService = sysLogSizeService;
         this.schemaService = schemaService;
         this.kafkaService = kafkaService;
         this.topicRecordService = topicRecordService;
@@ -49,7 +47,7 @@ public class DeleteSchedule {
     public void dropUnusedTable() throws Exception {
         Set<String> dbtableNames = schemaService.listTables();
         Set<String> filterDbTableNames = dbtableNames.stream().filter(p -> p.contains(TopicRecordService.TABLE_PREFIX) && !NO_NEED_TO_DELETE_EXPIRE_RECORDS_TABLES.contains(p)).collect(Collectors.toSet());
-        List<String> topicTableNames = kafkaService.listTopicNames().stream().map(p -> topicRecordService.convertToTableName(p)).collect(Collectors.toList());
+        List<String> topicTableNames = kafkaService.listTopicNames().stream().map(topicRecordService::convertToTableName).collect(Collectors.toList());
 
         List<String> needDropList = new ArrayList<>();
 

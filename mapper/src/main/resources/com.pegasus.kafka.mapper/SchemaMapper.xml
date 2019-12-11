@@ -170,11 +170,11 @@
 
         INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES (4,
-        '消费者', '/consumer/tolist', b'1', b'0', b'0', 'layui-icon-group', 0, 4, '', now());
+        '消息跟踪', '/record/tolist', b'1', b'0', b'0', 'layui-icon-list', 0, 4, '', now());
 
         INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES (5,
-        '消息跟踪', '/record/tolist', b'1', b'0', b'0', 'layui-icon-list', 0, 5, '', now());
+        '消费者', '/consumer/tolist', b'1', b'0', b'0', 'layui-icon-group', 0, 5, '', now());
 
         INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES (6,
