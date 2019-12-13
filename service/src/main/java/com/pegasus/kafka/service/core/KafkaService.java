@@ -612,7 +612,7 @@ public class KafkaService {
                         sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + processCpuLoad);
                         break;
                     case KAFKA_THREAD_COUNT:
-                        Integer threadCount = Integer.parseInt(kafkaJmxService.getData(broker, JMX.THREADING, kpi.getName()));
+                        int threadCount = Integer.parseInt(kafkaJmxService.getData(broker, JMX.THREADING, kpi.getName()));
                         sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + threadCount);
                         break;
                     default:

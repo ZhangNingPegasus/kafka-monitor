@@ -7,8 +7,7 @@ server:
     uri-encoding: UTF-8
   compression:
     enabled: true
-    mime-types: application/json,application/xml,text/html,text/xml,text/plain
-
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json,application/xml
 
 spring:
   application:
