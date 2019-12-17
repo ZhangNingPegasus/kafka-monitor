@@ -52,7 +52,7 @@ public class KafkaTopicService {
     }
 
     @TranRead
-    public List<KafkaTopicVo> listTopics(String searchTopicName, SearchType searchType, boolean needStat, boolean needPartition, boolean needSubscribe, boolean needLogSize, boolean needHisLogSize) throws Exception {
+    public List<KafkaTopicVo> listTopics(String searchTopicName, SearchType searchType, boolean needStat, boolean needPartition, boolean needSubscribe, boolean needLogSize, boolean needHisLogSize, boolean needSyncLogSize) throws Exception {
         List<KafkaTopicVo> topicInfoList = new ArrayList<>();
         List<String> topicNameList = kafkaService.listTopicNames();
         List<KafkaConsumerVo> kafkaConsumerVoList = null;
@@ -123,6 +123,9 @@ public class KafkaTopicService {
                         }
                     }
                 }
+                if (needSyncLogSize) {
+                    topicInfo.setSyncLogSize(topicRecordService.getMaxOffset(topicName));
+                }
                 topicInfoList.add(topicInfo);
             } catch (Exception ignored) {
             }
@@ -138,8 +141,8 @@ public class KafkaTopicService {
         return topicInfoList;
     }
 
-    public List<KafkaTopicVo> listTopics(boolean needStat, boolean needPartition, boolean needSubscribe, boolean needLogSize, boolean needHisLogSize) throws Exception {
-        return listTopics(null, null, needStat, needPartition, needSubscribe, needLogSize, needHisLogSize);
+    public List<KafkaTopicVo> listTopics(boolean needStat, boolean needPartition, boolean needSubscribe, boolean needLogSize, boolean needHisLogSize, boolean needSyncLogSize) throws Exception {
+        return listTopics(null, null, needStat, needPartition, needSubscribe, needLogSize, needHisLogSize, needSyncLogSize);
     }
 
     public List<KafkaTopicPartitionVo> listTopicDetails(String topicName) throws Exception {
@@ -184,7 +187,7 @@ public class KafkaTopicService {
     }
 
     public void edit(String topicName, Integer partitionNumber) throws Exception {
-        List<KafkaTopicVo> topicInfoList = listTopics(topicName, SearchType.EQUALS, false, true, false, false, false);
+        List<KafkaTopicVo> topicInfoList = listTopics(topicName, SearchType.EQUALS, false, true, false, false, false, false);
         if (topicInfoList != null && topicInfoList.size() > 0) {
             KafkaTopicVo topicInfo = topicInfoList.get(0);
             if (partitionNumber > topicInfo.getPartitionNum()) {

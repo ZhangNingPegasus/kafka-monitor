@@ -77,7 +77,7 @@ public class AlertConsumerController {
     @PostMapping("listTopics")
     @ResponseBody
     public Result<List<String>> listTopics(@RequestParam(value = "groupId", required = true) String groupId) throws Exception {
-        List<KafkaTopicVo> kafkaTopicVoList = kafkaTopicService.listTopics(false, false, true, false, false);
+        List<KafkaTopicVo> kafkaTopicVoList = kafkaTopicService.listTopics(false, false, true, false, false,false);
         List<String> topicNames = kafkaTopicVoList.stream().filter(p -> Arrays.asList(p.getSubscribeGroupIds()).contains(groupId)).map(KafkaTopicVo::getTopicName).distinct().collect(Collectors.toList());
         return Result.ok(topicNames);
     }

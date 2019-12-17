@@ -91,7 +91,7 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
                 sysLogSizeList.add(sysLogSize);
             }
         } else {
-            List<KafkaTopicVo> kafkaTopicVoList = kafkaTopicService.listTopics(false, false, false, true, false);
+            List<KafkaTopicVo> kafkaTopicVoList = kafkaTopicService.listTopics(false, false, false, true, false, false);
             for (KafkaTopicVo kafkaTopicVo : kafkaTopicVoList) {
                 SysLogSize sysLogSize = new SysLogSize();
                 sysLogSize.setTopicName(kafkaTopicVo.getTopicName());

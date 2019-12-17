@@ -57,7 +57,7 @@ public class TopicController {
     @GetMapping("toedit")
     public String toAdd(Model model, @RequestParam(name = "topicName", required = true) String topicName) throws Exception {
         topicName = topicName.trim();
-        List<KafkaTopicVo> topicInfoList = kafkaTopicService.listTopics(topicName, KafkaTopicService.SearchType.EQUALS, false, true, false, false, false);
+        List<KafkaTopicVo> topicInfoList = kafkaTopicService.listTopics(topicName, KafkaTopicService.SearchType.EQUALS, false, true, false, false, false,false);
         if (topicInfoList != null && topicInfoList.size() > 0) {
             KafkaTopicVo topicVo = topicInfoList.get(0);
             List<KafkaTopicPartitionVo> topicDetails = kafkaTopicService.listTopicDetails(topicName);
@@ -96,7 +96,7 @@ public class TopicController {
             topicName = topicName.trim();
         }
         pageNum = Math.min(pageNum, Constants.MAX_PAGE_NUM);
-        List<KafkaTopicVo> topicInfoList = kafkaTopicService.listTopics(topicName, KafkaTopicService.SearchType.LIKE, true, true, true, true, true);
+        List<KafkaTopicVo> topicInfoList = kafkaTopicService.listTopics(topicName, KafkaTopicService.SearchType.LIKE, true, true, true, true, true,false);
         return Result.ok(topicInfoList.stream().skip(pageSize * (pageNum - 1))
                 .limit(pageSize).collect(Collectors.toList()), topicInfoList.size());
     }

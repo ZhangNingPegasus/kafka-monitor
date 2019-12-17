@@ -70,7 +70,7 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
     public void start() {
         new Thread(() -> {
             try {
-                List<MaxOffset> maxOffsetList = topicRecordService.getMaxOffset(this.topicName);
+                List<MaxOffset> maxOffsetList = topicRecordService.listMaxOffset(this.topicName);
                 kafkaConsumer = new KafkaConsumer<>(properties);
                 if (maxOffsetList != null && maxOffsetList.size() > 0) {
                     kafkaConsumer.assign(maxOffsetList.stream().map(p -> new TopicPartition(this.topicName, p.getPartitionId())).collect(Collectors.toList()));

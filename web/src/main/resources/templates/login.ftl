@@ -39,6 +39,9 @@
 
     <script src="${ctx}/layuiadmin/layui/layui.js"></script>
     <script>
+        if (window != top) {
+            top.location.href = location.href;
+        }
         layui.config({base: '../../layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'user'], function () {
             const $ = layui.$, admin = layui.admin, form = layui.form;
             form.render();

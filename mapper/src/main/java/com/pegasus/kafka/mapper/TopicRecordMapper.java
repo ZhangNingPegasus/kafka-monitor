@@ -54,7 +54,9 @@ public interface TopicRecordMapper extends BaseMapper<TopicRecord> {
 
     Long getRecordsCount(@Param(value = "tableName") String tableName, @Param(value = "from") Date from, @Param(value = "to") Date to);
 
-    List<MaxOffset> getMaxOffset(@Param(value = "tableName") String tableName);
+    List<MaxOffset> listMaxOffset(@Param(value = "tableName") String tableName);
 
     Date getMaxCreateTime(@Param(value = "tableName") String tableName);
+
+    Long getMaxOffset(@Param(value = "tableName") String tableName);
 }

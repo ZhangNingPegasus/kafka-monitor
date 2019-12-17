@@ -58,7 +58,7 @@ public class DashboardController {
     public String index(Model model) throws Exception {
         model.addAttribute("savingDays", Constants.SAVING_DAYS);
         model.addAttribute("consumers", kafkaConsumerService.listKafkaConsumers());
-        model.addAttribute("topics", kafkaTopicService.listTopics(false, false, false, false, false));
+        model.addAttribute("topics", kafkaTopicService.listTopics(false, false, false, false, false, false));
         return String.format("%s/index", PREFIX);
     }
 

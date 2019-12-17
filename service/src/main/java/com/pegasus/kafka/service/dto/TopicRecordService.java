@@ -138,9 +138,9 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
     }
 
     @TranRead
-    public List<MaxOffset> getMaxOffset(String topicName) {
+    public List<MaxOffset> listMaxOffset(String topicName) {
         try {
-            return this.baseMapper.getMaxOffset(convertToTableName(topicName));
+            return this.baseMapper.listMaxOffset(convertToTableName(topicName));
         } catch (Exception ignored) {
             return null;
         }
@@ -149,5 +149,14 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
     @TranRead
     public Date getMaxCreateTime(String tableName) {
         return this.baseMapper.getMaxCreateTime(tableName);
+    }
+
+    @TranRead
+    public Long getMaxOffset(String topicName) {
+        try {
+            return this.baseMapper.getMaxOffset(convertToTableName(topicName));
+        } catch (Exception ingored) {
+            return 0L;
+        }
     }
 }
