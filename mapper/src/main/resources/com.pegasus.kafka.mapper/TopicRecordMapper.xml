@@ -56,7 +56,8 @@
           UNIQUE INDEX `idx_topic_partition_id_offset`(`partition_id`, `offset`) USING BTREE,
           INDEX `idx_topic_key`(`key`) USING BTREE,
           INDEX `idx_topic_timestamp`(`timestamp`) USING BTREE,
-          INDEX `idx_topic_create_time`(`create_time`) USING BTREE
+          INDEX `idx_topic_create_time`(`create_time`) USING BTREE,
+          INDEX `idx_topic_offset`(`offset`) USING BTREE
         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
 
         SET FOREIGN_KEY_CHECKS = 1;
@@ -68,18 +69,12 @@
 
         CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${recordTableName}` (
           `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
-          `partition_id` int(11) UNSIGNED NOT NULL COMMENT '分区号',
-          `offset` bigint(20) UNSIGNED NOT NULL COMMENT '消息在该分区号下的偏移量',
-          `key` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '消息键值',
-          `value` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '消息体的缩微样本',
-          `timestamp` datetime(0) NOT NULL COMMENT '消息时间',
+          `partition_id` int(11) UNSIGNED NOT NULL COMMENT '分区id号',
+          `offset` bigint(20) UNSIGNED NOT NULL COMMENT '消息偏移量',
+          `value` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '消息体',
           `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
           PRIMARY KEY (`id`) USING BTREE,
-          UNIQUE INDEX `idx_topic_partition_id_offset`(`partition_id`, `offset`) USING BTREE,
-          INDEX `idx_topic_key`(`key`) USING BTREE,
-          INDEX `idx_topic_timestamp`(`timestamp`) USING BTREE,
-          INDEX `idx_topic_create_time`(`create_time`) USING BTREE,
-          INDEX `idx_topic_offset`(`offset`) USING BTREE
+          UNIQUE INDEX `idx_topic_record_partition_id_offset`(`partition_id`, `offset`) USING BTREE
         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
 
         SET FOREIGN_KEY_CHECKS = 1;

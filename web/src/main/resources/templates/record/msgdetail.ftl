@@ -49,7 +49,12 @@
     </div>
     <script type="text/javascript">
         layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table'], function () {
-            new JsonEditor('#json', JSON.parse('${value!''}'), {'editable': false});
+            const $ = layui.$;
+            try {
+                new JsonEditor('#json', JSON.parse('${value!''}'), {'editable': false});
+            } catch {
+                $("#json").html('${value!''}');
+            }
         });
     </script>
     </body>

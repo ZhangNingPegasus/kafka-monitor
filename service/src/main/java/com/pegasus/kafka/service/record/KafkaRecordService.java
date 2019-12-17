@@ -23,7 +23,7 @@ import java.util.List;
  */
 @Service
 public class KafkaRecordService implements SmartLifecycle, DisposableBean {
-    private static final Logger log = LoggerFactory.getLogger(KafkaRecordService.class);
+    private static final Logger logger = LoggerFactory.getLogger(KafkaRecordService.class);
     private final ConfigurableApplicationContext applicationContext;
     private final KafkaService kafkaService;
     private List<String> topicNames;
@@ -44,7 +44,7 @@ public class KafkaRecordService implements SmartLifecycle, DisposableBean {
             if (!kafkaTopicRecord.isRunning()) {
                 kafkaTopicRecord.start();
             }
-            log.info(String.format("[%s] : topic [%s] is beginning to collect.", kafkaTopicRecord, topicName));
+            logger.info(String.format("[%s] : topic [%s] is beginning to collect.", kafkaTopicRecord, topicName));
         }
     }
 

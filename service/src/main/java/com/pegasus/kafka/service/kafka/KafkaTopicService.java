@@ -124,7 +124,12 @@ public class KafkaTopicService {
                     }
                 }
                 if (needSyncLogSize) {
-                    topicInfo.setSyncLogSize(topicRecordService.getMaxOffset(topicName));
+                    topicInfo.setSyncLogSize(topicRecordService.getMaxOffset(topicName) + 1); //下标从0开始，所以需要+1
+                    if (topicInfo.getLogSize() == 0) {
+                        topicInfo.setSyncLogSizePercent(100.0);
+                    } else {
+                        topicInfo.setSyncLogSizePercent(topicInfo.getSyncLogSize() / topicInfo.getLogSize() * 100.0);
+                    }
                 }
                 topicInfoList.add(topicInfo);
             } catch (Exception ignored) {

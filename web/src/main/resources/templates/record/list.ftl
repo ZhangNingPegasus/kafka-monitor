@@ -17,7 +17,7 @@
                             <option value="">请选择主题</option>
                             <#list topics as topic >
                                 <option value="${topic.topicName}">${topic.topicName} -
-                                    (${topic.syncLogSize / topic.logSize * 100}%)
+                                    (${topic.syncLogSizePercent}%)
                                 </option>
                             </#list>
                         </select>

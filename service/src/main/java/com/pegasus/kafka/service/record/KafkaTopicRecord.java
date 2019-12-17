@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, DisposableBean {
     public static final Integer BATCH_SIZE = 2048;
-    private static final Logger log = LoggerFactory.getLogger(KafkaRecordService.class);
+    private static final Logger logger = LoggerFactory.getLogger(KafkaTopicRecord.class);
     private final KafkaService kafkaService;
     private final TopicRecordService topicRecordService;
     private boolean running;
@@ -70,6 +70,9 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
     public void start() {
         new Thread(() -> {
             try {
+                if (kafkaConsumer != null) {
+                    stop();
+                }
                 List<MaxOffset> maxOffsetList = topicRecordService.listMaxOffset(this.topicName);
                 kafkaConsumer = new KafkaConsumer<>(properties);
                 if (maxOffsetList != null && maxOffsetList.size() > 0) {
@@ -97,7 +100,7 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
                         topicRecord.setTimestamp(new Date(record.timestamp()));
                         boolean result = topicRecords.offer(topicRecord);
                         if (!result) {
-                            log.info(String.format("buffer full for topic [%s], [%s], conent is [%s]", this.topicName, discardCount.incrementAndGet(), topicRecord));
+                            logger.info(String.format("buffer full for topic [%s], [%s], conent is [%s]", this.topicName, discardCount.incrementAndGet(), topicRecord));
                         }
                     }
                 }
@@ -107,7 +110,7 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
                 if (kafkaConsumer != null) {
                     kafkaConsumer.close();
                     kafkaConsumer = null;
-                    log.info(String.format("[%s] : topic [%s] is stopping to collect.", this, topicName));
+                    logger.info(String.format("[%s] : topic [%s] is stopping to collect.", this, topicName));
                 }
             }
         }).start();

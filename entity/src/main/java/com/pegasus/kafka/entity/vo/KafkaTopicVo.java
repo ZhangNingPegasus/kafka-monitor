@@ -23,6 +23,7 @@ public class KafkaTopicVo implements Serializable {
     private Long lag;
     private Long logSize;
     private Long syncLogSize;
+    private Double syncLogSizePercent;
     private Long todayLogSize;
     private Long yesterdayLogSize;
     private Long tdbyLogSize;
