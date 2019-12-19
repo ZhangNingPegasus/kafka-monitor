@@ -7,7 +7,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * The listener for SpringMVC. Used for initiate the database and table's schema.
@@ -19,18 +20,17 @@ import java.util.UUID;
  */
 @Component
 public class ApplicationListener implements ApplicationContextAware {
-
     private final SchemaService schemaService;
+    private ExecutorService executorService;
 
     public ApplicationListener(SchemaService schemaService) {
         this.schemaService = schemaService;
+        executorService = Executors.newSingleThreadExecutor();
     }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        Thread schema = new Thread(new SchemaTask(), String.format("SCHEMA_INIT_%s", UUID.randomUUID()));
-        schema.setDaemon(false);
-        schema.start();
+        executorService.submit(new SchemaTask());
     }
 
     private class SchemaTask implements Runnable {

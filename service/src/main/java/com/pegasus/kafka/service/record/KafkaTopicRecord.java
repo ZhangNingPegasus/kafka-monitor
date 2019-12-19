@@ -21,6 +21,8 @@ import org.springframework.context.SmartLifecycle;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -38,6 +40,7 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
     private ArrayBlockingQueue<TopicRecord> topicRecords;
     private AtomicLong discardCount;
     private Thread worker;
+    private ExecutorService executorService;
 
     public KafkaTopicRecord(String topicName, KafkaService kafkaService, TopicRecordService topicRecordService) {
         this.topicName = topicName;
@@ -46,6 +49,7 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
         this.topicRecords = new ArrayBlockingQueue<>(BATCH_SIZE * 2048);
         this.discardCount = new AtomicLong(0L);
         this.consumerGroupdId = String.format("%s__%s", Constants.KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_MESSAGE, this.topicName);
+        executorService = Executors.newSingleThreadExecutor();
     }
 
     @Override
@@ -68,7 +72,7 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
 
     @Override
     public void start() {
-        new Thread(() -> {
+        executorService.submit(() -> {
             try {
                 if (kafkaConsumer != null) {
                     stop();
@@ -113,7 +117,7 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
                     logger.info(String.format("[%s] : topic [%s] is stopping to collect.", this, topicName));
                 }
             }
-        }).start();
+        });
     }
 
     @Override
@@ -144,7 +148,6 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
     }
 
     private class AsyncRunnable implements Runnable {
-
         @Override
         public void run() {
 

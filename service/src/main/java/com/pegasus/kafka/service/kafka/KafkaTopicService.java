@@ -128,7 +128,7 @@ public class KafkaTopicService {
                     if (topicInfo.getLogSize() == 0) {
                         topicInfo.setSyncLogSizePercent(100.0);
                     } else {
-                        topicInfo.setSyncLogSizePercent(topicInfo.getSyncLogSize() / topicInfo.getLogSize() * 100.0);
+                        topicInfo.setSyncLogSizePercent(Double.parseDouble(topicInfo.getSyncLogSize().toString()) / Double.parseDouble(topicInfo.getLogSize().toString()) * 100.0);
                     }
                 }
                 topicInfoList.add(topicInfo);

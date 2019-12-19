@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * The service for Kafka's topics' records.
@@ -28,11 +30,13 @@ public class KafkaRecordService implements SmartLifecycle, DisposableBean {
     private final KafkaService kafkaService;
     private List<String> topicNames;
     private boolean running;
+    private ExecutorService executorService;
 
     public KafkaRecordService(ConfigurableApplicationContext applicationContext, KafkaService kafkaService) {
         this.applicationContext = applicationContext;
         this.kafkaService = kafkaService;
         this.topicNames = new ArrayList<>(1024);
+        executorService = Executors.newSingleThreadExecutor();
     }
 
     private void installTopic(String topicName) {
@@ -69,7 +73,7 @@ public class KafkaRecordService implements SmartLifecycle, DisposableBean {
 
     @Override
     public void start() {
-        new Thread(() -> {
+        executorService.submit(() -> {
             setRunning(true);
             while (isRunning()) {
                 try {
@@ -93,7 +97,7 @@ public class KafkaRecordService implements SmartLifecycle, DisposableBean {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        });
     }
 
     @Override
