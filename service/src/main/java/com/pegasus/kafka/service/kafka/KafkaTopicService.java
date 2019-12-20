@@ -113,7 +113,7 @@ public class KafkaTopicService {
                             Long day1 = sysLogSizeService.getHistoryLogSize(topicName, 1);
                             Long day2 = sysLogSizeService.getHistoryLogSize(topicName, 2);
                             Long day3 = sysLogSizeService.getHistoryLogSize(topicName, 3);
-                            topicInfo.setTodayLogSize(Math.abs(day0 - day1));
+                            topicInfo.setTodayLogSize(Math.abs(day0 > day1 ? day0 - day1 : day0));
                             topicInfo.setYesterdayLogSize(Math.abs(day1 - day2));
                             topicInfo.setTdbyLogSize(Math.abs(day2 - day3));
                         } catch (Exception ignored) {
