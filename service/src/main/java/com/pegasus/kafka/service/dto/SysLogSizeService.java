@@ -147,8 +147,7 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
         Date from = DateUtils.addDays(now, -days);
         Date to = DateUtils.addDays(from, 1);
 
-        Long result = this.baseMapper.getHistoryLogSize(topicName, from, to);
-        return result == null ? 0L : result;
+        return this.baseMapper.getHistoryLogSize(topicName, from, to);
     }
 
     @TranRead

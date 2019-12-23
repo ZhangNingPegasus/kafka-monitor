@@ -246,14 +246,16 @@ public class DashboardController {
 
         LineInfo result = new LineInfo();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Long logsize = kafkaTopicService.getLogsize(topicName);
-        Long day1 = sysLogSizeService.getHistoryLogSize(topicName, 1);
-        Long day2 = sysLogSizeService.getHistoryLogSize(topicName, 2);
-        Long day3 = sysLogSizeService.getHistoryLogSize(topicName, 3);
-        Long day4 = sysLogSizeService.getHistoryLogSize(topicName, 4);
-        Long day5 = sysLogSizeService.getHistoryLogSize(topicName, 5);
-        Long day6 = sysLogSizeService.getHistoryLogSize(topicName, 6);
-        Long day7 = sysLogSizeService.getHistoryLogSize(topicName, 7);
+
+        Long[] daysValue = new Long[8];
+        daysValue[0] = kafkaTopicService.getLogsize(topicName);
+        daysValue[1] = sysLogSizeService.getHistoryLogSize(topicName, 1);
+        daysValue[2] = sysLogSizeService.getHistoryLogSize(topicName, 2);
+        daysValue[3] = sysLogSizeService.getHistoryLogSize(topicName, 3);
+        daysValue[4] = sysLogSizeService.getHistoryLogSize(topicName, 4);
+        daysValue[5] = sysLogSizeService.getHistoryLogSize(topicName, 5);
+        daysValue[6] = sysLogSizeService.getHistoryLogSize(topicName, 6);
+        daysValue[7] = sysLogSizeService.getHistoryLogSize(topicName, 7);
 
         List<String> timesList = new ArrayList<>();
         for (int i = 0; i < 7; i++) {
@@ -265,13 +267,13 @@ public class DashboardController {
             timesList.add(sdf.format(date));
         }
         List<Double> data = new ArrayList<>();
-        data.add((double) ((logsize - day1 > 0) ? logsize - day1 : 0L));
-        data.add((double) ((day1 - day2 > 0) ? day1 - day2 : 0L));
-        data.add((double) ((day2 - day3 > 0) ? day2 - day3 : 0L));
-        data.add((double) ((day3 - day4 > 0) ? day3 - day4 : 0L));
-        data.add((double) ((day4 - day5 > 0) ? day4 - day5 : 0L));
-        data.add((double) ((day5 - day6 > 0) ? day5 - day6 : 0L));
-        data.add((double) ((day6 - day7 > 0) ? day6 - day7 : 0L));
+        data.add((double) (Common.calculateHistoryLogSize(daysValue, 0)));
+        data.add((double) (Common.calculateHistoryLogSize(daysValue, 1)));
+        data.add((double) (Common.calculateHistoryLogSize(daysValue, 2)));
+        data.add((double) (Common.calculateHistoryLogSize(daysValue, 3)));
+        data.add((double) (Common.calculateHistoryLogSize(daysValue, 4)));
+        data.add((double) (Common.calculateHistoryLogSize(daysValue, 5)));
+        data.add((double) (Common.calculateHistoryLogSize(daysValue, 7)));
 
         List<LineInfo.Series> seriesList = new ArrayList<>();
         LineInfo.Series series = new LineInfo.Series();
@@ -284,5 +286,6 @@ public class DashboardController {
 
         return Result.ok(result);
     }
+
 
 }

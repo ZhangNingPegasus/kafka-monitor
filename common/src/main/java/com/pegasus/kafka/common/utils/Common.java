@@ -123,6 +123,29 @@ public class Common {
         }
     }
 
+    public static Long calculateHistoryLogSize(Long[] daysValue, int index) {
+        if (index > daysValue.length - 1) {
+            return 0L;
+        }
+        Long a = daysValue[index];
+        if (a == null) {
+            return 0L;
+        }
+
+        Long b = null;
+        for (int i = index + 1; i < daysValue.length; i++) {
+            if (daysValue[i] != null) {
+                b = daysValue[i];
+                break;
+            }
+        }
+        if (b == null) {
+            b = 0L;
+        }
+        return a - b;
+    }
+
+
     @Data
     public static class TimeRange {
         private Date start;

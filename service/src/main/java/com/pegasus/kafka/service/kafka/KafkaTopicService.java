@@ -109,13 +109,14 @@ public class KafkaTopicService {
                     topicInfo.setError(out.getError());
                     if (needHisLogSize && topicInfo.getLogSize() >= 0) {
                         try {
-                            Long day0 = topicRecordService.getRecordsCount(topicName, 0);
-                            Long day1 = sysLogSizeService.getHistoryLogSize(topicName, 1);
-                            Long day2 = sysLogSizeService.getHistoryLogSize(topicName, 2);
-                            Long day3 = sysLogSizeService.getHistoryLogSize(topicName, 3);
-                            topicInfo.setTodayLogSize(Math.abs(day0 > day1 ? day0 - day1 : day0));
-                            topicInfo.setYesterdayLogSize(Math.abs(day1 - day2));
-                            topicInfo.setTdbyLogSize(Math.abs(day2 - day3));
+                            Long[] daysValue = new Long[4];
+                            daysValue[0] = this.getLogsize(topicName);
+                            daysValue[1] = sysLogSizeService.getHistoryLogSize(topicName, 1);
+                            daysValue[2] = sysLogSizeService.getHistoryLogSize(topicName, 2);
+                            daysValue[3] = sysLogSizeService.getHistoryLogSize(topicName, 3);
+                            topicInfo.setTodayLogSize(Common.calculateHistoryLogSize(daysValue, 0));
+                            topicInfo.setYesterdayLogSize(Common.calculateHistoryLogSize(daysValue, 1));
+                            topicInfo.setTdbyLogSize(Common.calculateHistoryLogSize(daysValue, 2));
                         } catch (Exception ignored) {
                             topicInfo.setTodayLogSize(topicInfo.getLogSize());
                             topicInfo.setYesterdayLogSize(0L);

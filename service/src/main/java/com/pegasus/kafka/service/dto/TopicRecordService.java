@@ -133,8 +133,7 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
 
         Date from = DateUtils.addDays(now, -days);
         Date to = DateUtils.addDays(from, 1);
-        Long result = this.baseMapper.getRecordsCount(convertToTableName(topicName), from, to);
-        return result == null ? 0L : result;
+        return this.baseMapper.getRecordsCount(convertToTableName(topicName), from, to);
     }
 
     @TranRead
