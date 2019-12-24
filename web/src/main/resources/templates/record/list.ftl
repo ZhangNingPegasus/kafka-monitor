@@ -16,8 +16,7 @@
                         <select name="topicName" lay-filter="topicName" lay-verify="required" lay-search>
                             <option value="">请选择主题</option>
                             <#list topics as topic >
-                                <option value="${topic.topicName}">${topic.topicName} -
-                                    (${topic.syncLogSizePercent}%)
+                                <option value="${topic.topicName}">${topic.topicName}
                                 </option>
                             </#list>
                         </select>
