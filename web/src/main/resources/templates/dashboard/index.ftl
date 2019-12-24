@@ -76,7 +76,7 @@
                             <div class="layui-inline" style="width:265px">
                                 <select id="consumerName" name="consumerName" lay-filter="consumerName"
                                         lay-verify="required" lay-search>
-                                    <option value="">请选择消费组</option>
+                                    <option value="所有消费组">所有消费组</option>
                                     <#list consumers as consumer>
                                         <option value="${consumer.groupId}">${consumer.groupId}</option>
                                     </#list>

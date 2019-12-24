@@ -165,7 +165,7 @@ public class DashboardController {
         Common.TimeRange timeRange = Common.splitTime(createTimeRange);
         Date from = timeRange.getStart(), to = timeRange.getEnd();
 
-        List<SysLag> sysLagList = sysLagService.listByGroupId(groupId, from, to);
+        List<SysLag> sysLagList = sysLagService.listByGroupId("所有消费组".equals(groupId) ? null : groupId, from, to);
         List<String> topicNames = sysLagList.stream().map(SysLag::getTopicName).distinct().collect(Collectors.toList());
         List<String> times = sysLagList.stream().map(p -> Common.format(p.getCreateTime())).distinct().collect(Collectors.toList());
 
