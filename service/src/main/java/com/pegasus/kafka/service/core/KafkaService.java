@@ -239,9 +239,9 @@ public class KafkaService {
             for (KafkaConsumerVo.Meta meta : kafkaConsumerVo.getMetaList()) {
                 for (KafkaConsumerVo.TopicSubscriber topicSubscriber : meta.getTopicSubscriberList()) {
                     topicNameSet.add(topicSubscriber.getTopicName());
-                    if (!StringUtils.isEmpty(meta.getConsumerId())) {
-                        activeTopicSet.add(topicSubscriber.getTopicName());
-                    }
+                    //if (!StringUtils.isEmpty(meta.getConsumerId())) {
+                    activeTopicSet.add(topicSubscriber.getTopicName());
+                    //}
                 }
             }
 
@@ -254,6 +254,8 @@ public class KafkaService {
             kafkaConsumerVo.setActiveTopicCount(activeTopicSet.size());
             kafkaConsumerVo.setTopicCount(topicNameSet.size());
         }
+
+        result.sort(Comparator.comparing(KafkaConsumerVo::getGroupId));
         return result;
     }
 

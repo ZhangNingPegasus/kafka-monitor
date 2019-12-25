@@ -4,6 +4,7 @@ import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.entity.dto.TopicRecord;
 import com.pegasus.kafka.entity.po.MaxOffset;
 import com.pegasus.kafka.service.core.KafkaService;
+import com.pegasus.kafka.service.core.ThreadService;
 import com.pegasus.kafka.service.dto.TopicRecordService;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -21,8 +22,6 @@ import org.springframework.context.SmartLifecycle;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -32,6 +31,7 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
     private static final Logger logger = LoggerFactory.getLogger(KafkaTopicRecord.class);
     private final KafkaService kafkaService;
     private final TopicRecordService topicRecordService;
+    private final ThreadService threadService;
     private boolean running;
     private String topicName;
     private String consumerGroupdId;
@@ -40,16 +40,15 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
     private ArrayBlockingQueue<TopicRecord> topicRecords;
     private AtomicLong discardCount;
     private Thread worker;
-    private ExecutorService executorService;
 
-    public KafkaTopicRecord(String topicName, KafkaService kafkaService, TopicRecordService topicRecordService) {
+    public KafkaTopicRecord(String topicName, KafkaService kafkaService, TopicRecordService topicRecordService, ThreadService threadService) {
         this.topicName = topicName;
         this.kafkaService = kafkaService;
         this.topicRecordService = topicRecordService;
+        this.threadService = threadService;
         this.topicRecords = new ArrayBlockingQueue<>(BATCH_SIZE * 2048);
         this.discardCount = new AtomicLong(0L);
         this.consumerGroupdId = String.format("%s__%s", Constants.KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_MESSAGE, this.topicName);
-        executorService = Executors.newSingleThreadExecutor();
     }
 
     @Override
@@ -72,7 +71,7 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
 
     @Override
     public void start() {
-        executorService.submit(() -> {
+        threadService.submit(() -> {
             try {
                 if (kafkaConsumer != null) {
                     stop();
@@ -93,7 +92,7 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
                 this.worker.setDaemon(true);
                 this.worker.start();
                 while (isRunning()) {
-                    ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(1000));
+                    ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(500));
                     for (ConsumerRecord<String, String> record : records) {
                         TopicRecord topicRecord = new TopicRecord();
                         topicRecord.setTopicName(record.topic());

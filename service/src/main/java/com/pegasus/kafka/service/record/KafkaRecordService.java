@@ -2,6 +2,7 @@ package com.pegasus.kafka.service.record;
 
 
 import com.pegasus.kafka.service.core.KafkaService;
+import com.pegasus.kafka.service.core.ThreadService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -12,8 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * The service for Kafka's topics' records.
@@ -28,15 +27,15 @@ public class KafkaRecordService implements SmartLifecycle, DisposableBean {
     private static final Logger logger = LoggerFactory.getLogger(KafkaRecordService.class);
     private final ConfigurableApplicationContext applicationContext;
     private final KafkaService kafkaService;
+    private final ThreadService threadService;
     private List<String> topicNames;
     private boolean running;
-    private ExecutorService executorService;
 
-    public KafkaRecordService(ConfigurableApplicationContext applicationContext, KafkaService kafkaService) {
+    public KafkaRecordService(ConfigurableApplicationContext applicationContext, KafkaService kafkaService, ThreadService threadService) {
         this.applicationContext = applicationContext;
         this.kafkaService = kafkaService;
+        this.threadService = threadService;
         this.topicNames = new ArrayList<>(1024);
-        executorService = Executors.newSingleThreadExecutor();
     }
 
     private void installTopic(String topicName) {
@@ -73,7 +72,7 @@ public class KafkaRecordService implements SmartLifecycle, DisposableBean {
 
     @Override
     public void start() {
-        executorService.submit(() -> {
+        threadService.submit(() -> {
             setRunning(true);
             while (isRunning()) {
                 try {
