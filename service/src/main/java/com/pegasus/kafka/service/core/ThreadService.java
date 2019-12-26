@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Service
 public class ThreadService implements InitializingBean, DisposableBean {
-    private static final int MAX_POOL_SIZE = 4096;
+    private static final int MAX_POOL_SIZE = 2048;
     private static final Logger logger = LoggerFactory.getLogger(ThreadService.class);
     private final AtomicInteger rejectThreadNum = new AtomicInteger(1);
     private final BlockingQueue threadQueue = new ArrayBlockingQueue<>(MAX_POOL_SIZE);

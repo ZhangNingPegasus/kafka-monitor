@@ -3,6 +3,7 @@ package com.pegasus.kafka.service.record;
 import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.entity.dto.TopicRecord;
 import com.pegasus.kafka.entity.po.MaxOffset;
+import com.pegasus.kafka.entity.po.Topic;
 import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.core.ThreadService;
 import com.pegasus.kafka.service.dto.TopicRecordService;
@@ -22,9 +23,9 @@ import org.springframework.context.SmartLifecycle;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, DisposableBean {
     public static final Integer BATCH_SIZE = 2048;
@@ -33,22 +34,97 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
     private final TopicRecordService topicRecordService;
     private final ThreadService threadService;
     private boolean running;
-    private String topicName;
+    private Topic topic;
     private String consumerGroupdId;
     private Properties properties;
     private KafkaConsumer<String, String> kafkaConsumer = null;
     private ArrayBlockingQueue<TopicRecord> topicRecords;
     private AtomicLong discardCount;
     private Thread worker;
+    private CountDownLatch cdl;
 
-    public KafkaTopicRecord(String topicName, KafkaService kafkaService, TopicRecordService topicRecordService, ThreadService threadService) {
-        this.topicName = topicName;
+    public KafkaTopicRecord(Topic topic, KafkaService kafkaService, TopicRecordService topicRecordService, ThreadService threadService) {
+        this.topic = topic;
         this.kafkaService = kafkaService;
         this.topicRecordService = topicRecordService;
         this.threadService = threadService;
         this.topicRecords = new ArrayBlockingQueue<>(BATCH_SIZE * 2048);
         this.discardCount = new AtomicLong(0L);
-        this.consumerGroupdId = String.format("%s__%s", Constants.KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_MESSAGE, this.topicName);
+        this.consumerGroupdId = String.format("%s_%s", Constants.KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_MESSAGE, this.topic.getName());
+    }
+
+
+    public List<String> getTopicsNames() {
+        return this.topic.getTopicNameList();
+    }
+
+
+    @Override
+    public void start() {
+        cdl = new CountDownLatch(1);
+
+        threadService.submit(() -> {
+            Thread.currentThread().setName(String.format("thread-data-sync-%s", this.topic.getName()));
+            try {
+                Map<String, List<MaxOffset>> maxOffsetMap = topicRecordService.listMaxOffset(this.topic.getTopicNameList());
+                kafkaConsumer = new KafkaConsumer<>(properties);
+
+                if (maxOffsetMap == null || maxOffsetMap.size() < 1) {
+                    kafkaConsumer.subscribe(this.topic.getTopicNameList());
+                } else {
+                    List<TopicPartition> topicPartitionList = new ArrayList<>(maxOffsetMap.size());
+                    maxOffsetMap.forEach((topicName, maxOffsetList) -> {
+                        for (MaxOffset maxOffset : maxOffsetList) {
+                            topicPartitionList.add(new TopicPartition(topicName, maxOffset.getPartitionId()));
+                        }
+                    });
+                    kafkaConsumer.assign(topicPartitionList);
+
+                    maxOffsetMap.forEach((topicName, maxOffsetList) -> {
+                        for (MaxOffset maxOffset : maxOffsetList) {
+                            TopicPartition topicPartition = new TopicPartition(topicName, maxOffset.getPartitionId());
+                            kafkaConsumer.seek(topicPartition, maxOffset.getOffset() + 1L);
+                        }
+                    });
+                }
+
+                setRunning(true);
+
+                this.worker = new Thread(new AsyncRunnable(), String.format("Kafka_Monitor_Trace_Record_Thread_%s", this.topic.getName()));
+                this.worker.setDaemon(true);
+                this.worker.start();
+
+                for (String topicName : this.topic.getTopicNameList()) {
+                    logger.info(String.format("[%s] : topic [%s] is beginning to collect.", Thread.currentThread().getName(), topicName));
+                }
+
+                while (isRunning()) {
+                    ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(500));
+                    for (ConsumerRecord<String, String> record : records) {
+                        TopicRecord topicRecord = new TopicRecord();
+                        topicRecord.setTopicName(record.topic());
+                        topicRecord.setPartitionId(record.partition());
+                        topicRecord.setOffset(record.offset());
+                        topicRecord.setKey(record.key());
+                        topicRecord.setValue(record.value());
+                        topicRecord.setTimestamp(new Date(record.timestamp()));
+                        boolean result = topicRecords.offer(topicRecord);
+                        if (!result) {
+                            logger.warn(String.format("buffer full for topic [%s], [%s], conent is [%s]", this.topic.getName(), discardCount.incrementAndGet(), topicRecord));
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (kafkaConsumer != null) {
+                    kafkaConsumer.close();
+                    kafkaConsumer = null;
+                    logger.info(String.format("[%s] : topic [%s] is stopping to collect.", Thread.currentThread().getName(), this.topic.getName()));
+                }
+                cdl.countDown();
+            }
+        });
     }
 
     @Override
@@ -65,74 +141,21 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
     }
 
     @Override
-    public void destroy() {
-        stop();
-    }
+    public void destroy() throws Exception {
+        setRunning(false);
+        cdl.await(1, TimeUnit.MINUTES);
+        try {
+            kafkaService.deleteConsumerGroups(consumerGroupdId);
+        } catch (Exception e) {
+        }
 
-    @Override
-    public void start() {
-        threadService.submit(() -> {
-            try {
-                if (kafkaConsumer != null) {
-                    stop();
-                }
-                List<MaxOffset> maxOffsetList = topicRecordService.listMaxOffset(this.topicName);
-                kafkaConsumer = new KafkaConsumer<>(properties);
-                if (maxOffsetList != null && maxOffsetList.size() > 0) {
-                    kafkaConsumer.assign(maxOffsetList.stream().map(p -> new TopicPartition(this.topicName, p.getPartitionId())).collect(Collectors.toList()));
-                    for (MaxOffset maxOffset : maxOffsetList) {
-                        TopicPartition p = new TopicPartition(this.topicName, maxOffset.getPartitionId());
-                        kafkaConsumer.seek(p, maxOffset.getOffset() + 1);
-                    }
-                } else {
-                    kafkaConsumer.subscribe(Collections.singleton(this.topicName));
-                }
-                setRunning(true);
-                this.worker = new Thread(new AsyncRunnable(), String.format("Kafka_Monitor_Trace_Record_Thread_%s_%s", this.topicName, UUID.randomUUID().toString()));
-                this.worker.setDaemon(true);
-                this.worker.start();
-                while (isRunning()) {
-                    ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(500));
-                    for (ConsumerRecord<String, String> record : records) {
-                        TopicRecord topicRecord = new TopicRecord();
-                        topicRecord.setTopicName(record.topic());
-                        topicRecord.setPartitionId(record.partition());
-                        topicRecord.setOffset(record.offset());
-                        topicRecord.setKey(record.key());
-                        topicRecord.setValue(record.value());
-                        topicRecord.setTimestamp(new Date(record.timestamp()));
-                        boolean result = topicRecords.offer(topicRecord);
-                        if (!result) {
-                            logger.info(String.format("buffer full for topic [%s], [%s], conent is [%s]", this.topicName, discardCount.incrementAndGet(), topicRecord));
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (kafkaConsumer != null) {
-                    kafkaConsumer.close();
-                    kafkaConsumer = null;
-                    logger.info(String.format("[%s] : topic [%s] is stopping to collect.", this, topicName));
-                }
-            }
-        });
     }
 
     @Override
     public void stop() {
-        setRunning(false);
-        while (kafkaConsumer != null) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
         try {
-            kafkaService.deleteConsumerGroups(consumerGroupdId);
-        } catch (Exception e) {
+            destroy();
+        } catch (Exception ignored) {
         }
     }
 
@@ -166,7 +189,7 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
 
                 if (topicRecordList.size() > 0) {
                     try {
-                        topicRecordService.batchSave(topicName, topicRecordList);
+                        topicRecordService.batchSave(topicRecordList);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -179,5 +202,4 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
             }
         }
     }
-
 }

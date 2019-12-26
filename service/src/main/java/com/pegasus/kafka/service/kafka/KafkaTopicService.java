@@ -214,7 +214,7 @@ public class KafkaTopicService {
                 throw new BusinessException(ResultCode.TOPIC_IS_RUNNING);
             }
         }
-        kafkaRecordService.uninstallTopic(topicName);
+        kafkaRecordService.uninstallTopicName(topicName);
         kafkaService.deleteTopic(topicName);
         sysLagService.deleteTopic(topicName);
         sysLogSizeService.deleteTopic(topicName);

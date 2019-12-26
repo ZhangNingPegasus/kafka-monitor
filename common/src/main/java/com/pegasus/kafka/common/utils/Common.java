@@ -9,7 +9,9 @@ import org.springframework.util.StringUtils;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * providing the tool function.
@@ -27,6 +29,25 @@ public class Common {
     private final static DecimalFormat df = new DecimalFormat("0.00");
     private final static String SALT = "PEgASuS";
     private static ThreadLocal<SimpleDateFormat> threadLocal = ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+
+    public static <T> List<List<T>> averageAssign(List<T> source, int n) {
+        List<List<T>> result = new ArrayList<>();
+        int remainder = source.size() % n;
+        int number = source.size() / n;
+        int offset = 0;
+        for (int i = 0; i < n; i++) {
+            List<T> value;
+            if (remainder > 0) {
+                value = source.subList(i * number + offset, (i + 1) * number + offset + 1);
+                remainder--;
+                offset++;
+            } else {
+                value = source.subList(i * number + offset, (i + 1) * number + offset);
+            }
+            result.add(value);
+        }
+        return result;
+    }
 
     public static String hash(String value) {
         return new Md5Hash(value, SALT).toString();

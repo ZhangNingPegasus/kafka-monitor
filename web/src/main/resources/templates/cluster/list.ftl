@@ -11,7 +11,11 @@
             <div class="layui-card-body">
                 <table id="zkGrid" lay-filter="zkGrid"></table>
                 <script type="text/html" id="colMode">
+                    {{#  if(d.mode == 'death'){ }}
+                    <span class="layui-badge layui-bg-red">{{ d.mode }}</span>
+                    {{#  } else { }}
                     <span class="layui-badge layui-bg-green">{{ d.mode }}</span>
+                    {{#  } }}
                 </script>
             </div>
         </div>
@@ -20,7 +24,11 @@
             <div class="layui-card-body">
                 <table id="grid" lay-filter="grid"></table>
                 <script type="text/html" id="colVersion">
+                    {{#  if(d.version == 'death'){ }}
+                    <span class="layui-badge layui-bg-red">{{ d.version }}</span>
+                    {{#  } else { }}
                     <span class="layui-badge layui-bg-green">{{ d.version }}</span>
+                    {{#  } }}
                 </script>
             </div>
         </div>
@@ -68,11 +76,11 @@
                     none: '暂无相关数据'
                 },
                 cols: [[
-                    {type: 'numbers', title: '序号', width: 200},
+                    {type: 'numbers', title: '序号', width: 100},
                     {field: 'host', title: '地址'},
-                    {field: 'port', title: '端口', width: 255},
-                    {field: 'version', title: '版本', templet: '#colVersion', width: 255},
-                    {field: 'mode', title: '模式', templet: '#colMode', width: 240}
+                    {field: 'port', title: '端口', width: 200},
+                    {field: 'version', title: '版本', templet: '#colVersion', width: 200},
+                    {field: 'mode', title: '模式', templet: '#colMode', width: 200}
                 ]]
             });
 

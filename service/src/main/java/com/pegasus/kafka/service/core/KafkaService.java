@@ -239,9 +239,10 @@ public class KafkaService {
             for (KafkaConsumerVo.Meta meta : kafkaConsumerVo.getMetaList()) {
                 for (KafkaConsumerVo.TopicSubscriber topicSubscriber : meta.getTopicSubscriberList()) {
                     topicNameSet.add(topicSubscriber.getTopicName());
-                    //if (!StringUtils.isEmpty(meta.getConsumerId())) {
-                    activeTopicSet.add(topicSubscriber.getTopicName());
-                    //}
+                    if (!StringUtils.isEmpty(meta.getConsumerId())) {
+                        //TODO : need fix
+                        activeTopicSet.add(topicSubscriber.getTopicName());
+                    }
                 }
             }
 

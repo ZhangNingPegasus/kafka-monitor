@@ -31,9 +31,32 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
         this.schemaService = schemaService;
     }
 
+    @TranSave
+    public void batchSave(List<TopicRecord> topicRecordList) {
+        if (topicRecordList == null || topicRecordList.size() < 1) {
+            return;
+        }
+
+        Map<String, List<TopicRecord>> topicRecordMap = new HashMap<>(32);
+
+        for (TopicRecord topicRecord : topicRecordList) {
+            String key = topicRecord.getTopicName();
+            if (topicRecordMap.containsKey(key)) {
+                topicRecordMap.get(key).add(topicRecord);
+            } else {
+                List<TopicRecord> topicRecords = new ArrayList<>(256);
+                topicRecords.add(topicRecord);
+                topicRecordMap.put(key, topicRecords);
+            }
+        }
+
+        if (topicRecordMap.size() > 0) {
+            topicRecordMap.forEach(this::batchSave);
+        }
+    }
 
     @TranSave
-    public void batchSave(String topicName, List<TopicRecord> topicRecordList) {
+    void batchSave(String topicName, List<TopicRecord> topicRecordList) {
         if (topicRecordList == null || topicRecordList.size() < 1) {
             return;
         }
@@ -66,7 +89,6 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
 
         this.baseMapper.batchSave(tableName, topicRecordList);
         this.baseMapper.batchSaveRecord(recordTableName, topicRecordValueList);
-
     }
 
 
@@ -140,6 +162,19 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
     public List<MaxOffset> listMaxOffset(String topicName) {
         try {
             return this.baseMapper.listMaxOffset(convertToTableName(topicName));
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    @TranRead
+    public Map<String, List<MaxOffset>> listMaxOffset(List<String> topicNameList) {
+        try {
+            Map<String, List<MaxOffset>> result = new HashMap<>((int) (topicNameList.size() / 0.75));
+            for (String topicName : topicNameList) {
+                result.put(topicName, listMaxOffset(topicName));
+            }
+            return result;
         } catch (Exception ignored) {
             return null;
         }
