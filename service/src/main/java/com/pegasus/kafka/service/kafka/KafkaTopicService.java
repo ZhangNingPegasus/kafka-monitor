@@ -15,6 +15,7 @@ import com.pegasus.kafka.service.dto.SysLagService;
 import com.pegasus.kafka.service.dto.SysLogSizeService;
 import com.pegasus.kafka.service.dto.TopicRecordService;
 import com.pegasus.kafka.service.record.KafkaRecordService;
+import org.apache.kafka.common.ConsumerGroupState;
 import org.apache.zookeeper.data.Stat;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -210,6 +211,11 @@ public class KafkaTopicService {
     public void delete(String topicName) throws Exception {
         List<KafkaConsumerVo> kafkaConsumerVoList = kafkaService.listKafkaConsumers();
         for (KafkaConsumerVo kafkaConsumerVo : kafkaConsumerVoList) {
+            if (kafkaConsumerVo.getMetaList().size() == 1) {
+                if (kafkaConsumerVo.getMetaList().get(0).getConsumerGroupState() == ConsumerGroupState.EMPTY) {
+                    break;
+                }
+            }
             if (kafkaConsumerVo.getActiveTopicNames().contains(topicName)) {
                 throw new BusinessException(ResultCode.TOPIC_IS_RUNNING);
             }

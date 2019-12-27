@@ -172,7 +172,10 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
         try {
             Map<String, List<MaxOffset>> result = new HashMap<>((int) (topicNameList.size() / 0.75));
             for (String topicName : topicNameList) {
-                result.put(topicName, listMaxOffset(topicName));
+                List<MaxOffset> maxOffsetList = listMaxOffset(topicName);
+                if (maxOffsetList != null && maxOffsetList.size() > 0) {
+                    result.put(topicName, maxOffsetList);
+                }
             }
             return result;
         } catch (Exception ignored) {

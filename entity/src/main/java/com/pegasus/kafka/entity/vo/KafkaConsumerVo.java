@@ -4,6 +4,7 @@ package com.pegasus.kafka.entity.vo;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
+import org.apache.kafka.common.ConsumerGroupState;
 
 import java.io.Serializable;
 import java.util.List;
@@ -37,6 +38,7 @@ public class KafkaConsumerVo implements Serializable {
         private String consumerId;
         private String node;
         private List<TopicSubscriber> topicSubscriberList;
+        private ConsumerGroupState consumerGroupState;
     }
 
     @Data

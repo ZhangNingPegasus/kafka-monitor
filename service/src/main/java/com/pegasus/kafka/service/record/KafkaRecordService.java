@@ -5,6 +5,7 @@ import com.pegasus.kafka.common.utils.Common;
 import com.pegasus.kafka.entity.po.Topic;
 import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.core.ThreadService;
+import com.pegasus.kafka.service.kafka.KafkaConsumerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -30,14 +31,16 @@ public class KafkaRecordService implements SmartLifecycle, DisposableBean {
     private final ConfigurableApplicationContext applicationContext;
     private final KafkaService kafkaService;
     private final ThreadService threadService;
+    private final KafkaConsumerService kafkaConsumerService;
     private List<String> topicNames;
     private boolean running;
     private Map<String, Topic> topicBeanMap;
 
-    public KafkaRecordService(ConfigurableApplicationContext applicationContext, KafkaService kafkaService, ThreadService threadService) {
+    public KafkaRecordService(ConfigurableApplicationContext applicationContext, KafkaService kafkaService, ThreadService threadService, KafkaConsumerService kafkaConsumerService) {
         this.applicationContext = applicationContext;
         this.kafkaService = kafkaService;
         this.threadService = threadService;
+        this.kafkaConsumerService = kafkaConsumerService;
         this.topicNames = new ArrayList<>(TOPIC_NUMBER_FACTOR);
         this.topicBeanMap = new HashMap<>(TOPIC_NUMBER_FACTOR);
     }
@@ -61,6 +64,10 @@ public class KafkaRecordService implements SmartLifecycle, DisposableBean {
             KafkaTopicRecord kafkaTopicRecord = genericApplicationContext.getBean(beanName, KafkaTopicRecord.class);
             genericApplicationContext.removeBeanDefinition(beanName);
             this.topicBeanMap.remove(beanName);
+            if (!kafkaTopicRecord.isRunning()) {
+                kafkaTopicRecord.stop();
+            }
+            kafkaConsumerService.delete(kafkaTopicRecord.getConsumerGroupdId());
         }
     }
 
@@ -74,7 +81,6 @@ public class KafkaRecordService implements SmartLifecycle, DisposableBean {
             for (String s : topic.getTopicNameList()) {
                 if (s.equals(topicName)) {
                     uninstallTopic(topic);
-                    //iterator.remove();
                     exit = true;
                     break;
                 }
@@ -128,14 +134,20 @@ public class KafkaRecordService implements SmartLifecycle, DisposableBean {
                         }
                     }
 
-                    List<Topic> topicList = convert(newFoundTopicNames);
-                    if (topicList != null && topicList.size() > 0) {
-                        for (Topic topic : topicList) {
-                            installTopic(topic);
+                    if (newFoundTopicNames.size() > 0) {
+                        List<Topic> topicList = convert(currentTopicNames);
+                        if (topicList != null && topicList.size() > 0) {
+                            stopAll();
+                            for (Topic topic : topicList) {
+                                installTopic(topic);
+                            }
                         }
                     }
 
-                    Thread.sleep(5000);
+                    try {
+                        Thread.sleep(5000);
+                    } catch (Exception ignored) {
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -151,6 +163,13 @@ public class KafkaRecordService implements SmartLifecycle, DisposableBean {
             result.addAll(bean.getTopicsNames());
         }
         return result;
+    }
+
+    private void stopAll() {
+        List<Topic> topicList = new ArrayList<>(this.topicBeanMap.values());
+        for (Topic topic : topicList) {
+            uninstallTopic(topic);
+        }
     }
 
     private List<Topic> convert(List<String> topicNames) {

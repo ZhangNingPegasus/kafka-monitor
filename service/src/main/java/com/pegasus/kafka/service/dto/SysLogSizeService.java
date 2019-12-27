@@ -64,8 +64,6 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
                     for (OffsetVo offsetVo : offsetVoList) {
                         if (offsetVo.getLag() != null && offsetVo.getLag() >= 0) {
                             lag += offsetVo.getLag();
-                        } else {
-                            alertService.offer(String.format("订阅组[%s]订阅的主题[%s]有部分分区不可用,请检查.", offsetVo.getConsumerId(), topicName));
                         }
                         logSize += offsetVo.getLogSize();
                     }

@@ -58,6 +58,10 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
         return this.topic.getTopicNameList();
     }
 
+    public String getConsumerGroupdId() {
+        return this.consumerGroupdId;
+    }
+
 
     @Override
     public void start() {

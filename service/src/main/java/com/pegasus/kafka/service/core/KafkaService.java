@@ -16,6 +16,7 @@ import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.ConsumerGroupState;
 import org.apache.kafka.common.Node;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.TopicPartitionInfo;
@@ -186,7 +187,8 @@ public class KafkaService {
                     DescribeConsumerGroupsResult describeConsumerGroupsResult = adminClient.describeConsumerGroups(Collections.singletonList(groupId));
 
                     Node coordinator = describeConsumerGroupsResult.all().get().get(groupId).coordinator();
-                    Collection<MemberDescription> members = describeConsumerGroupsResult.describedGroups().get(groupId).get().members();
+                    ConsumerGroupDescription consumerGroupDescription = describeConsumerGroupsResult.describedGroups().get(groupId).get();
+                    List<MemberDescription> members = new ArrayList<>(consumerGroupDescription.members());
 
                     KafkaConsumerVo kafkaConsumerVo = new KafkaConsumerVo();
                     kafkaConsumerVo.setGroupId(groupId);
@@ -197,6 +199,7 @@ public class KafkaService {
                         KafkaConsumerVo.Meta meta = new KafkaConsumerVo.Meta();
                         meta.setConsumerId(member.consumerId());
                         meta.setNode(member.host().replaceAll("/", ""));
+                        meta.setConsumerGroupState(consumerGroupDescription.state());
 
                         List<KafkaConsumerVo.TopicSubscriber> topicSubscriberList = new ArrayList<>();
                         for (TopicPartition topicPartition : member.assignment().topicPartitions()) {
@@ -209,10 +212,12 @@ public class KafkaService {
                         meta.setTopicSubscriberList(topicSubscriberList);
                         metaList.add(meta);
                     }
+
                     KafkaConsumerVo.Meta noActiveMeta = new KafkaConsumerVo.Meta();
                     List<KafkaConsumerVo.TopicSubscriber> noActivetopicSubscriberList = new ArrayList<>();
                     noActiveMeta.setConsumerId("");
                     noActiveMeta.setNode(" - ");
+                    noActiveMeta.setConsumerGroupState(consumerGroupDescription.state());
                     ListConsumerGroupOffsetsResult listConsumerGroupOffsetsResult = adminClient.listConsumerGroupOffsets(groupId);
                     for (Map.Entry<TopicPartition, OffsetAndMetadata> entry : listConsumerGroupOffsetsResult.partitionsToOffsetAndMetadata().get().entrySet()) {
                         KafkaConsumerVo.TopicSubscriber topicSubscriber = new KafkaConsumerVo.TopicSubscriber();
@@ -239,8 +244,7 @@ public class KafkaService {
             for (KafkaConsumerVo.Meta meta : kafkaConsumerVo.getMetaList()) {
                 for (KafkaConsumerVo.TopicSubscriber topicSubscriber : meta.getTopicSubscriberList()) {
                     topicNameSet.add(topicSubscriber.getTopicName());
-                    if (!StringUtils.isEmpty(meta.getConsumerId())) {
-                        //TODO : need fix
+                    if (!StringUtils.isEmpty(meta.getConsumerId()) || meta.getConsumerGroupState()==ConsumerGroupState.EMPTY) {
                         activeTopicSet.add(topicSubscriber.getTopicName());
                     }
                 }
