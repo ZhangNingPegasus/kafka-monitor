@@ -6,8 +6,11 @@ import com.pegasus.kafka.entity.vo.KafkaConsumerVo;
 import com.pegasus.kafka.entity.vo.OffsetVo;
 import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.dto.SysLagService;
+import org.apache.kafka.clients.admin.ConsumerGroupListing;
+import org.apache.kafka.clients.admin.ListConsumerGroupsResult;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,6 +37,17 @@ public class KafkaConsumerService {
 
     public List<KafkaConsumerVo> listKafkaConsumers() throws Exception {
         return listKafkaConsumers(null);
+    }
+
+    public List<String> listAllConsumers() throws Exception {
+        List<String> groupIdList = new ArrayList<>();
+        kafkaService.kafkaAdminClientDo(kafkaAdminClient -> {
+            ListConsumerGroupsResult listConsumerGroupsResult = kafkaAdminClient.listConsumerGroups();
+            for (ConsumerGroupListing consumerGroupListing : listConsumerGroupsResult.all().get()) {
+                groupIdList.add(consumerGroupListing.groupId());
+            }
+        });
+        return groupIdList;
     }
 
     public List<OffsetVo> listOffsetVo(String groupId, String topicName) throws Exception {

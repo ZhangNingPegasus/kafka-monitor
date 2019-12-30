@@ -62,12 +62,15 @@ public class KafkaRecordService implements SmartLifecycle, DisposableBean {
             String beanName = getBeanName(topic);
             GenericApplicationContext genericApplicationContext = (GenericApplicationContext) applicationContext;
             KafkaTopicRecord kafkaTopicRecord = genericApplicationContext.getBean(beanName, KafkaTopicRecord.class);
-            genericApplicationContext.removeBeanDefinition(beanName);
-            this.topicBeanMap.remove(beanName);
-            if (!kafkaTopicRecord.isRunning()) {
+            if (kafkaTopicRecord.isRunning()) {
                 kafkaTopicRecord.stop();
             }
-            kafkaConsumerService.delete(kafkaTopicRecord.getConsumerGroupdId());
+            genericApplicationContext.removeBeanDefinition(beanName);
+            this.topicBeanMap.remove(beanName);
+            try {
+                kafkaConsumerService.delete(kafkaTopicRecord.getConsumerGroupdId());
+            } catch (Exception ignored) {
+            }
         }
     }
 

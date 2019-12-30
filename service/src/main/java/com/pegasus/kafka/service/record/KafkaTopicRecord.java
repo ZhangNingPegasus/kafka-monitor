@@ -7,6 +7,7 @@ import com.pegasus.kafka.entity.po.Topic;
 import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.core.ThreadService;
 import com.pegasus.kafka.service.dto.TopicRecordService;
+import com.pegasus.kafka.service.kafka.KafkaConsumerService;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -33,6 +34,7 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
     private final KafkaService kafkaService;
     private final TopicRecordService topicRecordService;
     private final ThreadService threadService;
+    private final KafkaConsumerService kafkaConsumerService;
     private boolean running;
     private Topic topic;
     private String consumerGroupdId;
@@ -43,11 +45,12 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
     private Thread worker;
     private CountDownLatch cdl;
 
-    public KafkaTopicRecord(Topic topic, KafkaService kafkaService, TopicRecordService topicRecordService, ThreadService threadService) {
+    public KafkaTopicRecord(Topic topic, KafkaService kafkaService, TopicRecordService topicRecordService, ThreadService threadService, KafkaConsumerService kafkaConsumerService) {
         this.topic = topic;
         this.kafkaService = kafkaService;
         this.topicRecordService = topicRecordService;
         this.threadService = threadService;
+        this.kafkaConsumerService = kafkaConsumerService;
         this.topicRecords = new ArrayBlockingQueue<>(BATCH_SIZE * 2048);
         this.discardCount = new AtomicLong(0L);
         this.consumerGroupdId = String.format("%s_%s", Constants.KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_MESSAGE, this.topic.getName());
@@ -69,6 +72,20 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
 
         threadService.submit(() -> {
             Thread.currentThread().setName(String.format("thread-data-sync-%s", this.topic.getName()));
+
+            try {
+                List<String> groupIdList = kafkaConsumerService.listAllConsumers();
+                for (String groupId : groupIdList) {
+                    try {
+                        if (groupId.startsWith(Constants.KAFKA_MONITOR_PEGASUS_SYSTEM_PREFIX)) {
+                            kafkaConsumerService.delete(groupId);
+                        }
+                    } catch (Exception ignored) {
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+
             try {
                 Map<String, List<MaxOffset>> maxOffsetMap = topicRecordService.listMaxOffset(this.topic.getTopicNameList());
                 kafkaConsumer = new KafkaConsumer<>(properties);
@@ -138,6 +155,8 @@ public class KafkaTopicRecord implements InitializingBean, SmartLifecycle, Dispo
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, this.consumerGroupdId);
         properties.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
         properties.setProperty(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "1000");
+        properties.setProperty(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, String.valueOf(1000 * 60));
+        properties.setProperty(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, String.valueOf(1000 * 60));
         properties.setProperty(ConsumerConfig.ISOLATION_LEVEL_CONFIG, "read_committed");
         properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getCanonicalName());

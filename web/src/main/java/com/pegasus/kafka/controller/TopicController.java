@@ -2,8 +2,8 @@ package com.pegasus.kafka.controller;
 
 import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.response.Result;
-import com.pegasus.kafka.entity.vo.KafkaTopicVo;
 import com.pegasus.kafka.entity.vo.KafkaTopicPartitionVo;
+import com.pegasus.kafka.entity.vo.KafkaTopicVo;
 import com.pegasus.kafka.entity.vo.MBeanVo;
 import com.pegasus.kafka.service.kafka.KafkaBrokerService;
 import com.pegasus.kafka.service.kafka.KafkaTopicService;
@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,7 +58,7 @@ public class TopicController {
     @GetMapping("toedit")
     public String toAdd(Model model, @RequestParam(name = "topicName", required = true) String topicName) throws Exception {
         topicName = topicName.trim();
-        List<KafkaTopicVo> topicInfoList = kafkaTopicService.listTopics(topicName, KafkaTopicService.SearchType.EQUALS, false, true, false, false, false,false);
+        List<KafkaTopicVo> topicInfoList = kafkaTopicService.listTopics(topicName, KafkaTopicService.SearchType.EQUALS, false, true, false, false, false, false);
         if (topicInfoList != null && topicInfoList.size() > 0) {
             KafkaTopicVo topicVo = topicInfoList.get(0);
             List<KafkaTopicPartitionVo> topicDetails = kafkaTopicService.listTopicDetails(topicName);
@@ -96,9 +97,9 @@ public class TopicController {
             topicName = topicName.trim();
         }
         pageNum = Math.min(pageNum, Constants.MAX_PAGE_NUM);
-        List<KafkaTopicVo> topicInfoList = kafkaTopicService.listTopics(topicName, KafkaTopicService.SearchType.LIKE, true, true, true, true, true,false);
+        List<KafkaTopicVo> topicInfoList = kafkaTopicService.listTopics(topicName, KafkaTopicService.SearchType.LIKE, true, true, true, true, true, false);
         return Result.ok(topicInfoList.stream().skip(pageSize * (pageNum - 1))
-                .limit(pageSize).collect(Collectors.toList()), topicInfoList.size());
+                .limit(pageSize).sorted(Comparator.comparing(KafkaTopicVo::getTopicName)).collect(Collectors.toList()), topicInfoList.size());
     }
 
     @PostMapping("sendmsg")

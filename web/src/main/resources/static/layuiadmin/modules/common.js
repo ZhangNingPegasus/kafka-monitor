@@ -28,6 +28,7 @@
                         error(result);
                     } else {
                         admin.error('系统错误', result.error);
+                        layer.closeAll('loading');
                     }
                 }
             }

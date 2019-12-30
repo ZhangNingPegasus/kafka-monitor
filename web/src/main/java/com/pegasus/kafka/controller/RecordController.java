@@ -14,10 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.pegasus.kafka.controller.RecordController.PREFIX;
@@ -47,7 +44,7 @@ public class RecordController {
     @GetMapping("tolist")
     public String toList(Model model) throws Exception {
         List<KafkaTopicVo> kafkaTopicVoList = kafkaTopicService.listTopics(false, false, false, true, false, false);
-        model.addAttribute("topics", kafkaTopicVoList);
+        model.addAttribute("topics", kafkaTopicVoList.stream().sorted(Comparator.comparing(KafkaTopicVo::getTopicName)).collect(Collectors.toList()));
         model.addAttribute("savingDays", Constants.SAVING_DAYS);
         return String.format("%s/list", PREFIX);
     }

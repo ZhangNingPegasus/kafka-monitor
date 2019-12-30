@@ -706,7 +706,7 @@ public class KafkaService {
         return kafkaUrls.toString();
     }
 
-    private void kafkaAdminClientDo(KafkaAdminClientAction kafkaAdminClientAction) throws Exception {
+    public void kafkaAdminClientDo(KafkaAdminClientAction kafkaAdminClientAction) throws Exception {
         KafkaAdminClient kafkaAdminClient = null;
         try {
             Properties properties = new Properties();
@@ -761,7 +761,7 @@ public class KafkaService {
     }
 
 
-    private interface KafkaAdminClientAction {
+    public interface KafkaAdminClientAction {
         void action(KafkaAdminClient kafkaAdminClient) throws Exception;
     }
 
