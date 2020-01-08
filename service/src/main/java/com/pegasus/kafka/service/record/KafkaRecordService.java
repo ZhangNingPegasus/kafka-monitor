@@ -94,7 +94,7 @@ public class KafkaRecordService implements SmartLifecycle, DisposableBean {
             }
         }
 
-        if (topic != null && topic.getTopicNameList().size() > 0) {
+        if (topic != null && topic.getTopicNameList().size() > 1) {
             Topic newTopic = new Topic();
             newTopic.setName(topic.getName());
             List<String> topics = new ArrayList<>(topic.getTopicNameList().size() - 1);
@@ -148,7 +148,7 @@ public class KafkaRecordService implements SmartLifecycle, DisposableBean {
                     }
 
                     try {
-                        Thread.sleep(5000);
+                        Thread.sleep(10000);
                     } catch (Exception ignored) {
                     }
                 } catch (Exception e) {
