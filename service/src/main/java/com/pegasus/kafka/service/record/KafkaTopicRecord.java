@@ -121,8 +121,10 @@ public class KafkaTopicRecord implements SmartLifecycle, DisposableBean {
 
                 while (isRunning()) {
                     ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(500));
+                    if (records.count() < 1) {
+                        continue;
+                    }
                     List<TopicRecord> topicRecordList = new ArrayList<>((int) (records.count() / 0.75));
-
                     for (ConsumerRecord<String, String> record : records) {
                         TopicRecord topicRecord = new TopicRecord();
                         topicRecord.setTopicName(record.topic());
@@ -134,7 +136,6 @@ public class KafkaTopicRecord implements SmartLifecycle, DisposableBean {
                         topicRecordList.add(topicRecord);
                     }
                     topicRecordService.batchSave(topicRecordList);
-
                 }
             } catch (Exception e) {
                 e.printStackTrace();
