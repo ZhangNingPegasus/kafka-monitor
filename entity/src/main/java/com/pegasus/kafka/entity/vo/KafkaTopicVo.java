@@ -37,6 +37,10 @@ public class KafkaTopicVo implements Serializable {
     private Long modifyTimeLong;
     private String error;
 
+    public KafkaTopicVo(String topicName) {
+        this.topicName = topicName;
+    }
+
     public KafkaTopicVo(String topicName, Integer consumerStatus) {
         this.topicName = topicName;
         this.consumerStatus = consumerStatus;

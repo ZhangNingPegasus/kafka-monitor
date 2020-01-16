@@ -54,6 +54,35 @@ public class KafkaService {
         this.mbeanService = mbeanService;
     }
 
+    public List<String> listPartitionIds(String topicName) throws Exception {
+        return kafkaZkService.getChildren(String.format(Constants.ZK_BROKERS_TOPICS_PARTITION_PATH, topicName));
+    }
+
+    public Long listLogSize(String topicName) throws Exception {
+        Long[] result = {0L};
+        List<String> partitionIds = listPartitionIds(topicName);
+
+        kafkaConsumerDo(kafkaConsumer -> {
+            for (String partitionId : partitionIds) {
+                result[0] += listLogSize(kafkaConsumer, topicName, Integer.valueOf(partitionId));
+            }
+        });
+
+        return result[0];
+    }
+
+
+    private Long listLogSize(KafkaConsumer kafkaConsumer, String topicName, Integer partitionId) {
+        TopicPartition tp = new TopicPartition(topicName, partitionId);
+        kafkaConsumer.assign(Collections.singleton(tp));
+        Map<TopicPartition, Long> endLogSize = kafkaConsumer.endOffsets(Collections.singleton(tp));
+//        Map<TopicPartition, Long> startLogSize = kafkaConsumer.beginningOffsets(Collections.singleton(tp));
+//        return endLogSize.get(tp) - startLogSize.get(tp);
+        return endLogSize.get(tp);
+    }
+
+    //---------------------------------------------------------------------------------------------------------------------
+
     public void createTopics(String topicName, Integer partitionNumber, Integer replicationNumber) throws Exception {
         kafkaAdminClientDo(adminClient -> {
             NewTopic newTopic = new NewTopic(topicName, partitionNumber, Short.parseShort(replicationNumber.toString()));
@@ -151,14 +180,6 @@ public class KafkaService {
         return result;
     }
 
-    private Long listLogSize(KafkaConsumer kafkaConsumer, String topicName, Integer partitionId) {
-        TopicPartition tp = new TopicPartition(topicName, partitionId);
-        kafkaConsumer.assign(Collections.singleton(tp));
-        Map<TopicPartition, Long> endLogSize = kafkaConsumer.endOffsets(Collections.singleton(tp));
-//        Map<TopicPartition, Long> startLogSize = kafkaConsumer.beginningOffsets(Collections.singleton(tp));
-//        return endLogSize.get(tp) - startLogSize.get(tp);
-        return endLogSize.get(tp);
-    }
 
     public List<String> listAllConsumers() throws Exception {
         AtomicReference<List<String>> result = new AtomicReference<>(new ArrayList<>(1024));
@@ -244,7 +265,7 @@ public class KafkaService {
             for (KafkaConsumerVo.Meta meta : kafkaConsumerVo.getMetaList()) {
                 for (KafkaConsumerVo.TopicSubscriber topicSubscriber : meta.getTopicSubscriberList()) {
                     topicNameSet.add(topicSubscriber.getTopicName());
-                    if (!StringUtils.isEmpty(meta.getConsumerId()) || meta.getConsumerGroupState()==ConsumerGroupState.EMPTY) {
+                    if (!StringUtils.isEmpty(meta.getConsumerId()) || meta.getConsumerGroupState() == ConsumerGroupState.EMPTY) {
                         activeTopicSet.add(topicSubscriber.getTopicName());
                     }
                 }
@@ -262,10 +283,6 @@ public class KafkaService {
 
         result.sort(Comparator.comparing(KafkaConsumerVo::getGroupId));
         return result;
-    }
-
-    public List<KafkaConsumerVo> listKafkaConsumers() throws Exception {
-        return listKafkaConsumers(null);
     }
 
     public List<OffsetVo> listOffsetVo(String groupId, String topicName) throws Exception {
@@ -373,10 +390,6 @@ public class KafkaService {
         return result;
     }
 
-
-    public List<String> listPartitionIds(String topicName) throws Exception {
-        return kafkaZkService.getChildren(String.format(Constants.ZK_BROKERS_TOPICS_PARTITION_PATH, topicName));
-    }
 
     public void deleteConsumerGroups(String consumerGroupdId) throws Exception {
         kafkaAdminClientDo(adminClient -> adminClient.deleteConsumerGroups(Collections.singletonList(consumerGroupdId)).all().get());
@@ -512,7 +525,10 @@ public class KafkaService {
     }
 
     public List<String> listTopicNames() throws Exception {
-        return kafkaZkService.getChildren(Constants.ZK_BROKERS_TOPICS_PATH).stream().filter(p -> !Constants.KAFKA_SYSTEM_TOPIC.contains(p)).collect(Collectors.toList());
+        return kafkaZkService.getChildren(Constants.ZK_BROKERS_TOPICS_PATH).stream()
+                .filter(p -> !Constants.KAFKA_SYSTEM_TOPIC.contains(p))
+                .sorted(String::compareTo)
+                .collect(Collectors.toList());
     }
 
     public Stat getTopicStat(String topicName) throws Exception {

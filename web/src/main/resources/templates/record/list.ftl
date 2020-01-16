@@ -8,7 +8,6 @@
 
     <div class="layui-fluid">
         <div class="layui-card">
-
             <div class="layui-form layui-card-header layuiadmin-card-header-auto">
                 <div class="layui-form-item">
                     <div class="layui-inline">主题名称</div>
@@ -16,7 +15,7 @@
                         <select name="topicName" lay-filter="topicName" lay-verify="required" lay-search>
                             <option value="">请选择主题</option>
                             <#list topics as topic >
-                                <option value="${topic.topicName}">${topic.topicName}
+                                <option value="${topic}">${topic}
                                 </option>
                             </#list>
                         </select>

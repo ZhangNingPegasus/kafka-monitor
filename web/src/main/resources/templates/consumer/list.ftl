@@ -8,6 +8,23 @@
 
     <div class="layui-fluid">
         <div class="layui-card">
+
+            <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+                <div class="layui-form-item">
+                    <div class="layui-inline">消费组名称</div>
+                    <div class="layui-inline" style="width:500px">
+                        <input type="text" name="groupId" placeholder="请输入消费组名称" autocomplete="off"
+                               class="layui-input">
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn layuiadmin-btn-admin" lay-submit lay-filter="search">
+                            <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
             <div class="layui-card-body">
                 <table id="grid" lay-filter="grid"></table>
                 <script type="text/html" id="grid-bar">
@@ -43,102 +60,23 @@
                 </script>
             </div>
         </div>
-
-        <div class="layui-card">
-            <div class="layui-card-header">【消费组 - 主题】对应关系图</div>
-            <div class="layui-card-body">
-                <div class="layui-carousel layadmin-carousel layadmin-dataview" data-anim="fade"
-                     lay-filter="LAY-index-normline">
-                    <div carousel-item id="activeTopics">
-                        <div><i class="layui-icon layui-icon-loading1 layadmin-loading"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script type="text/javascript">
-        layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table', 'carousel', 'echarts'], function () {
-            const admin = layui.admin, table = layui.table, $ = layui.$, echarts = layui.echarts;
-            //区块轮播切换
-            layui.use(['carousel'], function () {
-                const $ = layui.$, carousel = layui.carousel, element = layui.element, device = layui.device();
-                //轮播切换
-                $('.layadmin-carousel').each(function () {
-                    const othis = $(this);
-                    carousel.render({
-                        elem: this,
-                        width: '100%',
-                        arrow: 'none',
-                        interval: othis.data('interval'),
-                        autoplay: othis.data('autoplay') === true,
-                        trigger: (device.ios || device.android) ? 'click' : 'hover',
-                        anim: othis.data('anim')
-                    });
-                });
-                element.render('progress');
+        layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table'], function () {
+            const admin = layui.admin, form = layui.form, table = layui.table, $ = layui.$;
+            form.on('submit(search)', function (data) {
+                const field = data.field;
+                table.reload('grid', {where: field, page: 1});
             });
-
-            function refresChart() {
-                admin.post("getChartData", {}, function (data) {
-                    _init(data.data);
-                });
-
-                function _init(data) {
-                    const ele = $('#activeTopics').children('div');
-                    ele.removeAttr("_echarts_instance_").empty();
-                    const echart = echarts.init(ele[0], layui.echartsTheme);
-                    if (!data) {
-                        return;
-                    }
-                    echart.setOption({
-                        tooltip: {
-                            trigger: 'item',
-                            triggerOn: 'mousemove'
-                        },
-                        series: [
-                            {
-                                type: 'tree',
-                                data: [data],
-                                top: '1%',
-                                left: '7%',
-                                bottom: '1%',
-                                right: '27%',
-                                symbolSize: 7,
-                                label: {
-                                    normal: {
-                                        position: 'left',
-                                        verticalAlign: 'middle',
-                                        align: 'right',
-                                        fontSize: 14
-                                    }
-                                },
-                                leaves: {
-                                    label: {
-                                        normal: {
-                                            position: 'right',
-                                            verticalAlign: 'middle',
-                                            align: 'left'
-                                        }
-                                    }
-                                },
-                                expandAndCollapse: true,
-                                animationDuration: 550,
-                                animationDurationUpdate: 750
-                            }
-                        ]
-                    });
-                    window.onresize = echart.resize;
-                }
-            }
-
-
             table.render({
                 elem: '#grid',
                 url: 'list',
                 method: 'post',
                 cellMinWidth: 80,
-                page: false,
+                page: true,
+                limit: 15,
+                limits: [15],
                 even: true,
                 text: {
                     none: '暂无相关数据'
@@ -147,15 +85,14 @@
                     {type: 'numbers', title: '序号', width: 50},
                     {field: 'groupId', title: '组名称', templet: "#colGroupId"},
                     {field: 'node', title: '节点', width: 180},
-                    {title: '订阅主题数', sort: true, templet: "#topicCount", width: 400},
-                    {title: '活跃主题', sort: true, templet: "#activeTopicCount", width: 400},
+                    {title: '订阅主题数', sort: true, templet: "#topicCount", width: 350},
+                    {title: '活跃主题', sort: true, templet: "#activeTopicCount", width: 350},
                     {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 145}
                 ]],
                 done: function () {
                     $("a[class='groupid layui-table-link']").click(function () {
                         showDetail($(this).attr("data"));
                     });
-                    refresChart();
                 }
             });
 

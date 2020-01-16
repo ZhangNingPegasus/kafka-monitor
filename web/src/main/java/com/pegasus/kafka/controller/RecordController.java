@@ -6,6 +6,7 @@ import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.response.Result;
 import com.pegasus.kafka.common.utils.Common;
 import com.pegasus.kafka.entity.vo.*;
+import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.dto.TopicRecordService;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
 import com.pegasus.kafka.service.kafka.KafkaTopicService;
@@ -14,7 +15,10 @@ import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.pegasus.kafka.controller.RecordController.PREFIX;
@@ -34,17 +38,18 @@ public class RecordController {
     private final TopicRecordService topicRecordService;
     private final KafkaTopicService kafkaTopicService;
     private final KafkaConsumerService kafkaConsumerService;
+    private final KafkaService kafkaService;
 
-    public RecordController(KafkaTopicService kafkaTopicService, TopicRecordService topicRecordService, KafkaConsumerService kafkaConsumerService) {
+    public RecordController(KafkaTopicService kafkaTopicService, TopicRecordService topicRecordService, KafkaConsumerService kafkaConsumerService, KafkaService kafkaService) {
         this.kafkaTopicService = kafkaTopicService;
         this.topicRecordService = topicRecordService;
         this.kafkaConsumerService = kafkaConsumerService;
+        this.kafkaService = kafkaService;
     }
 
     @GetMapping("tolist")
     public String toList(Model model) throws Exception {
-        List<KafkaTopicVo> kafkaTopicVoList = kafkaTopicService.listTopics(false, false, false, true, false, false);
-        model.addAttribute("topics", kafkaTopicVoList.stream().sorted(Comparator.comparing(KafkaTopicVo::getTopicName)).collect(Collectors.toList()));
+        model.addAttribute("topics", kafkaService.listTopicNames());
         model.addAttribute("savingDays", Constants.SAVING_DAYS);
         return String.format("%s/list", PREFIX);
     }

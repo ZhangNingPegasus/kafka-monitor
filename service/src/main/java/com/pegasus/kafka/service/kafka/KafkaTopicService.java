@@ -53,9 +53,64 @@ public class KafkaTopicService {
     }
 
     @TranRead
+    public List<KafkaTopicVo> listTopicVos(List<String> topicNameList) throws Exception {
+        List<KafkaTopicVo> topicInfoList = new ArrayList<>(topicNameList.size());
+
+        List<KafkaConsumerVo> kafkaConsumerVoList = kafkaConsumerService.listKafkaConsumers();
+
+        for (String topicName : topicNameList) {
+            KafkaTopicVo topicInfo = new KafkaTopicVo(topicName);
+
+            Out out = new Out();
+            try {
+                topicInfo.setLogSize(kafkaService.getLogSize(topicName, out));
+            } catch (Exception e) {
+                topicInfo.setLogSize(-1L);
+            }
+            topicInfo.setError(out.getError());
+
+            try {
+                Long[] daysValue = new Long[4];
+                daysValue[0] = kafkaService.listLogSize(topicName);
+                daysValue[1] = sysLogSizeService.getHistoryLogSize(topicName, 1);
+                daysValue[2] = sysLogSizeService.getHistoryLogSize(topicName, 2);
+                daysValue[3] = sysLogSizeService.getHistoryLogSize(topicName, 3);
+                topicInfo.setTodayLogSize(Common.calculateHistoryLogSize(daysValue, 0));
+                topicInfo.setYesterdayLogSize(Common.calculateHistoryLogSize(daysValue, 1));
+                topicInfo.setTdbyLogSize(Common.calculateHistoryLogSize(daysValue, 2));
+            } catch (Exception ignored) {
+                topicInfo.setTodayLogSize(topicInfo.getLogSize());
+                topicInfo.setYesterdayLogSize(0L);
+                topicInfo.setTdbyLogSize(0L);
+            }
+
+            List<String> subscribeGroupIdList = kafkaConsumerVoList.stream().filter(p -> p.getTopicNames().contains(topicName)).map(KafkaConsumerVo::getGroupId).distinct().collect(Collectors.toList());
+            topicInfo.setSubscribeNums(subscribeGroupIdList.size());
+            topicInfo.setSubscribeGroupIds(subscribeGroupIdList.toArray(new String[]{}));
+
+            List<String> partitionList = kafkaService.listPartitionIds(topicName);
+            topicInfo.setPartitionNum(partitionList.size());
+            topicInfo.setPartitionIndex(partitionList.toString());
+
+            Stat stat = kafkaService.getTopicStat(topicName);
+            topicInfo.setCreateTimeLong(stat.getCtime());
+            topicInfo.setModifyTimeLong(stat.getMtime());
+            topicInfo.setCreateTime(Common.format(new Date(stat.getCtime())));
+            topicInfo.setModifyTime(Common.format(new Date(stat.getMtime())));
+
+            topicInfoList.add(topicInfo);
+        }
+
+        return topicInfoList;
+    }
+
+
+    @TranRead
     public List<KafkaTopicVo> listTopics(String searchTopicName, SearchType searchType, boolean needStat, boolean needPartition, boolean needSubscribe, boolean needLogSize, boolean needHisLogSize, boolean needSyncLogSize) throws Exception {
         List<KafkaTopicVo> topicInfoList = new ArrayList<>();
+
         List<String> topicNameList = kafkaService.listTopicNames();
+
         List<KafkaConsumerVo> kafkaConsumerVoList = null;
         if (needSubscribe) {
             kafkaConsumerVoList = kafkaConsumerService.listKafkaConsumers();
@@ -209,7 +264,7 @@ public class KafkaTopicService {
 
     @TranSave
     public void delete(String topicName) throws Exception {
-        List<KafkaConsumerVo> kafkaConsumerVoList = kafkaService.listKafkaConsumers();
+        List<KafkaConsumerVo> kafkaConsumerVoList = kafkaService.listKafkaConsumers(null);
         for (KafkaConsumerVo kafkaConsumerVo : kafkaConsumerVoList) {
             if (kafkaConsumerVo.getMetaList().size() == 1) {
                 if (kafkaConsumerVo.getMetaList().get(0).getConsumerGroupState() == ConsumerGroupState.EMPTY) {

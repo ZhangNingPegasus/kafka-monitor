@@ -6,7 +6,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pegasus.kafka.common.annotation.TranRead;
 import com.pegasus.kafka.common.annotation.TranSave;
 import com.pegasus.kafka.common.constant.Constants;
+import com.pegasus.kafka.common.ehcache.EhcacheService;
 import com.pegasus.kafka.common.exception.BusinessException;
+import com.pegasus.kafka.common.utils.Common;
 import com.pegasus.kafka.entity.dto.SysLag;
 import com.pegasus.kafka.entity.dto.SysLogSize;
 import com.pegasus.kafka.entity.vo.KafkaConsumerVo;
@@ -38,12 +40,12 @@ import java.util.*;
 public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize> {
     private final KafkaConsumerService kafkaConsumerService;
     private final KafkaTopicService kafkaTopicService;
-    private final AlertService alertService;
+    private final EhcacheService ehcacheService;
 
-    public SysLogSizeService(KafkaConsumerService kafkaConsumerService, KafkaTopicService kafkaTopicService, AlertService alertService) {
+    public SysLogSizeService(KafkaConsumerService kafkaConsumerService, KafkaTopicService kafkaTopicService, AlertService alertService, EhcacheService ehcacheService) {
         this.kafkaConsumerService = kafkaConsumerService;
         this.kafkaTopicService = kafkaTopicService;
-        this.alertService = alertService;
+        this.ehcacheService = ehcacheService;
     }
 
     public Matrix kpi(Date now) throws Exception {
@@ -133,19 +135,27 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
         if (days < 1) {
             throw new BusinessException("天数必须大于0");
         }
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DATE),
-                0,
-                0,
-                0);
-        Date now = calendar.getTime();
 
-        Date from = DateUtils.addDays(now, -days);
-        Date to = DateUtils.addDays(from, 1);
+        String key = String.format("SysLogSizeService::getHistoryLogSize:%s:%s", topicName, days);
 
-        return this.baseMapper.getHistoryLogSize(topicName, from, to);
+        Long result = ehcacheService.get(key);
+        if (result == null) {
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DATE),
+                    0,
+                    0,
+                    0);
+            Date now = calendar.getTime();
+
+            Date from = DateUtils.addDays(now, -days);
+            Date to = DateUtils.addDays(from, 1);
+            result = this.baseMapper.getHistoryLogSize(topicName, from, to);
+            ehcacheService.set(key, result, Common.getSecondsNextEarlyMorning().intValue());
+        }
+        return result;
     }
 
     @TranRead

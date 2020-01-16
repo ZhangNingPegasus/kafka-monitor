@@ -12,7 +12,7 @@
         <script type="text/javascript" src="${ctx}/js/utils.js"></script>
         <link rel="stylesheet" href="${ctx}/css/comon0.css">
     </head>
-    <body>
+    <body style="overflow: hidden">
     <div style="background-color: #010b46;background-image: radial-gradient(#012ae6,#030d4a)">
         <div class="loading" style="display: none;">
             <div class="loadbox"><img src="${ctx}/images/loading.gif" alt="页面加载中">页面加载中...</div>

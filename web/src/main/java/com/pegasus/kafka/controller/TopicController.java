@@ -5,6 +5,7 @@ import com.pegasus.kafka.common.response.Result;
 import com.pegasus.kafka.entity.vo.KafkaTopicPartitionVo;
 import com.pegasus.kafka.entity.vo.KafkaTopicVo;
 import com.pegasus.kafka.entity.vo.MBeanVo;
+import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.kafka.KafkaBrokerService;
 import com.pegasus.kafka.service.kafka.KafkaTopicService;
 import org.springframework.stereotype.Controller;
@@ -12,7 +13,6 @@ import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,11 +32,13 @@ public class TopicController {
     public static final String PREFIX = "topic";
     private final KafkaTopicService kafkaTopicService;
     private final KafkaBrokerService kafkaBrokerService;
+    private final KafkaService kafkaService;
 
 
-    public TopicController(KafkaTopicService kafkaTopicService, KafkaBrokerService kafkaBrokerService) {
+    public TopicController(KafkaTopicService kafkaTopicService, KafkaBrokerService kafkaBrokerService, KafkaService kafkaService) {
         this.kafkaTopicService = kafkaTopicService;
         this.kafkaBrokerService = kafkaBrokerService;
+        this.kafkaService = kafkaService;
     }
 
     @GetMapping("tolist")
@@ -90,16 +92,24 @@ public class TopicController {
 
     @PostMapping("list")
     @ResponseBody
-    public Result<List<KafkaTopicVo>> list(@RequestParam(value = "topicName", required = false) String topicName,
+    public Result<List<KafkaTopicVo>> list(@RequestParam(value = "topicName", required = false) String searchTopicName,
                                            @RequestParam(value = "page", required = true) Integer pageNum,
                                            @RequestParam(value = "limit", required = true) Integer pageSize) throws Exception {
-        if (!StringUtils.isEmpty(topicName)) {
-            topicName = topicName.trim();
-        }
         pageNum = Math.min(pageNum, Constants.MAX_PAGE_NUM);
-        List<KafkaTopicVo> topicInfoList = kafkaTopicService.listTopics(topicName, KafkaTopicService.SearchType.LIKE, true, true, true, true, true, false);
-        return Result.ok(topicInfoList.stream().skip(pageSize * (pageNum - 1))
-                .limit(pageSize).sorted(Comparator.comparing(KafkaTopicVo::getTopicName)).collect(Collectors.toList()), topicInfoList.size());
+
+        List<String> topicNames = kafkaService.listTopicNames();
+        if (!StringUtils.isEmpty(searchTopicName)) {
+            topicNames = topicNames.stream().filter(p -> p.contains(searchTopicName)).collect(Collectors.toList());
+        }
+
+        List<String> currentPageTopicNames = topicNames.stream()
+                .skip(pageSize * (pageNum - 1))
+                .limit(pageSize)
+                .sorted(String::compareTo)
+                .collect(Collectors.toList());
+
+        List<KafkaTopicVo> topicInfoList = kafkaTopicService.listTopicVos(currentPageTopicNames);
+        return Result.ok(topicInfoList, topicNames.size());
     }
 
     @PostMapping("sendmsg")

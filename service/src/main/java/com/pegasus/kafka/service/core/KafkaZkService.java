@@ -139,13 +139,14 @@ public class KafkaZkService implements InitializingBean, DisposableBean {
         if (StringUtils.isEmpty(kafkaMonitorProperty.getZookeeper())) {
             throw new BusinessException(ResultCode.ZOOKEEPER_CONFIG_IS_NULL);
         }
-        this.client = CuratorFrameworkFactory.builder().connectString(kafkaMonitorProperty.getZookeeper())
+        this.client = CuratorFrameworkFactory.builder()
+                .connectString(kafkaMonitorProperty.getZookeeper())
                 // 连接超时时间
-                .sessionTimeoutMs(3000)
+                .sessionTimeoutMs(30000)
                 // 会话超时时间
-                .connectionTimeoutMs(1000)
-                // 刚开始重试间隔为1秒，之后重试间隔逐渐增加，最多重试不超过五次
-                .retryPolicy(new ExponentialBackoffRetry(1000, 5))
+                .connectionTimeoutMs(3000)
+//                // 刚开始重试间隔为1秒，之后重试间隔逐渐增加，最多重试不超过五次
+                .retryPolicy(new ExponentialBackoffRetry(1000, 3))
                 .build();
         client.start();
     }

@@ -7,13 +7,16 @@ import com.pegasus.kafka.entity.vo.KafkaConsumerVo;
 import com.pegasus.kafka.entity.vo.KafkaTopicVo;
 import com.pegasus.kafka.entity.vo.OffsetVo;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.pegasus.kafka.controller.ConsumerController.PREFIX;
 
@@ -50,11 +53,27 @@ public class ConsumerController {
 
     @PostMapping("list")
     @ResponseBody
-    public Result<List<KafkaConsumerVo>> list(HttpSession httpSession) {
+    public Result<List<KafkaConsumerVo>> list(HttpSession httpSession,
+                                              @RequestParam(value = "groupId", required = false) String searchGroupId,
+                                              @RequestParam(value = "page", required = true) Integer pageNum,
+                                              @RequestParam(value = "limit", required = true) Integer pageSize) {
         try {
             List<KafkaConsumerVo> kafkaConsumerVoList = kafkaConsumerService.listKafkaConsumers();
-            httpSession.setAttribute(Constants.SESSION_KAFKA_CONSUMER_INFO, kafkaConsumerVoList);
-            return Result.ok(kafkaConsumerVoList);
+
+            if (!StringUtils.isEmpty(searchGroupId)) {
+                kafkaConsumerVoList = kafkaConsumerVoList.stream()
+                        .filter(p -> p.getGroupId().contains(searchGroupId))
+                        .collect(Collectors.toList());
+            }
+
+            List<KafkaConsumerVo> currentPage = kafkaConsumerVoList.stream()
+                    .skip(pageSize * (pageNum - 1))
+                    .limit(pageSize)
+                    .sorted(Comparator.comparing(KafkaConsumerVo::getGroupId))
+                    .collect(Collectors.toList());
+
+            httpSession.setAttribute(Constants.SESSION_KAFKA_CONSUMER_INFO, currentPage);
+            return Result.ok(currentPage, kafkaConsumerVoList.size());
         } catch (Exception e) {
             return Result.ok();
         }
@@ -152,7 +171,7 @@ public class ConsumerController {
     @PostMapping("listOffsetVo")
     @ResponseBody
     public Result<List<OffsetVo>> listOffsetVo(@RequestParam(required = true, name = "groupId") String groupId,
-                                                 @RequestParam(required = true, name = "topicName") String topicName) {
+                                               @RequestParam(required = true, name = "topicName") String topicName) {
         groupId = groupId.trim();
         topicName = topicName.trim();
         try {
