@@ -19,7 +19,7 @@
                                         lay-verify="required" lay-search>
                                     <option value="所有主题">所有主题</option>
                                     <#list topics as topic>
-                                        <option value="${topic.topicName}">${topic.topicName}</option>
+                                        <option value="${topic}">${topic}</option>
                                     </#list>
                                 </select>
                             </div>
@@ -112,7 +112,7 @@
                                         lay-verify="required" lay-search>
                                     <option value="">请选择主题</option>
                                     <#list topics as topic>
-                                        <option value="${topic.topicName}">${topic.topicName}</option>
+                                        <option value="${topic}">${topic}</option>
                                     </#list>
                                 </select>
                             </div>

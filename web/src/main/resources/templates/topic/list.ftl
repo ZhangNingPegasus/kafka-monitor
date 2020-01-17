@@ -38,27 +38,11 @@
                     </script>
                 </@select>
 
-                <script type="text/html" id="colTodayLogSize">
+                <script type="text/html" id="colLogSize">
                     {{#  if(d.error || d.logSize < 0){ }}
-                    <span title="{{ d.error }}" class="layui-badge">{{ d.todayLogSize }}</span>
+                    <span title="{{ d.error }}" class="layui-badge">{{ d.logSize }}</span>
                     {{#  } else { }}
-                    {{ d.todayLogSize }}
-                    {{#  } }}
-                </script>
-
-                <script type="text/html" id="colYesterdayLogSize">
-                    {{#  if(d.error || d.logSize < 0){ }}
-                    <span title="{{ d.error }}" class="layui-badge">{{ d.yesterdayLogSize }}</span>
-                    {{#  } else { }}
-                    {{ d.yesterdayLogSize }}
-                    {{#  } }}
-                </script>
-
-                <script type="text/html" id="colTdbyLogSize">
-                    {{#  if(d.error || d.logSize < 0){ }}
-                    <span title="{{ d.error }}" class="layui-badge">{{ d.tdbyLogSize }}</span>
-                    {{#  } else { }}
-                    {{ d.tdbyLogSize }}
+                    {{ d.logSize }}
                     {{#  } }}
                 </script>
 
@@ -149,9 +133,7 @@
                 cols: [[
                     {type: 'numbers', title: '序号', width: 50},
                     {field: 'topicName', title: '主题名称', templet: '#colTopicName'},
-                    {field: 'todayLogSize', title: '今天消息数量', templet: '#colTodayLogSize', width: 120},
-                    {field: 'yesterdayLogSize', title: '昨天消息数量', templet: '#colYesterdayLogSize', width: 120},
-                    {field: 'tdbyLogSize', title: '前天消息数量', templet: '#colTdbyLogSize', width: 120},
+                    {field: 'logSize', title: '消息总量', templet: '#colLogSize', width: 200},
                     {field: 'subscribeNums', title: '被订阅数', templet: '#subscribeNums', width: 90},
                     {field: 'partitionNum', title: '分区数', templet: '#colPartitionNum', width: 80},
                     {field: 'partitionIndex', title: '分区索引', templet: '#colPartitionIndex', width: 120},
@@ -270,7 +252,7 @@
             function showDetail(topicName) {
                 layer.open({
                     type: 2,
-                    title: '主题详细信息',
+                    title: '主题详细信息 <b>' + topicName + '</b>',
                     shadeClose: true,
                     shade: 0.8,
                     area: ['90%', '90%'],

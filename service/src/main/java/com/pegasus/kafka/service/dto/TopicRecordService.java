@@ -168,6 +168,16 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
     }
 
     @TranRead
+    public Long listMaxOffsetCount(String topicName) {
+        long result = 0L;
+        List<MaxOffset> maxOffsetList = listMaxOffset(topicName);
+        for (MaxOffset maxOffset : maxOffsetList) {
+            result += maxOffset.getOffset() + 1;
+        }
+        return result;
+    }
+
+    @TranRead
     public Map<String, List<MaxOffset>> listMaxOffset(List<String> topicNameList) {
         try {
             Map<String, List<MaxOffset>> result = new HashMap<>((int) (topicNameList.size() / 0.75));

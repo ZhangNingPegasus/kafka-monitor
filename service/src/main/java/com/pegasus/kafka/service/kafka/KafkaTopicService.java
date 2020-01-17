@@ -61,28 +61,7 @@ public class KafkaTopicService {
         for (String topicName : topicNameList) {
             KafkaTopicVo topicInfo = new KafkaTopicVo(topicName);
 
-            Out out = new Out();
-            try {
-                topicInfo.setLogSize(kafkaService.getLogSize(topicName, out));
-            } catch (Exception e) {
-                topicInfo.setLogSize(-1L);
-            }
-            topicInfo.setError(out.getError());
-
-            try {
-                Long[] daysValue = new Long[4];
-                daysValue[0] = kafkaService.listLogSize(topicName);
-                daysValue[1] = sysLogSizeService.getHistoryLogSize(topicName, 1);
-                daysValue[2] = sysLogSizeService.getHistoryLogSize(topicName, 2);
-                daysValue[3] = sysLogSizeService.getHistoryLogSize(topicName, 3);
-                topicInfo.setTodayLogSize(Common.calculateHistoryLogSize(daysValue, 0));
-                topicInfo.setYesterdayLogSize(Common.calculateHistoryLogSize(daysValue, 1));
-                topicInfo.setTdbyLogSize(Common.calculateHistoryLogSize(daysValue, 2));
-            } catch (Exception ignored) {
-                topicInfo.setTodayLogSize(topicInfo.getLogSize());
-                topicInfo.setYesterdayLogSize(0L);
-                topicInfo.setTdbyLogSize(0L);
-            }
+            topicInfo.setLogSize(topicRecordService.listMaxOffsetCount(topicName));
 
             List<String> subscribeGroupIdList = kafkaConsumerVoList.stream().filter(p -> p.getTopicNames().contains(topicName)).map(KafkaConsumerVo::getGroupId).distinct().collect(Collectors.toList());
             topicInfo.setSubscribeNums(subscribeGroupIdList.size());
@@ -104,107 +83,47 @@ public class KafkaTopicService {
         return topicInfoList;
     }
 
-
     @TranRead
-    public List<KafkaTopicVo> listTopics(String searchTopicName, SearchType searchType, boolean needStat, boolean needPartition, boolean needSubscribe, boolean needLogSize, boolean needHisLogSize, boolean needSyncLogSize) throws Exception {
-        List<KafkaTopicVo> topicInfoList = new ArrayList<>();
+    public KafkaTopicVo listTopicLogSize(String topicName) {
+        KafkaTopicVo result = new KafkaTopicVo(topicName);
+        result.setLogSize(topicRecordService.listMaxOffsetCount(topicName));
+        try {
+            result.setLogSize(topicRecordService.listMaxOffsetCount(topicName));
+            Long[] daysValue = new Long[8];
+            daysValue[0] = kafkaService.listLogSize(topicName);
+            daysValue[1] = sysLogSizeService.getHistoryLogSize(topicName, 1);
+            daysValue[2] = sysLogSizeService.getHistoryLogSize(topicName, 2);
+            daysValue[3] = sysLogSizeService.getHistoryLogSize(topicName, 3);
+            daysValue[4] = sysLogSizeService.getHistoryLogSize(topicName, 4);
+            daysValue[5] = sysLogSizeService.getHistoryLogSize(topicName, 5);
+            daysValue[6] = sysLogSizeService.getHistoryLogSize(topicName, 6);
+            daysValue[7] = sysLogSizeService.getHistoryLogSize(topicName, 7);
 
-        List<String> topicNameList = kafkaService.listTopicNames();
+            result.setDay0LogSize(Common.calculateHistoryLogSize(daysValue, 0)); //今天
+            result.setDay1LogSize(Common.calculateHistoryLogSize(daysValue, 1)); //昨天
+            result.setDay2LogSize(Common.calculateHistoryLogSize(daysValue, 2)); //前天
+            result.setDay3LogSize(Common.calculateHistoryLogSize(daysValue, 3)); //前3天
+            result.setDay4LogSize(Common.calculateHistoryLogSize(daysValue, 4)); //前4天
+            result.setDay5LogSize(Common.calculateHistoryLogSize(daysValue, 5)); //前5天
+            result.setDay6LogSize(Common.calculateHistoryLogSize(daysValue, 6)); //前6天
 
-        List<KafkaConsumerVo> kafkaConsumerVoList = null;
-        if (needSubscribe) {
-            kafkaConsumerVoList = kafkaConsumerService.listKafkaConsumers();
-        }
-        for (String topicName : topicNameList) {
-            if (!StringUtils.isEmpty(searchTopicName)) {
-                boolean isContinue = false;
-                switch (searchType) {
-                    case EQUALS:
-                        isContinue = !topicName.equals(searchTopicName);
-                        break;
-                    case LIKE:
-                        isContinue = !topicName.contains(searchTopicName);
-                        break;
-                }
-                if (isContinue) {
-                    continue;
-                }
-            }
-
+        } catch (Exception ignored) {
+            Out out = new Out();
             try {
-                KafkaTopicVo topicInfo = new KafkaTopicVo();
-                topicInfo.setTopicName(topicName);
-
-                if (needStat) {
-                    Stat stat = kafkaService.getTopicStat(topicName);
-                    topicInfo.setCreateTimeLong(stat.getCtime());
-                    topicInfo.setModifyTimeLong(stat.getMtime());
-                    topicInfo.setCreateTime(Common.format(new Date(stat.getCtime())));
-                    topicInfo.setModifyTime(Common.format(new Date(stat.getMtime())));
-                }
-
-                if (needPartition) {
-                    List<String> partitionList = kafkaService.listPartitionIds(topicName);
-                    topicInfo.setPartitionNum(partitionList.size());
-                    topicInfo.setPartitionIndex(partitionList.toString());
-                }
-
-                if (needSubscribe && kafkaConsumerVoList != null) {
-                    List<String> subscribeGroupIdList = kafkaConsumerVoList.stream().filter(p -> p.getTopicNames().contains(topicName)).map(KafkaConsumerVo::getGroupId).distinct().collect(Collectors.toList());
-                    topicInfo.setSubscribeNums(subscribeGroupIdList.size());
-                    topicInfo.setSubscribeGroupIds(subscribeGroupIdList.toArray(new String[]{}));
-                }
-
-                if (needLogSize || needHisLogSize) {
-                    Out out = new Out();
-                    try {
-                        topicInfo.setLogSize(kafkaService.getLogSize(topicName, out));
-                    } catch (Exception e) {
-                        topicInfo.setLogSize(-1L);
-                    }
-                    topicInfo.setError(out.getError());
-                    if (needHisLogSize && topicInfo.getLogSize() >= 0) {
-                        try {
-                            Long[] daysValue = new Long[4];
-                            daysValue[0] = this.getLogsize(topicName);
-                            daysValue[1] = sysLogSizeService.getHistoryLogSize(topicName, 1);
-                            daysValue[2] = sysLogSizeService.getHistoryLogSize(topicName, 2);
-                            daysValue[3] = sysLogSizeService.getHistoryLogSize(topicName, 3);
-                            topicInfo.setTodayLogSize(Common.calculateHistoryLogSize(daysValue, 0));
-                            topicInfo.setYesterdayLogSize(Common.calculateHistoryLogSize(daysValue, 1));
-                            topicInfo.setTdbyLogSize(Common.calculateHistoryLogSize(daysValue, 2));
-                        } catch (Exception ignored) {
-                            topicInfo.setTodayLogSize(topicInfo.getLogSize());
-                            topicInfo.setYesterdayLogSize(0L);
-                            topicInfo.setTdbyLogSize(0L);
-                        }
-                    }
-                }
-                if (needSyncLogSize) {
-                    topicInfo.setSyncLogSize(topicRecordService.getMaxOffset(topicName) + 1); //下标从0开始，所以需要+1
-                    if (topicInfo.getLogSize() == 0) {
-                        topicInfo.setSyncLogSizePercent(100.0);
-                    } else {
-                        topicInfo.setSyncLogSizePercent(Double.parseDouble(topicInfo.getSyncLogSize().toString()) / Double.parseDouble(topicInfo.getLogSize().toString()) * 100.0);
-                    }
-                }
-                topicInfoList.add(topicInfo);
-            } catch (Exception ignored) {
+                result.setLogSize(kafkaService.getLogSize(topicName, out));
+            } catch (Exception e) {
+                result.setLogSize(-1L);
             }
+            result.setError(out.getError());
+            result.setDay0LogSize(result.getLogSize());
+            result.setDay1LogSize(0L);
+            result.setDay2LogSize(0L);
+            result.setDay3LogSize(0L);
+            result.setDay4LogSize(0L);
+            result.setDay5LogSize(0L);
+            result.setDay6LogSize(0L);
         }
-
-        topicInfoList.sort((o1, o2) -> {
-            if (o2.getCreateTimeLong() == null || o1.getCreateTimeLong() == null) {
-                return o2.getTopicName().compareTo(o1.getTopicName());
-            } else {
-                return (int) (o2.getCreateTimeLong() - o1.getCreateTimeLong());
-            }
-        });
-        return topicInfoList;
-    }
-
-    public List<KafkaTopicVo> listTopics(boolean needStat, boolean needPartition, boolean needSubscribe, boolean needLogSize, boolean needHisLogSize, boolean needSyncLogSize) throws Exception {
-        return listTopics(null, null, needStat, needPartition, needSubscribe, needLogSize, needHisLogSize, needSyncLogSize);
+        return result;
     }
 
     public List<KafkaTopicPartitionVo> listTopicDetails(String topicName) throws Exception {
@@ -249,16 +168,11 @@ public class KafkaTopicService {
     }
 
     public void edit(String topicName, Integer partitionNumber) throws Exception {
-        List<KafkaTopicVo> topicInfoList = listTopics(topicName, SearchType.EQUALS, false, true, false, false, false, false);
-        if (topicInfoList != null && topicInfoList.size() > 0) {
-            KafkaTopicVo topicInfo = topicInfoList.get(0);
-            if (partitionNumber > topicInfo.getPartitionNum()) {
-                kafkaService.alterTopics(topicName, partitionNumber);
-            } else {
-                throw new BusinessException(String.format("新的分区数量必须大于%s", topicInfo.getPartitionNum()));
-            }
+        List<String> partitionIds = kafkaService.listPartitionIds(topicName);
+        if (partitionNumber > partitionIds.size()) {
+            kafkaService.alterTopics(topicName, partitionNumber);
         } else {
-            throw new BusinessException(ResultCode.TOPIC_NOT_EXISTS);
+            throw new BusinessException(String.format("新的分区数量必须大于%s", partitionIds.size()));
         }
     }
 

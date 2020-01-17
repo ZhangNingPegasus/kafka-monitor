@@ -12,13 +12,11 @@ import com.pegasus.kafka.common.utils.Common;
 import com.pegasus.kafka.entity.dto.SysLag;
 import com.pegasus.kafka.entity.dto.SysLogSize;
 import com.pegasus.kafka.entity.vo.KafkaConsumerVo;
-import com.pegasus.kafka.entity.vo.KafkaTopicVo;
 import com.pegasus.kafka.entity.vo.OffsetVo;
 import com.pegasus.kafka.entity.vo.TopicRecordCountVo;
 import com.pegasus.kafka.mapper.SysLogSizeMapper;
-import com.pegasus.kafka.service.alert.AlertService;
+import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
-import com.pegasus.kafka.service.kafka.KafkaTopicService;
 import com.pegasus.kafka.service.record.KafkaTopicRecord;
 import lombok.Data;
 import org.apache.commons.lang3.time.DateUtils;
@@ -39,13 +37,13 @@ import java.util.*;
 @Service
 public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize> {
     private final KafkaConsumerService kafkaConsumerService;
-    private final KafkaTopicService kafkaTopicService;
     private final EhcacheService ehcacheService;
+    private final KafkaService kafkaService;
 
-    public SysLogSizeService(KafkaConsumerService kafkaConsumerService, KafkaTopicService kafkaTopicService, AlertService alertService, EhcacheService ehcacheService) {
+    public SysLogSizeService(KafkaConsumerService kafkaConsumerService, EhcacheService ehcacheService, KafkaService kafkaService) {
         this.kafkaConsumerService = kafkaConsumerService;
-        this.kafkaTopicService = kafkaTopicService;
         this.ehcacheService = ehcacheService;
+        this.kafkaService = kafkaService;
     }
 
     public Matrix kpi(Date now) throws Exception {
@@ -91,11 +89,9 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
                 sysLogSizeList.add(sysLogSize);
             }
         } else {
-            List<KafkaTopicVo> kafkaTopicVoList = kafkaTopicService.listTopics(false, false, false, true, false, false);
-            for (KafkaTopicVo kafkaTopicVo : kafkaTopicVoList) {
-                SysLogSize sysLogSize = new SysLogSize();
-                sysLogSize.setTopicName(kafkaTopicVo.getTopicName());
-                sysLogSize.setLogSize(kafkaTopicVo.getLogSize());
+            List<String> topicNames = kafkaService.listTopicNames();
+            for (String topicName : topicNames) {
+                SysLogSize sysLogSize = new SysLogSize(topicName, kafkaService.listLogSize(topicName));
                 sysLogSize.setCreateTime(now);
                 sysLogSizeList.add(sysLogSize);
             }

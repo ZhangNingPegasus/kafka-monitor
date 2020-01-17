@@ -42,8 +42,8 @@ public class DeleteSchedule {
         schemaService.deleteExpired(filterTableNames);
     }
 
-    //每天00:10:00执行一次
-    @Scheduled(cron = "0 10 0 1/1 * ?")
+    //每天凌晨3点执行一次
+    @Scheduled(cron = "0 0 3 * * ?")
     public void dropUnusedTable() throws Exception {
         Set<String> dbtableNames = schemaService.listTables();
         Set<String> filterDbTableNames = dbtableNames.stream().filter(p -> p.contains(TopicRecordService.TABLE_PREFIX) && !NO_NEED_TO_DELETE_EXPIRE_RECORDS_TABLES.contains(p)).collect(Collectors.toSet());
@@ -64,6 +64,4 @@ public class DeleteSchedule {
             topicRecordService.getBaseMapper().dropTable(tableName);
         }
     }
-
-
 }

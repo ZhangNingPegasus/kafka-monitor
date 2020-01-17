@@ -10,6 +10,10 @@
         <div class="layui-card">
             <div id="divGridtHeader" class="layui-card-header"></div>
             <div class="layui-card-body">
+                <table id="gridLogSize" lay-filter="gridLogSize"></table>
+            </div>
+
+            <div class="layui-card-body">
                 <table id="grid" lay-filter="grid"></table>
             </div>
         </div>
@@ -20,43 +24,19 @@
                 <table id="gridMBean" lay-filter="gridMBean"></table>
 
                 <script type="text/html" id="colMeanRate">
-                    {{#  if(d.dblMeanRate > 0){ }}
                     <span class="layui-badge layui-bg-blue">{{ d.meanRate }}</span>
-                    {{#  } else { }}
-                    <span class="layui-badge layui-bg-orange">{{ d.meanRate }}</span>
-                    {{#  } }}
                 </script>
 
                 <script type="text/html" id="colOneMinute">
-                    {{#  if(d.dblOneMinute > 0){ }}
                     <span class="layui-badge layui-bg-blue">{{ d.oneMinute }}</span>
-                    {{#  } else { }}
-                    <span class="layui-badge layui-bg-orange">{{ d.oneMinute }}</span>
-                    {{#  } }}
                 </script>
 
                 <script type="text/html" id="colFiveMinute">
-                    {{#  if(d.dblFiveMinute > 0){ }}
                     <span class="layui-badge layui-bg-blue">{{ d.fiveMinute }}</span>
-                    {{#  } else { }}
-                    <span class="layui-badge layui-bg-orange">{{ d.fiveMinute }}</span>
-                    {{#  } }}
                 </script>
 
                 <script type="text/html" id="colFifteenMinute">
-                    {{#  if(d.dblFifteenMinute > 0){ }}
                     <span class="layui-badge layui-bg-blue">{{ d.fifteenMinute }}</span>
-                    {{#  } else { }}
-                    <span class="layui-badge layui-bg-orange">{{ d.fifteenMinute }}</span>
-                    {{#  } }}
-                </script>
-
-                <script type="text/html" id="colTopicName">
-                    {{#  if(d.logsize >= 0){ }}
-                    {{ d.topicName }}
-                    {{#  } else { }}
-                    <span class="layui-badge">{{ d.topicName }}</span>
-                    {{#  } }}
                 </script>
 
                 <script type="text/html" id="colHost">
@@ -99,6 +79,55 @@
                     {{#  } }}
                 </script>
 
+                <script type="text/html" id="colDay0LogSize">
+                    {{#  if(d.error || d.logSize < 0){ }}
+                    <span title="{{ d.error }}" class="layui-badge">{{ d.day0LogSize }}</span>
+                    {{#  } else { }}
+                    {{ d.day0LogSize }}
+                    {{#  } }}
+                </script>
+                <script type="text/html" id="colDay1LogSize">
+                    {{#  if(d.error || d.logSize < 0){ }}
+                    <span title="{{ d.error }}" class="layui-badge">{{ d.day1LogSize }}</span>
+                    {{#  } else { }}
+                    {{ d.day1LogSize }}
+                    {{#  } }}
+                </script>
+                <script type="text/html" id="colDay2LogSize">
+                    {{#  if(d.error || d.logSize < 0){ }}
+                    <span title="{{ d.error }}" class="layui-badge">{{ d.day2LogSize }}</span>
+                    {{#  } else { }}
+                    {{ d.day2LogSize }}
+                    {{#  } }}
+                </script>
+                <script type="text/html" id="colDay3LogSize">
+                    {{#  if(d.error || d.logSize < 0){ }}
+                    <span title="{{ d.error }}" class="layui-badge">{{ d.day3LogSize }}</span>
+                    {{#  } else { }}
+                    {{ d.day3LogSize }}
+                    {{#  } }}
+                </script>
+                <script type="text/html" id="colDay4LogSize">
+                    {{#  if(d.error || d.logSize < 0){ }}
+                    <span title="{{ d.error }}" class="layui-badge">{{ d.day4LogSize }}</span>
+                    {{#  } else { }}
+                    {{ d.day4LogSize }}
+                    {{#  } }}
+                </script>
+                <script type="text/html" id="colDay5LogSize">
+                    {{#  if(d.error || d.logSize < 0){ }}
+                    <span title="{{ d.error }}" class="layui-badge">{{ d.day5LogSize }}</span>
+                    {{#  } else { }}
+                    {{ d.day5LogSize }}
+                    {{#  } }}
+                </script>
+                <script type="text/html" id="colDay6LogSize">
+                    {{#  if(d.error || d.logSize < 0){ }}
+                    <span title="{{ d.error }}" class="layui-badge">{{ d.day6LogSize }}</span>
+                    {{#  } else { }}
+                    {{ d.day6LogSize }}
+                    {{#  } }}
+                </script>
             </div>
         </div>
     </div>
@@ -115,7 +144,6 @@
                 even: true,
                 text: {none: '暂无相关数据'},
                 cols: [[
-                    {field: 'topicName', title: '主题名称', templet: '#colTopicName', width: 200},
                     {field: "partitionId", title: '分区号', templet: '#colHost', width: 80},
                     {field: "logsize", title: '消息数量', templet: '#colLogsize', width: 90},
                     {field: "strLeader", title: '分区Leader', templet: '#colLeader', width: 200},
@@ -130,19 +158,36 @@
                         }
                     }
                     admin.post("listTopicSize", {"topicName": "${topicName}"}, function (res) {
-                        $("#divGridtHeader").html("共有<span class=\"layui-badge layui-bg-blue\">" + logsize.toString() + "</span>条消息, " + "体积为<span class=\"layui-badge layui-bg-blue\">" + res.data + "</span>&nbsp;&nbsp;&nbsp;&nbsp;<button id=\"btnRefresh\" type=\"button\" class=\"layui-btn layui-btn-xs\">刷新</button>");
+                        $("#divGridtHeader").html("主题<span class=\"layui-badge layui-bg-gray\">${topicName}</span>共有<span class=\"layui-badge layui-bg-blue\">" + logsize.toString() + "</span>条消息, " + "体积为<span class=\"layui-badge layui-bg-blue\">" + res.data + "</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button id=\"btnRefresh\" type=\"button\" class=\"layui-btn layui-btn-xs\">&nbsp;&nbsp;刷&nbsp;新&nbsp;&nbsp;</button>");
                         $("#btnRefresh").click(function () {
-                            table.reload('grid');
-                            table.reload('gridMBean');
+                            reloadGrid();
                         });
-                    },function () {
-                        $("#divGridtHeader").html("共有<span class=\"layui-badge layui-bg-blue\">" + logsize.toString() + "</span>条消息" +  "&nbsp;&nbsp;&nbsp;&nbsp;<button id=\"btnRefresh\" type=\"button\" class=\"layui-btn layui-btn-xs\">刷新</button>");
+                    }, function () {
+                        $("#divGridtHeader").html("主题<span class=\"layui-badge layui-bg-gray\">${topicName}</span>共有<span class=\"layui-badge layui-bg-blue\">" + logsize.toString() + "</span>条消息" + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button id=\"btnRefresh\" type=\"button\" class=\"layui-btn layui-btn-xs\">&nbsp;&nbsp;刷&nbsp;新&nbsp;&nbsp;</button>");
                         $("#btnRefresh").click(function () {
-                            table.reload('grid');
-                            table.reload('gridMBean');
+                            reloadGrid();
                         });
                     });
                 }
+            });
+
+            table.render({
+                elem: '#gridLogSize',
+                url: 'listTopicLogSize?topicName=${topicName}',
+                method: 'post',
+                cellMinWidth: 80,
+                page: false,
+                even: true,
+                text: {none: '暂无相关数据'},
+                cols: [[
+                    {field: "day0LogSize", title: '今天消息数量', templet: '#colDay0LogSize'},
+                    {field: "day1LogSize", title: '昨天消息数量', templet: '#colDay1LogSize'},
+                    {field: "day2LogSize", title: '前天消息数量', templet: '#colDay2LogSize'},
+                    {field: "day3LogSize", title: '前3天消息数量', templet: '#colDay3LogSize'},
+                    {field: "day4LogSize", title: '前4天消息数量', templet: '#colDay4LogSize'},
+                    {field: "day5LogSize", title: '前5天消息数量', templet: '#colDay5LogSize'},
+                    {field: "day6LogSize", title: '前6天消息数量', templet: '#colDay6LogSize'}
+                ]],
             });
 
             table.render({
@@ -161,6 +206,13 @@
                     {field: "fifteenMinute", title: '每15分钟', templet: '#colFifteenMinute', width: 300}
                 ]]
             });
+
+            function reloadGrid() {
+                table.reload('grid');
+                table.reload('gridLogSize');
+                table.reload('gridMBean');
+            }
+
         });
     </script>
     </body>

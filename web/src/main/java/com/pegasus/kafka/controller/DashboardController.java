@@ -8,6 +8,7 @@ import com.pegasus.kafka.common.utils.Common;
 import com.pegasus.kafka.entity.dto.SysLag;
 import com.pegasus.kafka.entity.dto.SysLogSize;
 import com.pegasus.kafka.entity.echarts.LineInfo;
+import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.dto.SysLagService;
 import com.pegasus.kafka.service.dto.SysLogSizeService;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
@@ -45,20 +46,22 @@ public class DashboardController {
     private final SysLagService sysLagService;
     private final SysLogSizeService sysLogSizeService;
     private final EhcacheService ehcacheService;
+    private final KafkaService kafkaService;
 
-    public DashboardController(KafkaConsumerService kafkaConsumerService, KafkaTopicService kafkaTopicService, SysLagService sysLagService, SysLogSizeService sysLogSizeService, EhcacheService ehcacheService) {
+    public DashboardController(KafkaConsumerService kafkaConsumerService, KafkaTopicService kafkaTopicService, SysLagService sysLagService, SysLogSizeService sysLogSizeService, EhcacheService ehcacheService, KafkaService kafkaService) {
         this.kafkaConsumerService = kafkaConsumerService;
         this.kafkaTopicService = kafkaTopicService;
         this.sysLagService = sysLagService;
         this.sysLogSizeService = sysLogSizeService;
         this.ehcacheService = ehcacheService;
+        this.kafkaService = kafkaService;
     }
 
     @GetMapping("index")
     public String index(Model model) throws Exception {
         model.addAttribute("savingDays", Constants.SAVING_DAYS);
         model.addAttribute("consumers", kafkaConsumerService.listKafkaConsumers());
-        model.addAttribute("topics", kafkaTopicService.listTopics(false, false, false, false, false, false));
+        model.addAttribute("topics", kafkaService.listTopicNames());
         return String.format("%s/index", PREFIX);
     }
 

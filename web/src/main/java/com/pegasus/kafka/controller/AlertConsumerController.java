@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pegasus.kafka.common.response.Result;
 import com.pegasus.kafka.entity.dto.SysAlertConsumer;
 import com.pegasus.kafka.entity.vo.KafkaConsumerVo;
-import com.pegasus.kafka.entity.vo.KafkaTopicVo;
 import com.pegasus.kafka.service.dto.SysAlertConsumerService;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
 import com.pegasus.kafka.service.kafka.KafkaTopicService;
@@ -13,9 +12,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.pegasus.kafka.controller.AlertConsumerController.PREFIX;
 
@@ -77,9 +75,12 @@ public class AlertConsumerController {
     @PostMapping("listTopics")
     @ResponseBody
     public Result<List<String>> listTopics(@RequestParam(value = "groupId", required = true) String groupId) throws Exception {
-        List<KafkaTopicVo> kafkaTopicVoList = kafkaTopicService.listTopics(false, false, true, false, false,false);
-        List<String> topicNames = kafkaTopicVoList.stream().filter(p -> Arrays.asList(p.getSubscribeGroupIds()).contains(groupId)).map(KafkaTopicVo::getTopicName).distinct().collect(Collectors.toList());
-        return Result.ok(topicNames);
+        List<String> result = new ArrayList<>();
+        List<KafkaConsumerVo> kafkaConsumerVoList = kafkaConsumerService.listKafkaConsumers(groupId);
+        for (KafkaConsumerVo kafkaConsumerVo : kafkaConsumerVoList) {
+            result.addAll(kafkaConsumerVo.getTopicNames());
+        }
+        return Result.ok(result);
     }
 
     @PostMapping("add")

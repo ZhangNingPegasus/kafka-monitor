@@ -23,9 +23,9 @@
                 </script>
 
                 <script type="text/html" id="colLag">
-                    {{#  if(d.error || d.consumerStatus != 1){ }}
+                    {{#  if(d.consumerStatus != 1){ }}
                     <span class="layui-badge">{{ d.lag }}</span>
-                    {{#  } else if(d.lag >= 100) { }}
+                    {{#  } else if(d.lag > 0) { }}
                     <span class="layui-badge layui-bg-orange">{{ d.lag }}</span>
                     {{#  } else { }}
                     <span class="layui-badge layui-bg-green">{{ d.lag }}</span>
@@ -34,7 +34,7 @@
 
                 <script type="text/html" id="colConsumerStatus">
                     {{#  if(d.consumerStatus == 1){ }}
-                    <span class="layui-badge layui-bg-green">消费中</span>
+                    <span class="layui-badge layui-bg-green">已上线</span>
                     {{#  } else { }}
                     <span class="layui-badge layui-bg-orange">已下线</span>
                     {{#  } }}
@@ -45,7 +45,6 @@
                     <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="getOffset"><i
                                 class="layui-icon layui-icon-read"></i>查看偏移量</a>
                     {{#  } }}
-
                 </script>
             </div>
         </div>
@@ -68,7 +67,7 @@
                 <script type="text/html" id="colDetailLag">
                     {{#  if(d.logSize < 0){ }}
                     <span class="layui-badge">{{ d.lag }}</span>
-                    {{#  } else if(d.lag >= 100) { }}
+                    {{#  } else if(d.lag > 0) { }}
                     <span class="layui-badge layui-bg-orange">{{ d.lag }}</span>
                     {{#  } else { }}
                     <span class="layui-badge layui-bg-green">{{ d.lag }}</span>
@@ -95,8 +94,6 @@
 
             </div>
         </div>
-
-
     </div>
 
     <script>
@@ -164,9 +161,9 @@
                             if (res.data[i].logSize && res.data[i].logSize >= 0) logsize += res.data[i].logSize;
                             if (res.data[i].offset && res.data[i].offset >= 0) offset += res.data[i].offset;
                             if (res.data[i].lag && res.data[i].lag >= 0) lag += res.data[i].lag;
-                            if (res.data[i].consumerId === "") {
+                            if (res.data[i].consumerStatus === "0") {
                                 cls = "";
-                            } else if (lag >= 100) {
+                            } else if (lag > 0) {
                                 cls = "layui-bg-orange";
                             } else {
                                 cls = "layui-bg-green";

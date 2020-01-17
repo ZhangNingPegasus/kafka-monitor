@@ -24,9 +24,13 @@ public class KafkaTopicVo implements Serializable {
     private Long logSize;
     private Long syncLogSize;
     private Double syncLogSizePercent;
-    private Long todayLogSize;
-    private Long yesterdayLogSize;
-    private Long tdbyLogSize;
+    private Long day0LogSize;
+    private Long day1LogSize;
+    private Long day2LogSize;
+    private Long day3LogSize;
+    private Long day4LogSize;
+    private Long day5LogSize;
+    private Long day6LogSize;
     private Integer partitionNum;
     private Integer subscribeNums;
     private String[] subscribeGroupIds;

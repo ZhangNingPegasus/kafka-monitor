@@ -183,7 +183,7 @@ public class KafkaRecordService implements SmartLifecycle, DisposableBean {
 
         topicNames.sort(String::compareTo);
 
-        List<List<String>> averageTopicNames = Common.averageAssign(topicNames, 100);
+        List<List<String>> averageTopicNames = Common.averageAssign(topicNames, 20);
         List<Topic> result = new ArrayList<>();
         for (List<String> averageTopicNameList : averageTopicNames) {
             if (averageTopicNameList == null || averageTopicNameList.size() < 1) {

@@ -13,6 +13,8 @@ import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,21 +60,18 @@ public class TopicController {
     }
 
     @GetMapping("toedit")
-    public String toAdd(Model model, @RequestParam(name = "topicName", required = true) String topicName) throws Exception {
+    public String toEdit(Model model,
+                         @RequestParam(name = "topicName", required = true) String topicName) throws Exception {
         topicName = topicName.trim();
-        List<KafkaTopicVo> topicInfoList = kafkaTopicService.listTopics(topicName, KafkaTopicService.SearchType.EQUALS, false, true, false, false, false, false);
-        if (topicInfoList != null && topicInfoList.size() > 0) {
-            KafkaTopicVo topicVo = topicInfoList.get(0);
-            List<KafkaTopicPartitionVo> topicDetails = kafkaTopicService.listTopicDetails(topicName);
-            for (KafkaTopicPartitionVo topicDetail : topicDetails) {
-                if (topicDetail.getReplicas() != null) {
-                    model.addAttribute("replicasNum", topicDetail.getReplicas().size());
-                    break;
-                }
+        List<KafkaTopicPartitionVo> topicDetails = kafkaTopicService.listTopicDetails(topicName);
+        for (KafkaTopicPartitionVo topicDetail : topicDetails) {
+            if (topicDetail.getReplicas() != null) {
+                model.addAttribute("replicasNum", topicDetail.getReplicas().size());
+                break;
             }
-            model.addAttribute("topicName", topicName);
-            model.addAttribute("partitionNum", topicVo.getPartitionNum());
         }
+        model.addAttribute("topicName", topicName);
+        model.addAttribute("partitionNum", kafkaService.listPartitionIds(topicName).size());
         return String.format("%s/edit", PREFIX);
     }
 
@@ -137,6 +136,13 @@ public class TopicController {
     @ResponseBody
     public Result<List<KafkaTopicPartitionVo>> listTopicDetails(@RequestParam(name = "topicName", required = true) String topicName) throws Exception {
         return Result.ok(kafkaTopicService.listTopicDetails(topicName.trim()));
+    }
+
+    @PostMapping("listTopicLogSize")
+    @ResponseBody
+    public Result<List<KafkaTopicVo>> listTopicLogSize(@RequestParam(name = "topicName", required = true) String topicName) {
+        KafkaTopicVo topicInfoList = kafkaTopicService.listTopicLogSize(topicName);
+        return Result.ok(new ArrayList<>(Collections.singleton(topicInfoList)));
     }
 
     @PostMapping("add")

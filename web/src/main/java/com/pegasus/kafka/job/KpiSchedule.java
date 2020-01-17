@@ -31,6 +31,7 @@ public class KpiSchedule {
         this.sysKpiService = sysKpiService;
     }
 
+    //每分钟执行一次
     @Scheduled(cron = "0 0/1 * * * ?")
     public void collect() {
         Date now = new Date();
