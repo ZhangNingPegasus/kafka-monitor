@@ -17,7 +17,7 @@
                             <div class="layui-inline" style="width:265px">
                                 <select id="tpsTopicName" name="tpsTopicName" lay-filter="tpsTopicName"
                                         lay-verify="required" lay-search>
-                                    <option value="所有主题">所有主题</option>
+                                    <option value="">请选择主题</option>
                                     <#list topics as topic>
                                         <option value="${topic}">${topic}</option>
                                     </#list>
@@ -76,7 +76,7 @@
                             <div class="layui-inline" style="width:265px">
                                 <select id="consumerName" name="consumerName" lay-filter="consumerName"
                                         lay-verify="required" lay-search>
-                                    <option value="所有消费组">所有消费组</option>
+                                    <option value="">请选择消费组</option>
                                     <#list consumers as consumer>
                                         <option value="${consumer.groupId}">${consumer.groupId}</option>
                                     </#list>
@@ -157,6 +157,7 @@
                     const tpsTopicName = $.trim($("#tpsTopicName").siblings().find("dd[class='layui-this']").html());
                     const topicCreateTimeRange = $.trim($("#topicCreateTimeRange").val());
                     if (tpsTopicName == null || tpsTopicName === '' || topicCreateTimeRange == null || topicCreateTimeRange === '') {
+                        _init({topicNames: [], times: [], series: []});
                         return;
                     }
 
@@ -212,6 +213,7 @@
                 function refreshTopicHistoryChart() {
                     const hisTopicName = $.trim($("#hisTopicName").siblings().find("dd[class='layui-this']").html());
                     if (hisTopicName == null || hisTopicName === '') {
+                        _init({topicNames: [], times: [], series: []});
                         return;
                     }
                     admin.post("getTopicHistoryChart?topicName=" + hisTopicName, {}, function (data) {
@@ -233,6 +235,7 @@
                     range: true,
                     min: -${savingDays-1},
                     max: 1,
+                    btns: ['confirm'],
                     done: function () {
                         refreshLagChart();
                     }
@@ -244,6 +247,7 @@
                     range: true,
                     min: -${savingDays-1},
                     max: 1,
+                    btns: ['confirm'],
                     done: function () {
                         refreshTopicTpsChart();
                     }
@@ -255,6 +259,7 @@
                     range: true,
                     min: -${savingDays-1},
                     max: 1,
+                    btns: ['confirm'],
                     done: function () {
                         refreshTopicRankChart();
                     }
@@ -276,28 +281,28 @@
                     refreshLagChart();
                 });
 
-                $("#btnLagRefresh").click(function () {
-                    refreshLagChart();
+                $("#topicCreateTimeRange").change(function () {
+                    refreshTopicTpsChart();
                 });
 
                 form.on('select(tpsTopicName)', function () {
                     refreshTopicTpsChart();
                 });
 
-                $("#topicCreateTimeRange").change(function () {
-                    refreshTopicTpsChart();
+                form.on('select(hisTopicName)', function () {
+                    refreshTopicHistoryChart();
+                });
+
+                $("#btnLagRefresh").click(function () {
+                    refreshLagChart();
                 });
 
                 $("#btnTopicRefresh").click(function () {
-                    refreshTopicTpsChart();
+                        refreshTopicTpsChart();
                 });
 
                 $("#btnTopicRankRefresh").click(function () {
                     refreshTopicRankChart();
-                });
-
-                form.on('select(hisTopicName)', function () {
-                    refreshTopicHistoryChart();
                 });
 
                 $("#btnTopicHisRefresh").click(function () {
