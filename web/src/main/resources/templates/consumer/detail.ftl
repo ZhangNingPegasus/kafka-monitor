@@ -8,7 +8,7 @@
 
     <div class="layui-fluid">
         <div class="layui-card">
-            <div id="divGridtHeader" class="layui-card-header">消费组名称: ${groupId}</div>
+            <div id="divGridtHeader" class="layui-card-header">消费组名称: <span class="layui-badge layui-bg-blue">${groupId}</span></div>
             <div class="layui-card-body">
                 <table id="grid" lay-filter="grid"></table>
 
@@ -161,7 +161,8 @@
                             if (res.data[i].logSize && res.data[i].logSize >= 0) logsize += res.data[i].logSize;
                             if (res.data[i].offset && res.data[i].offset >= 0) offset += res.data[i].offset;
                             if (res.data[i].lag && res.data[i].lag >= 0) lag += res.data[i].lag;
-                            if (res.data[i].consumerStatus === "0") {
+                            console.log(res.data[i]);
+                            if (res.data[i].consumerId === "") {
                                 cls = "";
                             } else if (lag > 0) {
                                 cls = "layui-bg-orange";
@@ -169,7 +170,7 @@
                                 cls = "layui-bg-green";
                             }
                         }
-                        $("#divGridOffsetHeader").html("主题：" + topicName + ", 分区数:" + res.data.length + " - 总共消息" + logsize + "条, 已消费" + offset + "条。" + "  当前有<span class='layui-badge " + cls + "'><b><i>" + lag + "</i></b></span>条信息堆积");
+                        $("#divGridOffsetHeader").html("主题：" + "<span class=\"layui-badge layui-bg-blue\">" +topicName + "</span>, 分区数:<span class=\"layui-badge layui-bg-blue\">" + res.data.length + "</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;总共消息" + "<span class=\"layui-badge layui-bg-blue\">" + logsize + "</span>条, 已消费" + "<span class=\"layui-badge layui-bg-green\">" + offset + "</span>条。" + "  当前有<span class='layui-badge " + cls + "'><b><i>" + lag + "</i></b></span>条信息堆积");
                         $("td[data-field=topicName]").each(function (a, td) {
                             if ($.trim(topicName) === $.trim($(td).find("div").text())) {
                                 $(td).siblings("td[data-field=lag]").find("div > span").attr("class", "layui-badge " + cls);

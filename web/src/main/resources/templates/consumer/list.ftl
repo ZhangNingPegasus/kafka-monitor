@@ -45,17 +45,17 @@
 
                 <script type="text/html" id="topicCount">
                     {{#  if(d.topicCount > 0){ }}
-                    <span class="layui-badge layui-bg-green">{{ d.topicCount }} ({{ d.topicNames }})</span>
+                    <span class="layui-badge layui-bg-green" title="{{ d.topicNames }}">{{ d.topicCount }}</span>
                     {{#  } else { }}
-                    <span class="layui-badge layui-bg-orange">{{ d.topicCount }} ({{ d.topicNames }})</span>
+                    <span class="layui-badge layui-bg-orange" title="{{ d.topicNames }}">{{ d.topicCount }}</span>
                     {{#  } }}
                 </script>
 
                 <script type="text/html" id="activeTopicCount">
-                    {{#  if(d.activeTopicCount > 0){ }}
-                    <span class="layui-badge layui-bg-green">{{ d.activeTopicCount }} ({{ d.activeTopicNames }})</span>
+                    {{#  if(d.activeTopicCount == d.topicCount){ }}
+                    <span class="layui-badge layui-bg-green" title="{{ d.activeTopicNames }}">{{ d.activeTopicCount }}</span>
                     {{#  } else { }}
-                    <span class="layui-badge layui-bg-orange">{{ d.activeTopicCount }} ({{ d.activeTopicNames }})</span>
+                    <span class="layui-badge layui-bg-orange" title="{{ d.activeTopicNames }}">{{ d.activeTopicCount }}</span>
                     {{#  } }}
                 </script>
             </div>
@@ -84,9 +84,9 @@
                 cols: [[
                     {type: 'numbers', title: '序号', width: 50},
                     {field: 'groupId', title: '组名称', templet: "#colGroupId"},
-                    {field: 'node', title: '节点', width: 180},
-                    {title: '订阅主题数', sort: true, templet: "#topicCount", width: 350},
-                    {title: '活跃主题', sort: true, templet: "#activeTopicCount", width: 350},
+                    {field: 'node', title: '消费组所在节点', width: 250},
+                    {title: '订阅主题数', sort: true, templet: "#topicCount", width: 150},
+                    {title: '活跃主题数', sort: true, templet: "#activeTopicCount", width: 150},
                     {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 145}
                 ]],
                 done: function () {

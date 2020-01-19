@@ -285,14 +285,18 @@ public class KafkaService {
         return result;
     }
 
-    public List<OffsetVo> listOffsetVo(String groupId, String topicName) throws Exception {
+    public List<OffsetVo> listOffsetVo(List<KafkaConsumerVo> kafkaConsumerVoList, String groupId, String topicName) throws Exception {
         List<OffsetVo> result = new ArrayList<>();
 
         List<String> partitionIds = this.listPartitionIds(topicName);
         Map<Integer, Long> partitionOffset = this.listOffset(groupId, topicName, partitionIds);
         Map<TopicPartition, Long> partitionLogSize = this.listLogSize(topicName, partitionIds);
 
-        List<KafkaConsumerVo> kafkaConsumerVoList = listKafkaConsumers(groupId);
+        if (kafkaConsumerVoList == null) {
+            kafkaConsumerVoList = listKafkaConsumers(groupId);
+        } else if (kafkaConsumerVoList.size() > 1) {
+            kafkaConsumerVoList.stream().filter(p -> p.getGroupId().equals(groupId)).collect(Collectors.toList());
+        }
         for (Map.Entry<TopicPartition, Long> entrySet : partitionLogSize.entrySet()) {
             int partitionId = entrySet.getKey().partition();
             long logSize = entrySet.getValue();

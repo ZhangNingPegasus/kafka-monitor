@@ -60,7 +60,7 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
                 Long logSize = 0L;
                 long lag = 0L;
                 try {
-                    List<OffsetVo> offsetVoList = kafkaConsumerService.listOffsetVo(kafkaConsumerVo.getGroupId(), topicName);
+                    List<OffsetVo> offsetVoList = kafkaService.listOffsetVo(kafkaConsumerVoList, kafkaConsumerVo.getGroupId(), topicName);
                     for (OffsetVo offsetVo : offsetVoList) {
                         if (offsetVo.getLag() != null && offsetVo.getLag() >= 0) {
                             lag += offsetVo.getLag();

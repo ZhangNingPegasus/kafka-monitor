@@ -6,6 +6,7 @@ import com.pegasus.kafka.entity.echarts.TreeInfo;
 import com.pegasus.kafka.entity.vo.KafkaConsumerVo;
 import com.pegasus.kafka.entity.vo.KafkaTopicVo;
 import com.pegasus.kafka.entity.vo.OffsetVo;
+import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -32,9 +33,11 @@ import static com.pegasus.kafka.controller.ConsumerController.PREFIX;
 @RequestMapping(PREFIX)
 public class ConsumerController {
     public static final String PREFIX = "consumer";
+    private final KafkaService kafkaService;
     private final KafkaConsumerService kafkaConsumerService;
 
-    public ConsumerController(KafkaConsumerService kafkaConsumerService) {
+    public ConsumerController(KafkaService kafkaService, KafkaConsumerService kafkaConsumerService) {
+        this.kafkaService = kafkaService;
         this.kafkaConsumerService = kafkaConsumerService;
     }
 
@@ -130,6 +133,7 @@ public class ConsumerController {
     public Result<List<KafkaTopicVo>> listConsumerDetails(@RequestParam(required = true, name = "groupId") String groupId) throws Exception {
         groupId = groupId.trim();
         List<KafkaTopicVo> result = new ArrayList<>();
+
         List<KafkaConsumerVo> kafkaConsumerVoList = kafkaConsumerService.listKafkaConsumers(groupId);
 
         if (kafkaConsumerVoList != null && kafkaConsumerVoList.size() > 0) {
@@ -147,11 +151,11 @@ public class ConsumerController {
 
         }
 
+
         for (KafkaTopicVo kafkaTopicVo : result) {
             long lag = 0L;
             try {
-                List<OffsetVo> offsetVoList = kafkaConsumerService.listOffsetVo(groupId, kafkaTopicVo.getTopicName());
-
+                List<OffsetVo> offsetVoList = kafkaService.listOffsetVo(kafkaConsumerVoList, groupId, kafkaTopicVo.getTopicName());
                 for (OffsetVo offsetVo : offsetVoList) {
                     if (offsetVo.getLag() != null && offsetVo.getLag() > 0) {
                         lag += offsetVo.getLag();
@@ -175,7 +179,7 @@ public class ConsumerController {
         groupId = groupId.trim();
         topicName = topicName.trim();
         try {
-            return Result.ok(kafkaConsumerService.listOffsetVo(groupId, topicName));
+            return Result.ok(kafkaService.listOffsetVo(null, groupId, topicName));
         } catch (Exception ignored) {
             return Result.ok();
         }

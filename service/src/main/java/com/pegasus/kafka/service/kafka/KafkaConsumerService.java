@@ -3,7 +3,6 @@ package com.pegasus.kafka.service.kafka;
 import com.pegasus.kafka.common.exception.BusinessException;
 import com.pegasus.kafka.common.response.ResultCode;
 import com.pegasus.kafka.entity.vo.KafkaConsumerVo;
-import com.pegasus.kafka.entity.vo.OffsetVo;
 import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.dto.SysLagService;
 import org.apache.kafka.clients.admin.ConsumerGroupListing;
@@ -48,10 +47,6 @@ public class KafkaConsumerService {
             }
         });
         return groupIdList;
-    }
-
-    public List<OffsetVo> listOffsetVo(String groupId, String topicName) throws Exception {
-        return kafkaService.listOffsetVo(groupId, topicName);
     }
 
     public void delete(String consumerGroupId) {

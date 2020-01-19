@@ -143,7 +143,7 @@ public class RecordController {
         List<KafkaRecordConsumeVo> result = new ArrayList<>(kafkaConsumerVoList.size());
 
         for (KafkaConsumerVo kafkaConsumerVo : kafkaConsumerVoList) {
-            List<OffsetVo> offsetVoList = kafkaConsumerService.listOffsetVo(kafkaConsumerVo.getGroupId(), topicName);
+            List<OffsetVo> offsetVoList = kafkaService.listOffsetVo(kafkaConsumerVoList, kafkaConsumerVo.getGroupId(), topicName);
             Optional<OffsetVo> first = offsetVoList.stream().filter(p -> p.getPartitionId().equals(partitionId)).findFirst();
             if (first.isPresent()) {
                 OffsetVo offsetVo = first.get();
