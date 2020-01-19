@@ -31,7 +31,6 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
         this.schemaService = schemaService;
     }
 
-    @TranSave
     public void batchSave(List<TopicRecord> topicRecordList) {
         if (topicRecordList == null || topicRecordList.size() < 1) {
             return;

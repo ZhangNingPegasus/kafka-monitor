@@ -120,7 +120,7 @@ public class KafkaTopicRecord implements SmartLifecycle, DisposableBean {
                 }
 
                 while (isRunning()) {
-                    ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(500));
+                    ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(1000));
                     if (records.count() < 1) {
                         continue;
                     }
