@@ -76,7 +76,6 @@ public class KafkaTopicRecord implements SmartLifecycle, DisposableBean {
 
             KafkaConsumer<String, String> kafkaConsumer = null;
             try {
-
                 Properties properties = new Properties();
                 properties.setProperty(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, kafkaService.getKafkaBrokerServer());
                 properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, this.consumerGroupdId);
@@ -92,24 +91,33 @@ public class KafkaTopicRecord implements SmartLifecycle, DisposableBean {
                 Map<String, List<MaxOffset>> maxOffsetMap = topicRecordService.listMaxOffset(this.topic.getTopicNameList());
                 kafkaConsumer = new KafkaConsumer<>(properties);
 
-                if (maxOffsetMap == null || maxOffsetMap.size() < 1) {
-                    kafkaConsumer.subscribe(this.topic.getTopicNameList());
-                } else {
-                    List<TopicPartition> topicPartitionList = new ArrayList<>(maxOffsetMap.size());
-                    maxOffsetMap.forEach((topicName, maxOffsetList) -> {
+                List<TopicPartition> topicPartitionList = new ArrayList<>(maxOffsetMap.size());
+                for (String topicName : this.topic.getTopicNameList()) {
+                    if (maxOffsetMap.containsKey(topicName)) {
+                        List<MaxOffset> maxOffsetList = maxOffsetMap.get(topicName);
                         for (MaxOffset maxOffset : maxOffsetList) {
                             topicPartitionList.add(new TopicPartition(topicName, maxOffset.getPartitionId()));
                         }
-                    });
-                    kafkaConsumer.assign(topicPartitionList);
-
-                    for (Map.Entry<String, List<MaxOffset>> pair : maxOffsetMap.entrySet()) {
-                        String topicName = pair.getKey();
-                        List<MaxOffset> maxOffsetList = pair.getValue();
-                        for (MaxOffset maxOffset : maxOffsetList) {
-                            TopicPartition topicPartition = new TopicPartition(topicName, maxOffset.getPartitionId());
-                            kafkaConsumer.seek(topicPartition, maxOffset.getOffset() + 1L);
+                    } else {
+                        List<String> partitionIds = kafkaService.listPartitionIds(topicName);
+                        for (String partitionId : partitionIds) {
+                            topicPartitionList.add(new TopicPartition(topicName, Integer.parseInt(partitionId)));
                         }
+                    }
+                }
+                kafkaConsumer.assign(topicPartitionList);
+                for (TopicPartition topicPartition : topicPartitionList) {
+                    if (maxOffsetMap.containsKey(topicPartition.topic())) {
+
+                        List<MaxOffset> maxOffsetList = maxOffsetMap.get(topicPartition.topic());
+                        Optional<MaxOffset> first = maxOffsetList.stream().filter(p -> p.getPartitionId().equals(topicPartition.partition())).findFirst();
+                        if (first.isPresent()) {
+                            kafkaConsumer.seek(topicPartition, first.get().getOffset() + 1L);
+                        } else {
+                            kafkaConsumer.seek(topicPartition, 0L);
+                        }
+                    } else {
+                        kafkaConsumer.seek(topicPartition, 0L);
                     }
                 }
 
@@ -120,7 +128,7 @@ public class KafkaTopicRecord implements SmartLifecycle, DisposableBean {
                 }
 
                 while (isRunning()) {
-                    ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(1000));
+                    ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(100));
                     if (records.count() < 1) {
                         continue;
                     }
@@ -144,6 +152,10 @@ public class KafkaTopicRecord implements SmartLifecycle, DisposableBean {
                     kafkaConsumer.close();
                     logger.info(String.format("[%s] : topic [%s] is stopping to collect.", Thread.currentThread().getName(), this.topic.getName()));
                 }
+                try {
+                    kafkaService.deleteConsumerGroups(consumerGroupdId);
+                } catch (Exception ignored) {
+                }
                 cdl.countDown();
             }
         });
@@ -153,11 +165,6 @@ public class KafkaTopicRecord implements SmartLifecycle, DisposableBean {
     public void destroy() throws Exception {
         setRunning(false);
         cdl.await(10, TimeUnit.SECONDS);
-        try {
-            kafkaService.deleteConsumerGroups(consumerGroupdId);
-        } catch (Exception e) {
-        }
-
     }
 
     @Override

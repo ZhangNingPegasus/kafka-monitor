@@ -6,7 +6,6 @@ import com.pegasus.kafka.entity.po.Topic;
 import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.core.ThreadService;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -181,7 +180,7 @@ public class KafkaRecordService implements SmartLifecycle, DisposableBean {
         }
 
         topicNames.sort(String::compareTo);
-
+        int i = 0;
         List<List<String>> averageTopicNames = Common.averageAssign(topicNames, 10);
         List<Topic> result = new ArrayList<>();
         for (List<String> averageTopicNameList : averageTopicNames) {
@@ -189,9 +188,10 @@ public class KafkaRecordService implements SmartLifecycle, DisposableBean {
                 continue;
             }
             Topic topic = new Topic();
-            topic.setName(StringUtils.join(averageTopicNameList, "_"));
+            topic.setName(String.valueOf(i));
             topic.setTopicNameList(averageTopicNameList);
             result.add(topic);
+            i++;
         }
         return result;
     }
