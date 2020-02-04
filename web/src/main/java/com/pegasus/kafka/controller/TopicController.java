@@ -2,6 +2,7 @@ package com.pegasus.kafka.controller;
 
 import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.response.Result;
+import com.pegasus.kafka.common.utils.Common;
 import com.pegasus.kafka.entity.vo.KafkaTopicPartitionVo;
 import com.pegasus.kafka.entity.vo.KafkaTopicVo;
 import com.pegasus.kafka.entity.vo.MBeanVo;
@@ -44,7 +45,9 @@ public class TopicController {
     }
 
     @GetMapping("tolist")
-    public String toList() {
+    public String toList(Model model)
+    {
+        model.addAttribute("savingDays", Constants.SAVING_DAYS);
         return String.format("%s/list", PREFIX);
     }
 

@@ -133,7 +133,7 @@
                 cols: [[
                     {type: 'numbers', title: '序号', width: 50},
                     {field: 'topicName', title: '主题名称', templet: '#colTopicName'},
-                    {field: 'logSize', title: '消息总量', templet: '#colLogSize', width: 200},
+                    {field: 'logSize', title: '${savingDays}天消息总量', templet: '#colLogSize', width: 200},
                     {field: 'subscribeNums', title: '被订阅数', templet: '#subscribeNums', width: 90},
                     {field: 'partitionNum', title: '分区数', templet: '#colPartitionNum', width: 80},
                     {field: 'partitionIndex', title: '分区索引', templet: '#colPartitionIndex', width: 120},
