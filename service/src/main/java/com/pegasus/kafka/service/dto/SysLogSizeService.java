@@ -39,11 +39,13 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
     private final KafkaConsumerService kafkaConsumerService;
     private final EhcacheService ehcacheService;
     private final KafkaService kafkaService;
+    private final TopicRecordService topicRecordService;
 
-    public SysLogSizeService(KafkaConsumerService kafkaConsumerService, EhcacheService ehcacheService, KafkaService kafkaService) {
+    public SysLogSizeService(KafkaConsumerService kafkaConsumerService, EhcacheService ehcacheService, KafkaService kafkaService, TopicRecordService topicRecordService) {
         this.kafkaConsumerService = kafkaConsumerService;
         this.ehcacheService = ehcacheService;
         this.kafkaService = kafkaService;
+        this.topicRecordService = topicRecordService;
     }
 
     public Matrix kpi(Date now) throws Exception {
@@ -80,22 +82,14 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
         }
 
         List<SysLogSize> sysLogSizeList = new ArrayList<>(KafkaTopicRecord.BATCH_SIZE);
-        if (sysLogSizeMap.size() > 0) {
-            for (Map.Entry<String, Long> entry : sysLogSizeMap.entrySet()) {
-                SysLogSize sysLogSize = new SysLogSize();
-                sysLogSize.setTopicName(entry.getKey());
-                sysLogSize.setLogSize(entry.getValue());
-                sysLogSize.setCreateTime(now);
-                sysLogSizeList.add(sysLogSize);
-            }
-        } else {
-            List<String> topicNames = kafkaService.listTopicNames();
-            for (String topicName : topicNames) {
-                SysLogSize sysLogSize = new SysLogSize(topicName, kafkaService.listLogSize(topicName));
-                sysLogSize.setCreateTime(now);
-                sysLogSizeList.add(sysLogSize);
-            }
+
+        List<String> topicNames = kafkaService.listTopicNames();
+        for (String topicName : topicNames) {
+            SysLogSize sysLogSize = new SysLogSize(topicName, kafkaService.listLogSize(topicName));
+            sysLogSize.setCreateTime(now);
+            sysLogSizeList.add(sysLogSize);
         }
+
         result.setSysLagList(sysLagList);
         result.setSysLogSizeList(sysLogSizeList);
         return result;
@@ -126,10 +120,9 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
         return this.remove(queryWrapper);
     }
 
-    @TranRead
     public Long getHistoryLogSize(String topicName, int days) {
-        if (days < 1) {
-            throw new BusinessException("天数必须大于0");
+        if (days < 0) {
+            throw new BusinessException("天数必须大于等于0");
         }
 
         String key = String.format("SysLogSizeService::getHistoryLogSize:%s:%s", topicName, days);
@@ -148,10 +141,21 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
 
             Date from = DateUtils.addDays(now, -days);
             Date to = DateUtils.addDays(from, 1);
-            result = this.baseMapper.getHistoryLogSize(topicName, from, to);
-            ehcacheService.set(key, result, Common.getSecondsNextEarlyMorning().intValue());
+            result = getHistoryLogSize(topicName, from, to);
+            if (days != 0) {
+                ehcacheService.set(key, result, Common.getSecondsNextEarlyMorning().intValue());
+            }
         }
         return result;
+    }
+
+    @TranRead
+    public Long getHistoryLogSize(String topicName, Date from, Date to) {
+        try {
+            return this.baseMapper.getHistoryLogSizeFromTable(topicRecordService.convertToTableName(topicName), from, to);
+        } catch (Exception e) {
+            return 0L;
+        }
     }
 
     @TranRead

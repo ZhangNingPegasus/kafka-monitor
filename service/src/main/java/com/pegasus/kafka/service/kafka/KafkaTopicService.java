@@ -15,6 +15,7 @@ import com.pegasus.kafka.service.dto.SysLagService;
 import com.pegasus.kafka.service.dto.SysLogSizeService;
 import com.pegasus.kafka.service.dto.TopicRecordService;
 import com.pegasus.kafka.service.record.KafkaRecordService;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.kafka.common.ConsumerGroupState;
 import org.apache.zookeeper.data.Stat;
 import org.springframework.context.annotation.Lazy;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,7 +63,19 @@ public class KafkaTopicService {
         for (String topicName : topicNameList) {
             KafkaTopicVo topicInfo = new KafkaTopicVo(topicName);
 
-            topicInfo.setLogSize(topicRecordService.listMaxOffsetCount(topicName));
+//          topicInfo.setLogSize(topicRecordService.listMaxOffsetCount(topicName));
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DATE),
+                    0,
+                    0,
+                    0);
+            Date now = calendar.getTime();
+
+            Date from = DateUtils.addDays(now, -6);
+            Date to = DateUtils.addDays(now, 1);
+            topicInfo.setLogSize(sysLogSizeService.getHistoryLogSize(topicName, from, to));
 
             List<String> subscribeGroupIdList = kafkaConsumerVoList.stream().filter(p -> p.getTopicNames().contains(topicName)).map(KafkaConsumerVo::getGroupId).distinct().collect(Collectors.toList());
             topicInfo.setSubscribeNums(subscribeGroupIdList.size());
@@ -89,23 +103,33 @@ public class KafkaTopicService {
         result.setLogSize(topicRecordService.listMaxOffsetCount(topicName));
         try {
             result.setLogSize(topicRecordService.listMaxOffsetCount(topicName));
-            Long[] daysValue = new Long[8];
-            daysValue[0] = kafkaService.listLogSize(topicName);
-            daysValue[1] = sysLogSizeService.getHistoryLogSize(topicName, 1);
-            daysValue[2] = sysLogSizeService.getHistoryLogSize(topicName, 2);
-            daysValue[3] = sysLogSizeService.getHistoryLogSize(topicName, 3);
-            daysValue[4] = sysLogSizeService.getHistoryLogSize(topicName, 4);
-            daysValue[5] = sysLogSizeService.getHistoryLogSize(topicName, 5);
-            daysValue[6] = sysLogSizeService.getHistoryLogSize(topicName, 6);
-            daysValue[7] = sysLogSizeService.getHistoryLogSize(topicName, 7);
 
-            result.setDay0LogSize(Common.calculateHistoryLogSize(daysValue, 0)); //今天
-            result.setDay1LogSize(Common.calculateHistoryLogSize(daysValue, 1)); //昨天
-            result.setDay2LogSize(Common.calculateHistoryLogSize(daysValue, 2)); //前天
-            result.setDay3LogSize(Common.calculateHistoryLogSize(daysValue, 3)); //前3天
-            result.setDay4LogSize(Common.calculateHistoryLogSize(daysValue, 4)); //前4天
-            result.setDay5LogSize(Common.calculateHistoryLogSize(daysValue, 5)); //前5天
-            result.setDay6LogSize(Common.calculateHistoryLogSize(daysValue, 6)); //前6天
+//            Long[] daysValue = new Long[8];
+//
+//            daysValue[0] = kafkaService.listLogSize(topicName);
+//            daysValue[1] = sysLogSizeService.getHistoryLogSize(topicName, 1);
+//            daysValue[2] = sysLogSizeService.getHistoryLogSize(topicName, 2);
+//            daysValue[3] = sysLogSizeService.getHistoryLogSize(topicName, 3);
+//            daysValue[4] = sysLogSizeService.getHistoryLogSize(topicName, 4);
+//            daysValue[5] = sysLogSizeService.getHistoryLogSize(topicName, 5);
+//            daysValue[6] = sysLogSizeService.getHistoryLogSize(topicName, 6);
+//            daysValue[7] = sysLogSizeService.getHistoryLogSize(topicName, 7);
+//
+//            result.setDay0LogSize(Common.calculateHistoryLogSize(daysValue, 0)); //今天
+//            result.setDay1LogSize(Common.calculateHistoryLogSize(daysValue, 1)); //昨天
+//            result.setDay2LogSize(Common.calculateHistoryLogSize(daysValue, 2)); //前天
+//            result.setDay3LogSize(Common.calculateHistoryLogSize(daysValue, 3)); //前3天
+//            result.setDay4LogSize(Common.calculateHistoryLogSize(daysValue, 4)); //前4天
+//            result.setDay5LogSize(Common.calculateHistoryLogSize(daysValue, 5)); //前5天
+//            result.setDay6LogSize(Common.calculateHistoryLogSize(daysValue, 6)); //前6天
+
+            result.setDay0LogSize(sysLogSizeService.getHistoryLogSize(topicName, 0)); //今天
+            result.setDay1LogSize(sysLogSizeService.getHistoryLogSize(topicName, 1)); //昨天
+            result.setDay2LogSize(sysLogSizeService.getHistoryLogSize(topicName, 2)); //前天
+            result.setDay3LogSize(sysLogSizeService.getHistoryLogSize(topicName, 3)); //前3天
+            result.setDay4LogSize(sysLogSizeService.getHistoryLogSize(topicName, 4)); //前4天
+            result.setDay5LogSize(sysLogSizeService.getHistoryLogSize(topicName, 5)); //前5天
+            result.setDay6LogSize(sysLogSizeService.getHistoryLogSize(topicName, 6)); //前6天
 
         } catch (Exception ignored) {
             Out out = new Out();

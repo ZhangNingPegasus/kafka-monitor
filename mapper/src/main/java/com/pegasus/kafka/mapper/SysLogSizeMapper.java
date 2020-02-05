@@ -28,6 +28,8 @@ public interface SysLogSizeMapper extends BaseMapper<SysLogSize> {
 
     Long getHistoryLogSize(@Param(value = "topicName") String topicName, @Param(value = "from") Date from, @Param(value = "to") Date to);
 
+    Long getHistoryLogSizeFromTable(@Param(value = "tableName") String tableName, @Param(value = "from") Date from, @Param(value = "to") Date to);
+
     Long getTotalRecordCount();
 
     void batchSave(@Param("sysLogSizeList") List<SysLogSize> sysLogSizeList);

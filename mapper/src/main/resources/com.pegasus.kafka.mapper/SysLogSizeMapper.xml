@@ -36,6 +36,13 @@
         LIMIT 1
     </select>
 
+    <select id="getHistoryLogSizeFromTable" resultType="java.lang.Long">
+        SELECT
+        COUNT(1)
+        FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}`
+        WHERE `timestamp` &gt;= #{from}
+        AND   `timestamp` &lt; #{to}
+    </select>
 
     <select id="getTotalRecordCount" resultType="java.lang.Long">
     SELECT
