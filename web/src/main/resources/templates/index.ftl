@@ -58,7 +58,9 @@
                                         <a href="javascript:"
                                                 <#if page.url!=''> lay-href="${ctx}${page.url}"</#if>
                                            lay-tips="<#if page.remark!=''>${page.remark}<#else>${page.name}</#if>"
-                                           lay-direction="2">
+                                           lay-direction="2"
+                                                <#if page.url==admin.defaultPage> class="layui-this"</#if>
+                                        >
                                             <i class="layui-icon ${page.iconClass}"></i><cite>${page.name}</cite>
                                         </a>
                                     </#if>
