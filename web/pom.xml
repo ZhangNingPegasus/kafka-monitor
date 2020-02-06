@@ -23,6 +23,12 @@
             <groupId>com.pegasus.kafka</groupId>
             <artifactId>service</artifactId>
             <version>1.0</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>kafka-clients</artifactId>
+                    <groupId>org.apache.kafka</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

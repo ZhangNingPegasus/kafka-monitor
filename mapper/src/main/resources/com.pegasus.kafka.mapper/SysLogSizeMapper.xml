@@ -25,17 +25,6 @@
         LIMIT #{rank}
     </select>
 
-    <select id="getHistoryLogSize" resultType="java.lang.Long">
-        SELECT
-        `log_size`
-        FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_log_size`
-        WHERE `topic_name` = #{topicName}
-        AND   `create_time` &gt;= #{from}
-        AND   `create_time` &lt; #{to}
-        ORDER BY `create_time` DESC
-        LIMIT 1
-    </select>
-
     <select id="getHistoryLogSizeFromTable" resultType="java.lang.Long">
         SELECT
         COUNT(1)

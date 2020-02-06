@@ -144,7 +144,7 @@ public class KafkaZkService implements InitializingBean, DisposableBean {
                 // 连接超时时间
                 .sessionTimeoutMs(30000)
                 // 会话超时时间
-                .connectionTimeoutMs(3000)
+                .connectionTimeoutMs(10000)
 //                // 刚开始重试间隔为1秒，之后重试间隔逐渐增加，最多重试不超过五次
                 .retryPolicy(new ExponentialBackoffRetry(1000, 3))
                 .build();

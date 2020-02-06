@@ -85,18 +85,17 @@
 
             form.on('select(topicName)', function (data) {
                 topicName = data.value;
-                $("select[name=partitionId]").html("<option value=\"-1\">所有分区</option>");
+                const partitionId = $("select[name=partitionId]");
+                partitionId.html("<option value=\"-1\">所有分区</option>");
                 form.render('select');
                 if ($.trim(data.value) === '') {
                     return;
                 }
                 admin.post('listTopicPartitions', {'topicName': data.value}, function (res) {
                     $.each(res.data, function (key, val) {
-                        const option = $("<option>").val(val.partitionId).text(val.partitionId);
-                        $("select[name=partitionId]").append(option);
-                        form.render('select');
+                        partitionId.append($("<option>").val(val.partitionId).text(val.partitionId));
                     });
-                    $("select[name=partitionId]").get(0).selectedIndex = 0;
+                    form.render('select');
                 });
             });
 
