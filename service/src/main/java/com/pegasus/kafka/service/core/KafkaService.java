@@ -47,7 +47,10 @@ public class KafkaService {
     private final MBeanService mBeanService;
     private final MBeanService mbeanService;
 
-    public KafkaService(KafkaZkService kafkaZkService, KafkaJmxService kafkaJmxService, MBeanService mBeanService, MBeanService mbeanService) {
+    public KafkaService(KafkaZkService kafkaZkService,
+                        KafkaJmxService kafkaJmxService,
+                        MBeanService mBeanService,
+                        MBeanService mbeanService) {
         this.kafkaZkService = kafkaZkService;
         this.kafkaJmxService = kafkaJmxService;
         this.mBeanService = mBeanService;

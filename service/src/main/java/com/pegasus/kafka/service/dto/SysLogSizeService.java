@@ -85,9 +85,13 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
 
         List<String> topicNames = kafkaService.listTopicNames();
         for (String topicName : topicNames) {
-            SysLogSize sysLogSize = new SysLogSize(topicName, kafkaService.listLogSize(topicName));
-            sysLogSize.setCreateTime(now);
-            sysLogSizeList.add(sysLogSize);
+            try {
+                SysLogSize sysLogSize = new SysLogSize(topicName, topicRecordService.getRecordsCount(topicName));
+                sysLogSize.setCreateTime(now);
+                sysLogSizeList.add(sysLogSize);
+            } catch (Exception ignored) {
+
+            }
         }
 
         result.setSysLagList(sysLagList);

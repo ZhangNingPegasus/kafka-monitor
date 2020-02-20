@@ -141,6 +141,9 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
         return String.format("%srecord_%s", TABLE_PREFIX, topicName);
     }
 
+    public Long getRecordsCount(String topicName) {
+        return this.baseMapper.getRecordsCount(convertToTableName(topicName), null, null);
+    }
 
     public Long getRecordsCount(String topicName, int days) {
         Calendar calendar = Calendar.getInstance();

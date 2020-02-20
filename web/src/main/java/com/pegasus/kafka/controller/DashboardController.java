@@ -12,7 +12,6 @@ import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.dto.SysLagService;
 import com.pegasus.kafka.service.dto.SysLogSizeService;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
-import com.pegasus.kafka.service.kafka.KafkaTopicService;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -42,15 +41,13 @@ import static com.pegasus.kafka.controller.DashboardController.PREFIX;
 public class DashboardController {
     public static final String PREFIX = "dashboard";
     private final KafkaConsumerService kafkaConsumerService;
-    private final KafkaTopicService kafkaTopicService;
     private final SysLagService sysLagService;
     private final SysLogSizeService sysLogSizeService;
     private final EhcacheService ehcacheService;
     private final KafkaService kafkaService;
 
-    public DashboardController(KafkaConsumerService kafkaConsumerService, KafkaTopicService kafkaTopicService, SysLagService sysLagService, SysLogSizeService sysLogSizeService, EhcacheService ehcacheService, KafkaService kafkaService) {
+    public DashboardController(KafkaConsumerService kafkaConsumerService, SysLagService sysLagService, SysLogSizeService sysLogSizeService, EhcacheService ehcacheService, KafkaService kafkaService) {
         this.kafkaConsumerService = kafkaConsumerService;
-        this.kafkaTopicService = kafkaTopicService;
         this.sysLagService = sysLagService;
         this.sysLogSizeService = sysLogSizeService;
         this.ehcacheService = ehcacheService;
@@ -146,7 +143,7 @@ public class DashboardController {
             }
             series.setData(data);
         }
-        ehcacheService.set(key, result);
+        ehcacheService.set(key, result, 60);
         return Result.ok(result);
     }
 
@@ -241,7 +238,7 @@ public class DashboardController {
     @PostMapping("getTopicHistoryChart")
     @ResponseBody
     @TranRead
-    public Result<LineInfo> getTopicHistoryChart(@RequestParam(name = "topicName", required = true) String topicName) throws Exception {
+    public Result<LineInfo> getTopicHistoryChart(@RequestParam(name = "topicName", required = true) String topicName) {
         topicName = topicName.trim();
         if (StringUtils.isEmpty(topicName)) {
             return Result.ok();
@@ -251,7 +248,7 @@ public class DashboardController {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
         Long[] daysValue = new Long[8];
-        daysValue[0] = kafkaTopicService.getLogsize(topicName);
+        daysValue[0] = sysLogSizeService.getHistoryLogSize(topicName, 0);
         daysValue[1] = sysLogSizeService.getHistoryLogSize(topicName, 1);
         daysValue[2] = sysLogSizeService.getHistoryLogSize(topicName, 2);
         daysValue[3] = sysLogSizeService.getHistoryLogSize(topicName, 3);
@@ -270,13 +267,9 @@ public class DashboardController {
             timesList.add(sdf.format(date));
         }
         List<Double> data = new ArrayList<>();
-        data.add((double) (Common.calculateHistoryLogSize(daysValue, 0)));
-        data.add((double) (Common.calculateHistoryLogSize(daysValue, 1)));
-        data.add((double) (Common.calculateHistoryLogSize(daysValue, 2)));
-        data.add((double) (Common.calculateHistoryLogSize(daysValue, 3)));
-        data.add((double) (Common.calculateHistoryLogSize(daysValue, 4)));
-        data.add((double) (Common.calculateHistoryLogSize(daysValue, 5)));
-        data.add((double) (Common.calculateHistoryLogSize(daysValue, 7)));
+        for (Long aLong : daysValue) {
+            data.add((double) aLong);
+        }
 
         List<LineInfo.Series> seriesList = new ArrayList<>();
         LineInfo.Series series = new LineInfo.Series();

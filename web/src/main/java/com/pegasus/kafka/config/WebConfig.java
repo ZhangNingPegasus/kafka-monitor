@@ -105,7 +105,7 @@ public class WebConfig extends WebMvcConfigurationSupport {
 
     @Bean
     public ScheduledThreadPoolExecutor scheduledExecutorService() {
-        return new ScheduledThreadPoolExecutor(20);
+        return new ScheduledThreadPoolExecutor(8);
     }
 
     @Bean

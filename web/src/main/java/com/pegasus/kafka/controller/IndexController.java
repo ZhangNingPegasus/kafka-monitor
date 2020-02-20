@@ -30,7 +30,7 @@ public class IndexController {
         this.sysAdminService = sysAdminService;
     }
 
-    @GetMapping("/")
+    @GetMapping(value = {"/","l"})
     public String toLogin() {
         return "login";
     }

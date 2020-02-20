@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class LoginArgumentResolver implements WebArgumentResolver {
     @Override
-    public Object resolveArgument(MethodParameter methodParameter, NativeWebRequest nativeWebRequest) throws Exception {
+    public Object resolveArgument(MethodParameter methodParameter, NativeWebRequest nativeWebRequest) {
         Class<?> parameterType = methodParameter.getParameterType();
         if (parameterType != null) {
             HttpServletRequest request = nativeWebRequest.getNativeRequest(HttpServletRequest.class);
