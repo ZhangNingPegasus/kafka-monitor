@@ -14,7 +14,25 @@ import org.springframework.stereotype.Service;
  */
 @Data
 @Service
-public class KafkaMonitorProperty {
+public class PropertyService {
     @Value("${zookeeper.connect}")
     private String zookeeper;
+
+    @Value("${database.name}")
+    private String dbName;
+
+    @Value("${database.host}")
+    private String dbHost;
+
+    @Value("${database.port}")
+    private Integer dbPort;
+
+    @Value("${database.username}")
+    private String dbUsername;
+
+    @Value("${database.password}")
+    private String dbPassword;
+
+    @Value("${database.retention.days}")
+    private Integer dbRetentionDays;
 }

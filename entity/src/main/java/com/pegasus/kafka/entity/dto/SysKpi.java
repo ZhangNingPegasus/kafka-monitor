@@ -3,7 +3,6 @@ package com.pegasus.kafka.entity.dto;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.constant.JMX;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,7 +18,7 @@ import lombok.Getter;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@TableName(value = Constants.DATABASE_NAME + "." + "`sys_kpi`")
+@TableName(value = "`sys_kpi`")
 public class SysKpi extends BaseDto {
     /**
      * kpi的主机信息

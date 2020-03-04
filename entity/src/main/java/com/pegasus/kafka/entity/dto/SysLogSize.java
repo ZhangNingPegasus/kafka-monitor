@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName(value = Constants.DATABASE_NAME + "." + "`sys_log_size`")
+@TableName(value ="`sys_log_size`")
 public class SysLogSize extends BaseDto {
     /**
      * 主题名称

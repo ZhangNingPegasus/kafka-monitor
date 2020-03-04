@@ -17,7 +17,7 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@TableName(value = Constants.DATABASE_NAME + "." + "`sys_mail_config`")
+@TableName(value = "`sys_mail_config`")
 public class SysMailConfig extends BaseDto {
     /**
      * 邮箱服务器地址

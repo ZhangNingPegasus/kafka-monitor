@@ -2,13 +2,13 @@ package com.pegasus.kafka.controller;
 
 import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.response.Result;
-import com.pegasus.kafka.common.utils.Common;
 import com.pegasus.kafka.entity.vo.KafkaTopicPartitionVo;
 import com.pegasus.kafka.entity.vo.KafkaTopicVo;
 import com.pegasus.kafka.entity.vo.MBeanVo;
 import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.kafka.KafkaBrokerService;
 import com.pegasus.kafka.service.kafka.KafkaTopicService;
+import com.pegasus.kafka.service.property.PropertyService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -36,18 +36,18 @@ public class TopicController {
     private final KafkaTopicService kafkaTopicService;
     private final KafkaBrokerService kafkaBrokerService;
     private final KafkaService kafkaService;
+    private final PropertyService propertyService;
 
-
-    public TopicController(KafkaTopicService kafkaTopicService, KafkaBrokerService kafkaBrokerService, KafkaService kafkaService) {
+    public TopicController(KafkaTopicService kafkaTopicService, KafkaBrokerService kafkaBrokerService, KafkaService kafkaService, PropertyService propertyService) {
         this.kafkaTopicService = kafkaTopicService;
         this.kafkaBrokerService = kafkaBrokerService;
         this.kafkaService = kafkaService;
+        this.propertyService = propertyService;
     }
 
     @GetMapping("tolist")
-    public String toList(Model model)
-    {
-        model.addAttribute("savingDays", Constants.SAVING_DAYS);
+    public String toList(Model model) {
+        model.addAttribute("savingDays", propertyService.getDbRetentionDays());
         return String.format("%s/list", PREFIX);
     }
 

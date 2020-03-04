@@ -17,7 +17,7 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@TableName(value = Constants.DATABASE_NAME + "." + "`sys_dingding_config`")
+@TableName(value =  "`sys_dingding_config`")
 public class SysDingDingConfig extends BaseDto {
     /**
      * 钉钉机器人的access_token

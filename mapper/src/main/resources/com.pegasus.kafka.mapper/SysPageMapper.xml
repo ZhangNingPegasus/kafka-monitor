@@ -16,8 +16,8 @@
         parent.`name` AS parent_name,
         p.order_num,
         p.remark
-        FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` p
-        LEFT OUTER JOIN ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` parent ON p.parent_id = parent.id
+        FROM `sys_page` p
+        LEFT OUTER JOIN `sys_page` parent ON p.parent_id = parent.id
         <where>
             <if test="name!=null and name!=''">
                 p.`name` LIKE CONCAT('%',#{name},'%')
@@ -27,7 +27,7 @@
     </select>
 
     <select id="getMaxOrderNum" resultType="java.lang.Long">
-		SELECT IFNULL(MAX(order_num), 0) FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` WHERE parent_id = #{parentId}
+		SELECT IFNULL(MAX(order_num), 0) FROM `sys_page` WHERE parent_id = #{parentId}
 	</select>
 
 </mapper>

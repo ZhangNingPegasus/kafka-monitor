@@ -3,16 +3,11 @@
 
 <mapper namespace="com.pegasus.kafka.mapper.SchemaMapper">
 
-    <insert id="createDatabaseIfNotExists">
-        CREATE DATABASE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-        USE ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME};
-    </insert>
-
     <insert id="createTableIfNotExists">
         SET NAMES utf8mb4;
         SET FOREIGN_KEY_CHECKS = 0;
 
-        CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_admin` (
+        CREATE TABLE IF NOT EXISTS ${dbName}.`sys_admin` (
         `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
         `sys_role_id` bigint(20) NOT NULL COMMENT '角色id(sys_role表的主键)',
         `username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '管理员的登陆用户名',
@@ -24,21 +19,21 @@
         `remark` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '备注',
         `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
         PRIMARY KEY (`id`) USING BTREE,
-        UNIQUE INDEX `idx_sys_admin_username`(`username`) USING BTREE,
-        INDEX `idx_sys_admin_sys_role_id`(`sys_role_id`) USING BTREE
-        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+        UNIQUE INDEX `idx_username`(`username`) USING BTREE,
+        INDEX `idx_sys_role_id`(`sys_role_id`) USING BTREE
+        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 ROW_FORMAT = Dynamic;
 
-        CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_role` (
+        CREATE TABLE IF NOT EXISTS ${dbName}.`sys_role` (
         `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
         `name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '角色名称',
         `super_admin` bit(1) NOT NULL COMMENT '是否是超级管理员(1:是; 0:否)',
         `remark` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '角色说明',
         `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
         PRIMARY KEY (`id`) USING BTREE,
-        UNIQUE INDEX `idx_sys_role_name`(`name`) USING BTREE
-        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+        UNIQUE INDEX `idx_name`(`name`) USING BTREE
+        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 ROW_FORMAT = Dynamic;
 
-        CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` (
+        CREATE TABLE IF NOT EXISTS ${dbName}.`sys_page` (
         `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
         `name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '页面名称',
         `url` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '页面地址',
@@ -51,10 +46,10 @@
         `remark` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '备注',
         `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
         PRIMARY KEY (`id`) USING BTREE,
-        INDEX `idx_sys_page_url`(`url`) USING BTREE
-        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+        INDEX `idx_url`(`url`) USING BTREE
+        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 ROW_FORMAT = Dynamic;
 
-        CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_permission` (
+        CREATE TABLE IF NOT EXISTS ${dbName}.`sys_permission` (
         `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
         `sys_role_id` bigint(20) UNSIGNED NOT NULL COMMENT 'sys_role的主键id',
         `sys_page_id` bigint(20) UNSIGNED NOT NULL COMMENT 'sys_page的主键id',
@@ -64,42 +59,42 @@
         `can_select` bit(1) NOT NULL COMMENT '是否能读取(true:能; false:不能)',
         `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
         PRIMARY KEY (`id`) USING BTREE,
-        UNIQUE INDEX `idx_sys_permission_sys_role_id_sys_page_id`(`sys_role_id`, `sys_page_id`) USING BTREE
-        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+        UNIQUE INDEX `idx_sys_role_id_sys_page_id`(`sys_role_id`, `sys_page_id`) USING BTREE
+        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 ROW_FORMAT = Dynamic;
 
-        CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_lag` (
+        CREATE TABLE IF NOT EXISTS ${dbName}.`sys_lag` (
         `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
         `consumer_name` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '消费者名称',
         `topic_name` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '消费者订阅的主题名称',
         `lag` bigint(10) UNSIGNED NOT NULL COMMENT '消息堆积数量',
         `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
         PRIMARY KEY (`id`) USING BTREE,
-        INDEX `idx_sys_lag_create_time`(`create_time`) USING BTREE,
-        INDEX `idx_sys_lag_consumer_name_topic_name`(`consumer_name`, `topic_name`) USING BTREE
-        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+        INDEX `idx_create_time`(`create_time`) USING BTREE,
+        INDEX `idx_consumer_name_topic_name`(`consumer_name`, `topic_name`) USING BTREE
+        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 ROW_FORMAT = Dynamic;
 
-        CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_log_size` (
+        CREATE TABLE IF NOT EXISTS ${dbName}.`sys_log_size` (
         `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
         `topic_name` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '主题名称',
         `log_size` bigint(20) NOT NULL COMMENT '主题对应的信息数量',
         `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
         PRIMARY KEY (`id`) USING BTREE,
-        INDEX `idx_sys_log_size_create_time`(`create_time`) USING BTREE,
-        UNIQUE INDEX `idx_sys_log_size_topic_name_log_size_create_time`(`topic_name`, `create_time`) USING BTREE
-        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+        INDEX `idx_create_time`(`create_time`) USING BTREE,
+        UNIQUE INDEX `idx_topic_name_create_time`(`topic_name`, `create_time`) USING BTREE
+        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 ROW_FORMAT = Dynamic;
 
-        CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_kpi`(
+        CREATE TABLE IF NOT EXISTS ${dbName}.`sys_kpi`(
         `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
         `host` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'kpi的主机信息',
         `kpi` int(10) UNSIGNED NOT NULL COMMENT 'kpi指标名称',
         `value` double UNSIGNED NOT NULL COMMENT 'kpi值',
         `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
         PRIMARY KEY (`id`) USING BTREE,
-        INDEX `idx_sys_kpi_create_time`(`create_time`) USING BTREE,
-        INDEX `idx_sys_kpi_kpi`(`kpi`) USING BTREE
-        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+        INDEX `idx_create_time`(`create_time`) USING BTREE,
+        INDEX `idx_kpi`(`kpi`) USING BTREE
+        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 ROW_FORMAT = Dynamic;
 
-        CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_mail_config`(
+        CREATE TABLE IF NOT EXISTS ${dbName}.`sys_mail_config`(
         `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
         `host` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱服务器地址',
         `port` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱服务器端口',
@@ -107,28 +102,28 @@
         `password` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱服务器密码',
         `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
         PRIMARY KEY (`id`) USING BTREE
-        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 ROW_FORMAT = Dynamic;
 
-        CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_dingding_config`(
+        CREATE TABLE IF NOT EXISTS ${dbName}.`sys_dingding_config`(
         `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
         `access_token` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT
         '钉钉机器人的access_token',
         `secret` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '钉钉机器人的加签秘钥',
         `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
         PRIMARY KEY (`id`) USING BTREE
-        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 ROW_FORMAT = Dynamic;
 
-        CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_alert_cluster`(
+        CREATE TABLE IF NOT EXISTS ${dbName}.`sys_alert_cluster`(
         `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
         `type` int(10) UNSIGNED NOT NULL COMMENT '集群主机类型(1. zookeeper; 2: kafka)',
         `server` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '服务器地址',
         `email` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '警报邮件的发送地址',
         `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
         PRIMARY KEY (`id`) USING BTREE,
-        UNIQUE INDEX `idx_sys_alert_cluster_type_server`(`type`, `server`) USING BTREE
-        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+        UNIQUE INDEX `idx_type_server`(`type`, `server`) USING BTREE
+        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 ROW_FORMAT = Dynamic;
 
-        CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_alert_consumer`(
+        CREATE TABLE IF NOT EXISTS ${dbName}.`sys_alert_consumer`(
         `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
         `group_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '消费组名称',
         `topic_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '消费组对应的主题名称',
@@ -136,8 +131,8 @@
         `email` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '警报邮件的发送地址',
         `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
         PRIMARY KEY (`id`) USING BTREE,
-        UNIQUE INDEX `idx_sys_alert_consumer_group_id_topic_name`(`group_id`, `topic_name`) USING BTREE
-        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+        UNIQUE INDEX `idx_group_id_topic_name`(`group_id`, `topic_name`) USING BTREE
+        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 ROW_FORMAT = Dynamic;
 
         SET FOREIGN_KEY_CHECKS = 1;
 
@@ -147,109 +142,109 @@
               value="@com.pegasus.kafka.common.constant.Constants@DEFAULT_ADMIN_PASSWORD"/>
         <bind name="SYSTEM_ROLE_NAME"
               value="@com.pegasus.kafka.common.constant.Constants@SYSTEM_ROLE_NAME"/>
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_admin`(`id`,
+        INSERT IGNORE INTO ${dbName}.`sys_admin`(`id`,
         `sys_role_id`, `username`, `password`, `name`, `gender`, `phone_number`, `email`, `remark`, `create_time`)
         VALUES
         (1, 1, #{DEFAULT_ADMIN_USERNAME}, #{DEFAULT_ADMIN_PASSWORD} , '系统管理员', b'1', '', 'zhangningkid@163.com', '',
         now());
 
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_role`(`id`, `name`,
+        INSERT IGNORE INTO ${dbName}.`sys_role`(`id`, `name`,
         `super_admin`, `remark`, `create_time`) VALUES (1, #{SYSTEM_ROLE_NAME}, b'1', '超级管理员, 拥有最高权限', now());
 
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
+        INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES (1,
         '仪表盘', '/dashboard/index', b'1', b'1', b'0', 'layui-icon-engine', 0, 1, '', now());
 
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
+        INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES (2,
         '集群', '/cluster/tolist', b'1', b'0', b'0', 'layui-icon-share', 0, 2, '', now());
 
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
+        INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES (3,
         '主题', '/topic/tolist', b'1', b'0', b'0', 'layui-icon-dialogue', 0, 3, '', now());
 
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
+        INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES (4,
         '消息跟踪', '/record/tolist', b'1', b'0', b'0', 'layui-icon-list', 0, 4, '', now());
 
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
+        INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES (5,
         '消费者', '/consumer/tolist', b'1', b'0', b'0', 'layui-icon-group', 0, 5, '', now());
 
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
+        INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES (6,
         'ZooKeeper客户端', '/zkCli/tolist', b'1', b'0', b'0', 'layui-icon-util', 0, 6, '', now());
 
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
+        INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES (7,
         '性能指标', '', b'1', b'0', b'0', 'layui-icon-console', 0, 7, '', now());
 
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
+        INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES (8,
         'ZooKeeper性能', '/zkperformance/tolist', b'1', b'0', b'0', '', 7, 1, '', now());
 
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
+        INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES (9,
         'Kafka性能', '/kafkaperformance/tolist', b'1', b'0', b'0', '', 7, 2, '', now());
 
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
+        INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
         (10, '警告设置','', b'1', b'0', b'0', 'layui-icon-notice', 0, 8, '', now());
 
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
+        INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
         (11, '消费组设置', '/alertconsumer/tolist', b'1', b'0', b'0', '', 10, 1, '', now());
 
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
+        INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
         (12, '集群主机设置', '/alertcluster/tolist', b'1', b'0', b'0', '', 10, 2, '', now());
 
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
+        INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
         (13, '权限设置', '', b'1', b'0', b'0', 'layui-icon-password', 0, 9, '', now());
 
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
+        INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
         (14, '管理员配置', '/admin/tolist', b'1', b'0', b'0', '', 13, 1, '', now());
 
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
+        INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
         (15, '角色管理', '/role/tolist', b'1', b'0', b'0', '', 13, 2, '', now());
 
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
+        INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
         (16, '权限管理', '/permission/tolist', b'1', b'0', b'0', '', 13, 3, '', now());
 
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
+        INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
         (17, '系统设置', '', b'1', b'0', b'0', 'layui-icon-set', 0, 10, '', now());
 
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
+        INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
         (18, '页面配置', '/page/tolist', b'1', b'0', b'0', '', 17, 1, '', now());
 
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
+        INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
         (19, '邮件发送设置', '/mailconfig/tolist', b'1', b'0', b'0', '', 17, 2, '', now());
 
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
+        INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
         (20, '钉钉机器人设置', '/dingdingconfig/tolist', b'1', b'0', b'0', '', 17, 3, '', now());
 
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page`(`id`, `name`, `url`,
+        INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
         (21, '大屏幕', '/bigscreen/tolist', b'1', b'0', b'1', 'layui-icon-chart-screen', 0, 11, '', now());
     </insert>
 
     <delete id="deleteExpired">
         <foreach collection="tableNameList" item="tableName">
-            DELETE FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}` WHERE `create_time`
+            DELETE FROM ${dbName}.`${tableName}` WHERE `create_time`
             &lt; #{dateTime};
         </foreach>
     </delete>
 
     <select id="listTables" resultType="java.lang.String">
-        SELECT `table_name` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = #{databaseName}
+        SELECT `table_name` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = #{dbName}
     </select>
 
 </mapper>

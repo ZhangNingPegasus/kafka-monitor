@@ -3,7 +3,6 @@ package com.pegasus.kafka.entity.dto;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.pegasus.kafka.common.constant.Constants;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -18,7 +17,7 @@ import lombok.Getter;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@TableName(value = Constants.DATABASE_NAME + "." + "`sys_alert_cluster`")
+@TableName(value = "`sys_alert_cluster`")
 public class SysAlertCluster extends BaseDto {
     /**
      * 集群主机类型(1. zookeeper; 2: kafka);参见SysAlertCluster.Type类型

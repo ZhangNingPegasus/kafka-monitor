@@ -17,7 +17,7 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@TableName(value = Constants.DATABASE_NAME + "." + "`sys_role`")
+@TableName(value =  "`sys_role`")
 public class SysRole extends BaseDto {
     /**
      * 角色名称

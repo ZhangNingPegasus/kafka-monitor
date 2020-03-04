@@ -1,7 +1,6 @@
 package com.pegasus.kafka.controller;
 
 import com.pegasus.kafka.common.annotation.TranRead;
-import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.ehcache.EhcacheService;
 import com.pegasus.kafka.common.response.Result;
 import com.pegasus.kafka.common.utils.Common;
@@ -12,6 +11,7 @@ import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.dto.SysLagService;
 import com.pegasus.kafka.service.dto.SysLogSizeService;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
+import com.pegasus.kafka.service.property.PropertyService;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -45,18 +45,20 @@ public class DashboardController {
     private final SysLogSizeService sysLogSizeService;
     private final EhcacheService ehcacheService;
     private final KafkaService kafkaService;
+    private final PropertyService propertyService;
 
-    public DashboardController(KafkaConsumerService kafkaConsumerService, SysLagService sysLagService, SysLogSizeService sysLogSizeService, EhcacheService ehcacheService, KafkaService kafkaService) {
+    public DashboardController(KafkaConsumerService kafkaConsumerService, SysLagService sysLagService, SysLogSizeService sysLogSizeService, EhcacheService ehcacheService, KafkaService kafkaService, PropertyService propertyService) {
         this.kafkaConsumerService = kafkaConsumerService;
         this.sysLagService = sysLagService;
         this.sysLogSizeService = sysLogSizeService;
         this.ehcacheService = ehcacheService;
         this.kafkaService = kafkaService;
+        this.propertyService = propertyService;
     }
 
     @GetMapping("index")
     public String index(Model model) throws Exception {
-        model.addAttribute("savingDays", Constants.SAVING_DAYS);
+        model.addAttribute("savingDays", propertyService.getDbRetentionDays());
         model.addAttribute("consumers", kafkaConsumerService.listKafkaConsumers());
         model.addAttribute("topics", kafkaService.listTopicNames());
         return String.format("%s/index", PREFIX);

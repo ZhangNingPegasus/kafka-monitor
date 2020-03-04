@@ -1,10 +1,10 @@
 package com.pegasus.kafka.job;
 
-import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.dto.SchemaService;
 import com.pegasus.kafka.service.dto.SysLogSizeService;
 import com.pegasus.kafka.service.dto.TopicRecordService;
+import com.pegasus.kafka.service.property.PropertyService;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -27,11 +27,13 @@ public class DeleteSchedule {
     private final SchemaService schemaService;
     private final KafkaService kafkaService;
     private final TopicRecordService topicRecordService;
+    private final PropertyService propertyService;
 
-    public DeleteSchedule(SysLogSizeService sysLogSizeService, SchemaService schemaService, KafkaService kafkaService, TopicRecordService topicRecordService) {
+    public DeleteSchedule(SysLogSizeService sysLogSizeService, SchemaService schemaService, KafkaService kafkaService, TopicRecordService topicRecordService, PropertyService propertyService) {
         this.schemaService = schemaService;
         this.kafkaService = kafkaService;
         this.topicRecordService = topicRecordService;
+        this.propertyService = propertyService;
     }
 
     //每天00:01:00执行一次
@@ -54,7 +56,7 @@ public class DeleteSchedule {
         for (String dbTableName : filterDbTableNames) {
             if (!topicTableNames.contains(dbTableName)) {
                 Date maxCreateTime = topicRecordService.getMaxCreateTime(dbTableName);
-                if (maxCreateTime == null || maxCreateTime.before(DateUtils.addDays(new Date(), -Constants.SAVING_DAYS))) {
+                if (maxCreateTime == null || maxCreateTime.before(DateUtils.addDays(new Date(), -propertyService.getDbRetentionDays()))) {
                     needDropList.add(dbTableName);
                 }
             }

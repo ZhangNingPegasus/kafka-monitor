@@ -23,5 +23,6 @@ public interface SysAdminMapper extends BaseMapper<SysAdmin> {
 
     AdminVo getById(@Param("sysAdminId") Long sysAdminId);
 
-    AdminVo getByUsernameAndPassword(@Param("username") String username, @Param("password") String password);
+    AdminVo getByUsernameAndPassword(@Param("username") String username,
+                                     @Param("password") String password);
 }

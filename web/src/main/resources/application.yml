@@ -1,5 +1,13 @@
 zookeeper:
   connect: ${zookeeper_connect:192.168.6.166:2181,192.168.6.167:2181,192.168.0.197:2181}
+database:
+  name: ${db_name:kafka_monitor_test}
+  host: ${db_host:192.168.6.167}
+  port: ${db_port:3306}
+  username: ${db_username:root}
+  password: ${db_password:zhangningpegasus}
+  retention:
+    days: ${db_retention_days:3}
 
 server:
   port: ${kafka_monitor_port:80}
@@ -42,40 +50,40 @@ spring:
     settings:
       auto_import: common/spring.ftl as spring
       number_format: '0.##'
-  datasource:
-    platform: mysql
-    type: com.alibaba.druid.pool.DruidDataSource
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${db_host:192.168.6.167}:${db_port:3306}/?allowPublicKeyRetrieval=true&serverTimezone=CTT&characterEncoding=utf8&useUnicode=true&autoReconnect=true&allowMultiQueries=true&useSSL=false&zeroDateTimeBehavior=CONVERT_TO_NULL
-    username: ${db_username:root}
-    password: ${db_password:zhangningpegasus}
-    druid:
-      # 配置初始化大小
-      initialSize: 10
-      # 配置连接池中最小可用连接的个数
-      minIdle: 100
-      # 配置连接池中最大可用连接的个数
-      maxActive: 500
-      # 配置获取连接等待超时的时间, 单位是毫秒
-      maxWait: 60000
-      # 配置间隔多久才进行一次检测, 检测需要关闭的空闲连接, 单位是毫秒
-      timeBetweenEvictionRunsMillis: 60000
-      # 配置一个连接在池中最小生存的时间, 单位是毫秒
-      minEvictableIdleTimeMillis: 300000
-      validationQuery: SELECT 1
-      validationQueryTimeout: 60000
-      testWhileIdle: true
-      testOnBorrow: false
-      testOnReturn: false
-      # 打开PSCache, 并且指定每个连接上PSCache的大小.分库分表较多的数据库，建议配置为false
-      poolPreparedStatements: true
-      maxPoolPreparedStatementPerConnectionSize: 20
-      maxOpenPreparedStatements: 20
-      connection-init-sqls: SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci
+#  datasource:
+#    platform: mysql
+#    type: com.alibaba.druid.pool.DruidDataSource
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://${database.host}:${database.port}/${database.name}?allowPublicKeyRetrieval=true&serverTimezone=CST&characterEncoding=utf8&useUnicode=true&autoReconnect=true&allowMultiQueries=true&useSSL=false&zeroDateTimeBehavior=CONVERT_TO_NULL
+#    username: ${database.username}
+#    password: ${database.password}
+#    druid:
+#      # 配置初始化大小
+#      initialSize: 10
+#      # 配置连接池中最小可用连接的个数
+#      minIdle: 100
+#      # 配置连接池中最大可用连接的个数
+#      maxActive: 500
+#      # 配置获取连接等待超时的时间, 单位是毫秒
+#      maxWait: 60000
+#      # 配置间隔多久才进行一次检测, 检测需要关闭的空闲连接, 单位是毫秒
+#      timeBetweenEvictionRunsMillis: 60000
+#      # 配置一个连接在池中最小生存的时间, 单位是毫秒
+#      minEvictableIdleTimeMillis: 300000
+#      validationQuery: SELECT 1
+#      validationQueryTimeout: 60000
+#      testWhileIdle: true
+#      testOnBorrow: false
+#      testOnReturn: false
+#      # 打开PSCache, 并且指定每个连接上PSCache的大小.分库分表较多的数据库，建议配置为false
+#      poolPreparedStatements: true
+#      maxPoolPreparedStatementPerConnectionSize: 20
+#      maxOpenPreparedStatements: 20
+#      connection-init-sqls: SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci
 
-mybatis-plus:
-  mapper-locations: classpath:com.pegasus.kafka.mapper/*Mapper.xml
-  configuration:
-    map-underscore-to-camel-case: true
+#mybatis-plus:
+#  mapper-locations: classpath:com.pegasus.kafka.mapper/*Mapper.xml
+#  configuration:
+#    map-underscore-to-camel-case: true
     ## 这个配置会将执行的sql打印出来，在开发或测试的时候可以用
     #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

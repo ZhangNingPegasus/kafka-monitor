@@ -17,7 +17,7 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@TableName(value = Constants.DATABASE_NAME + "." + "`sys_admin`")
+@TableName(value =  "`sys_admin`")
 public class SysAdmin extends BaseDto {
     /**
      * 角色id(sys_role表的主键)

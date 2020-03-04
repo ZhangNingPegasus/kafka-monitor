@@ -19,11 +19,11 @@
         p.can_delete,
         p.can_update,
         p.can_select
-        FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` page
-        LEFT OUTER JOIN ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_permission` p ON page.id = p.sys_page_id
-        LEFT OUTER JOIN ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_role` r ON r.id = p.sys_role_id
-        LEFT OUTER JOIN ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_admin` a ON a.sys_role_id = r.id
-        LEFT OUTER JOIN ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` parent ON page.parent_id = parent.id
+        FROM `sys_page` page
+        LEFT OUTER JOIN `sys_permission` p ON page.id = p.sys_page_id
+        LEFT OUTER JOIN `sys_role` r ON r.id = p.sys_role_id
+        LEFT OUTER JOIN `sys_admin` a ON a.sys_role_id = r.id
+        LEFT OUTER JOIN `sys_page` parent ON page.parent_id = parent.id
         WHERE 1 = 1
         <if test="sysAdminId!=null">
             AND a.id=#{sysAdminId}
@@ -41,9 +41,9 @@
         p.can_delete,
         p.can_update,
         p.can_select
-        FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_permission` p
-        LEFT OUTER JOIN ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_page` page ON page.id = p.sys_page_id
-        LEFT OUTER JOIN ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`sys_role` r ON p.sys_role_id = r.id
+        FROM `sys_permission` p
+        LEFT OUTER JOIN `sys_page` page ON page.id = p.sys_page_id
+        LEFT OUTER JOIN `sys_role` r ON p.sys_role_id = r.id
         WHERE 1=1
         <if test="sysRoleId != null">
             AND r.id = #{sysRoleId}

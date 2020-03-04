@@ -10,6 +10,7 @@ import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.dto.TopicRecordService;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
 import com.pegasus.kafka.service.kafka.KafkaTopicService;
+import com.pegasus.kafka.service.property.PropertyService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -39,18 +40,20 @@ public class RecordController {
     private final KafkaTopicService kafkaTopicService;
     private final KafkaConsumerService kafkaConsumerService;
     private final KafkaService kafkaService;
+    private final PropertyService propertyService;
 
-    public RecordController(KafkaTopicService kafkaTopicService, TopicRecordService topicRecordService, KafkaConsumerService kafkaConsumerService, KafkaService kafkaService) {
+    public RecordController(KafkaTopicService kafkaTopicService, TopicRecordService topicRecordService, KafkaConsumerService kafkaConsumerService, KafkaService kafkaService, PropertyService propertyService) {
         this.kafkaTopicService = kafkaTopicService;
         this.topicRecordService = topicRecordService;
         this.kafkaConsumerService = kafkaConsumerService;
         this.kafkaService = kafkaService;
+        this.propertyService = propertyService;
     }
 
     @GetMapping("tolist")
     public String toList(Model model) throws Exception {
         model.addAttribute("topics", kafkaService.listTopicNames());
-        model.addAttribute("savingDays", Constants.SAVING_DAYS);
+        model.addAttribute("savingDays", propertyService.getDbRetentionDays());
         return String.format("%s/list", PREFIX);
     }
 

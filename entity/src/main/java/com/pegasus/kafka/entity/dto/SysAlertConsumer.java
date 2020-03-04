@@ -3,7 +3,6 @@ package com.pegasus.kafka.entity.dto;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.pegasus.kafka.common.constant.Constants;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -17,7 +16,7 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@TableName(value = Constants.DATABASE_NAME + "." + "`sys_alert_consumer`")
+@TableName(value = "`sys_alert_consumer`")
 public class SysAlertConsumer extends BaseDto {
     /**
      * 消费组名称

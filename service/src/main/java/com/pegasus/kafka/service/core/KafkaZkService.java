@@ -6,7 +6,7 @@ import com.pegasus.kafka.common.utils.Common;
 import com.pegasus.kafka.common.utils.ZooKeeperKpiUtils;
 import com.pegasus.kafka.entity.dto.SysKpi;
 import com.pegasus.kafka.entity.vo.ZooKeeperVo;
-import com.pegasus.kafka.service.property.KafkaMonitorProperty;
+import com.pegasus.kafka.service.property.PropertyService;
 import lombok.Data;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -37,15 +37,15 @@ import java.util.List;
 @Service
 public class KafkaZkService implements InitializingBean, DisposableBean {
     private final String CHARSET_NAME = "gbk";
-    private final KafkaMonitorProperty kafkaMonitorProperty;
+    private final PropertyService propertyService;
     private CuratorFramework client;
 
-    public KafkaZkService(KafkaMonitorProperty kafkaMonitorProperty) {
-        this.kafkaMonitorProperty = kafkaMonitorProperty;
+    public KafkaZkService(PropertyService propertyService) {
+        this.propertyService = propertyService;
     }
 
     public List<ZooKeeperVo> listZooKeeperCluster() {
-        String[] zks = kafkaMonitorProperty.getZookeeper().split(",");
+        String[] zks = propertyService.getZookeeper().split(",");
         List<ZooKeeperVo> result = new ArrayList<>(zks.length);
         for (String zk : zks) {
             ZooKeeperVo zooKeeperVo = new ZooKeeperVo();
@@ -136,11 +136,11 @@ public class KafkaZkService implements InitializingBean, DisposableBean {
 
     @Override
     public void afterPropertiesSet() {
-        if (StringUtils.isEmpty(kafkaMonitorProperty.getZookeeper())) {
+        if (StringUtils.isEmpty(propertyService.getZookeeper())) {
             throw new BusinessException(ResultCode.ZOOKEEPER_CONFIG_IS_NULL);
         }
         this.client = CuratorFrameworkFactory.builder()
-                .connectString(kafkaMonitorProperty.getZookeeper())
+                .connectString(propertyService.getZookeeper())
                 // 连接超时时间
                 .sessionTimeoutMs(30000)
                 // 会话超时时间

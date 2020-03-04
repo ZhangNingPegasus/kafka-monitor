@@ -36,7 +36,7 @@ public class ApplicationListener implements ApplicationContextAware {
     private class SchemaTask implements Runnable {
         @Override
         public void run() {
-            schemaService.initSchema();
+            schemaService.createTableIfNotExists();
         }
     }
 }

@@ -3,7 +3,7 @@
 
 <mapper namespace="com.pegasus.kafka.mapper.TopicRecordMapper">
     <insert id="batchSave">
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}`
+        INSERT IGNORE INTO `${tableName}`
         (
         `partition_id`,
         `offset`,
@@ -24,7 +24,7 @@
     </insert>
 
     <insert id="batchSaveRecord">
-        INSERT IGNORE INTO ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${recordTableName}`
+        INSERT IGNORE INTO `${recordTableName}`
         (
         `partition_id`,
         `offset`,
@@ -44,7 +44,7 @@
          SET NAMES utf8mb4;
          SET FOREIGN_KEY_CHECKS = 0;
 
-         CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}` (
+         CREATE TABLE IF NOT EXISTS `${tableName}` (
           `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
           `partition_id` int(11) UNSIGNED NOT NULL COMMENT '分区号',
           `offset` bigint(20) UNSIGNED NOT NULL COMMENT '消息在该分区号下的偏移量',
@@ -67,7 +67,7 @@
          SET NAMES utf8mb4;
          SET FOREIGN_KEY_CHECKS = 0;
 
-        CREATE TABLE IF NOT EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${recordTableName}` (
+        CREATE TABLE IF NOT EXISTS `${recordTableName}` (
           `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
           `partition_id` int(11) UNSIGNED NOT NULL COMMENT '分区id号',
           `offset` bigint(20) UNSIGNED NOT NULL COMMENT '消息偏移量',
@@ -81,13 +81,13 @@
     </update>
 
     <delete id="dropTable">
-        DROP TABLE IF EXISTS ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}`;
+        DROP TABLE IF EXISTS `${tableName}`;
     </delete>
 
     <select id="listRecords" resultType="com.pegasus.kafka.entity.dto.TopicRecord">
         SELECT
         *
-        FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}`
+        FROM `${tableName}`
         WHERE 1 = 1
         <if test="partitionId >= 0">
             AND `partition_id` = #{partitionId}
@@ -105,7 +105,7 @@
     <select id="findRecord" resultType="com.pegasus.kafka.entity.dto.TopicRecord">
         SELECT
         *
-        FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}`
+        FROM `${tableName}`
         WHERE `partition_id` = #{partitionId}
         AND   `offset` = #{offset}
         AND   `key` = #{key}
@@ -114,7 +114,7 @@
     <select id="findRecordValue" resultType="java.lang.String">
         SELECT
         `value`
-        FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}`
+        FROM `${tableName}`
         WHERE `partition_id` = #{partitionId}
         AND   `offset` = #{offset}
     </select>
@@ -122,7 +122,7 @@
     <select id="getRecordsCount" resultType="java.lang.Long">
         SELECT
         COUNT(1)
-        FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}`
+        FROM `${tableName}`
         WHERE 1 = 1
         <if test="from != null">
             `create_time` &gt;= #{from}
@@ -136,20 +136,20 @@
     SELECT
     partition_id,
     MAX(`offset`) AS `offset`
-    FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}`
+    FROM `${tableName}`
     GROUP BY partition_id
     </select>
 
     <select id="getMaxCreateTime" resultType="java.util.Date">
     SELECT
     MAX(`create_time`)
-    FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}`
+    FROM `${tableName}`
     </select>
 
     <select id="getMaxOffset" resultType="java.lang.Long">
     SELECT
     IFNULL(MAX(`offset`), 0)
-    FROM ${@com.pegasus.kafka.common.constant.Constants@DATABASE_NAME}.`${tableName}`
+    FROM `${tableName}`
     </select>
 
 </mapper>

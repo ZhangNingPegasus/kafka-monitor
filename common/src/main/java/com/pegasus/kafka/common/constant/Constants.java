@@ -14,13 +14,6 @@ import java.util.List;
  * *****************************************************************
  */
 public class Constants {
-    /**
-     * 数据存储的天数
-     */
-    public static final int SAVING_DAYS = 7;
-
-    public static final String DATABASE_NAME = "`kafka_monitor`";
-
     public static final String DEFAULT_ADMIN_USER_NAME = "admin";
     public static final String DEFAULT_ADMIN_PASSWORD = Common.hash("admin");
 
@@ -55,7 +48,5 @@ public class Constants {
 
     public static final String HOST_NOT_AVAIABLE = "主机不可用，请检查";
 
-
     public static final String CURRENT_ADMIN_LOGIN = "CURRENT_ADMIN_LOGIN";
-
 }

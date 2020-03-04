@@ -1,12 +1,12 @@
 package com.pegasus.kafka.controller;
 
-import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.ehcache.EhcacheService;
 import com.pegasus.kafka.common.response.Result;
 import com.pegasus.kafka.common.utils.Common;
 import com.pegasus.kafka.entity.dto.SysKpi;
 import com.pegasus.kafka.entity.echarts.LineInfo;
 import com.pegasus.kafka.service.dto.SysKpiService;
+import com.pegasus.kafka.service.property.PropertyService;
 import lombok.Data;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
@@ -42,17 +42,19 @@ public class KafkaPerformanceController {
         }
     }
 
+    private final PropertyService propertyService;
     private final EhcacheService ehcacheService;
     private final SysKpiService sysKpiService;
 
-    public KafkaPerformanceController(EhcacheService ehcacheService, SysKpiService sysKpiService) {
+    public KafkaPerformanceController(PropertyService propertyService, EhcacheService ehcacheService, SysKpiService sysKpiService) {
+        this.propertyService = propertyService;
         this.ehcacheService = ehcacheService;
         this.sysKpiService = sysKpiService;
     }
 
     @GetMapping("tolist")
     public String toList(Model model) {
-        model.addAttribute("savingDays", Constants.SAVING_DAYS);
+        model.addAttribute("savingDays", propertyService.getDbRetentionDays());
         return String.format("%s/list", PREFIX);
     }
 

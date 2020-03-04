@@ -17,7 +17,7 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@TableName(value = Constants.DATABASE_NAME + "." + "`sys_permission`")
+@TableName(value ="`sys_permission`")
 public class SysPermission extends BaseDto {
     @TableField(value = "sys_role_id")
     private Long sysRoleId;

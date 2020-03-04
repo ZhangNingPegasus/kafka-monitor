@@ -1,7 +1,6 @@
 package com.pegasus.kafka.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.utils.Common;
 import com.pegasus.kafka.entity.dto.SysKpi;
 import com.pegasus.kafka.entity.dto.SysLag;
@@ -13,7 +12,7 @@ import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.dto.SysKpiService;
 import com.pegasus.kafka.service.dto.SysLagService;
 import com.pegasus.kafka.service.dto.SysLogSizeService;
-import com.pegasus.kafka.service.property.KafkaMonitorProperty;
+import com.pegasus.kafka.service.property.PropertyService;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,14 +39,14 @@ import static com.pegasus.kafka.controller.BigScreenController.PREFIX;
 public class BigScreenController {
     public static final String PREFIX = "bigscreen";
     private final SysLogSizeService sysLogSizeService;
-    private final KafkaMonitorProperty kafkaMonitorProperty;
+    private final PropertyService propertyService;
     private final SysKpiService sysKpiService;
     private final KafkaService kafkaService;
     private final SysLagService sysLagService;
 
-    public BigScreenController(SysLogSizeService sysLogSizeService, KafkaMonitorProperty kafkaMonitorProperty, SysKpiService sysKpiService, KafkaService kafkaService, SysLagService sysLagService) {
+    public BigScreenController(SysLogSizeService sysLogSizeService, PropertyService propertyService, SysKpiService sysKpiService, KafkaService kafkaService, SysLagService sysLagService) {
         this.sysLogSizeService = sysLogSizeService;
-        this.kafkaMonitorProperty = kafkaMonitorProperty;
+        this.propertyService = propertyService;
         this.sysKpiService = sysKpiService;
         this.kafkaService = kafkaService;
         this.sysLagService = sysLagService;
@@ -56,7 +55,7 @@ public class BigScreenController {
     @GetMapping("tolist")
     public String toList(Model model) throws Exception {
         Long day0 = sysLogSizeService.getTotalRecordCount();
-        int zkCount = kafkaMonitorProperty.getZookeeper().split(",").length;
+        int zkCount = propertyService.getZookeeper().split(",").length;
         int kafkaCount = kafkaService.listBrokerNames().size();
         int topicCount = kafkaService.listTopicNames().size();
         List<TopicRecordCountVo> topicRecordCountVoList = sysLogSizeService.listTotalRecordCount(25);
@@ -116,7 +115,7 @@ public class BigScreenController {
         threadInfo.setStrXAxis(JSON.toJSONString(threadInfo.getXAxis()));
         threadInfo.setStrThreadCount(JSON.toJSONString(threadInfo.getThreadCount()));
 
-        model.addAttribute("savingDays", Constants.SAVING_DAYS);
+        model.addAttribute("savingDays", propertyService.getDbRetentionDays());
         model.addAttribute("totalRecordCount", day0);
         model.addAttribute("zkCount", zkCount);
         model.addAttribute("kafkaCount", kafkaCount);
