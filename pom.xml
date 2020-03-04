@@ -161,5 +161,34 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
+
+        <!-- acm -->
+        <dependency>
+            <groupId>com.alibaba.edas.acm</groupId>
+            <artifactId>acm-sdk</artifactId>
+            <version>1.0.9</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sijibao.nacos</groupId>
+            <artifactId>nacos-spring-config-ex</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+
     </dependencies>
+
+    <distributionManagement>
+        <repository>
+            <id>nexus-releases</id>
+            <url>
+                http://nexus.sijibao.co/repository/maven-releases/
+            </url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <url>
+                http://nexus.sijibao.co/repository/maven-snapshots/
+            </url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>

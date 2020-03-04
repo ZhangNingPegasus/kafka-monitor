@@ -1,16 +1,22 @@
 zookeeper:
-  connect: ${zookeeper_connect:192.168.6.166:2181,192.168.6.167:2181,192.168.0.197:2181}
+  connect: ${zk.connect:192.168.6.166:2181,192.168.6.167:2181,192.168.0.197:2181}
 database:
-  name: ${db_name:kafka_monitor_test}
-  host: ${db_host:192.168.6.167}
-  port: ${db_port:3306}
-  username: ${db_username:root}
-  password: ${db_password:zhangningpegasus}
+  name: ${db.name:kafka_monitor_test}
+  host: ${db.host:192.168.6.167}
+  port: ${db.port:3306}
+  username: ${db.username:root}
+  password: ${db.password:zhangningpegasus}
   retention:
-    days: ${db_retention_days:3}
+    days: ${db.retention.days:3}
+
+nacos:
+  config:
+  nacosLocalSnapshotPath: /wyyt/etc/acm/kafka-monitor
+  nacosLogPath:  /wyyt/logs/tomcat/kafka-monitor
+  acmConfigPath: acmConfig.properties
 
 server:
-  port: ${kafka_monitor_port:80}
+  port: 80
   tomcat:
     uri-encoding: UTF-8
   compression:

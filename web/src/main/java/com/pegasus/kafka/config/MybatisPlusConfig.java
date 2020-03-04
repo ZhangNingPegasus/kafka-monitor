@@ -18,7 +18,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 /**
  * Mybatis's config for set the paging.
@@ -72,18 +71,22 @@ public class MybatisPlusConfig {
         return new DataSourceTransactionManager(dataSource());
     }
 
-    private void initDatabase() throws SQLException {
-        try (DruidDataSource dataSource = (DruidDataSource) Common.createDataSource(propertyService.getDbHost(),
-                propertyService.getDbPort().toString(),
-                "",
-                propertyService.getDbUsername(),
-                propertyService.getDbPassword(),
-                1,
-                1,
-                1);
-             Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(String.format("CREATE DATABASE IF NOT EXISTS %s CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci", propertyService.getDbName()))) {
-            preparedStatement.execute();
+    private void initDatabase() {
+        try {
+            try (DruidDataSource dataSource = (DruidDataSource) Common.createDataSource(propertyService.getDbHost(),
+                    propertyService.getDbPort().toString(),
+                    "",
+                    propertyService.getDbUsername(),
+                    propertyService.getDbPassword(),
+                    1,
+                    1,
+                    1);
+                 Connection connection = dataSource.getConnection();
+                 PreparedStatement preparedStatement = connection.prepareStatement(String.format("CREATE DATABASE IF NOT EXISTS %s CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci", propertyService.getDbName()))) {
+                preparedStatement.execute();
+            }
+        } catch (Exception ignored) {
+
         }
     }
 }
