@@ -162,6 +162,20 @@
             <artifactId>httpclient</artifactId>
         </dependency>
 
+        <!-- 日志接入elk -->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>6.1</version>
+        </dependency>
+
+        <!---扩展logstash 的MessageJsonProvider的，来植入全链路的traceId-->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder-ex</artifactId>
+            <version>6.1</version>
+        </dependency>
+
         <!-- acm -->
         <dependency>
             <groupId>com.alibaba.edas.acm</groupId>
@@ -173,6 +187,20 @@
             <groupId>com.sijibao.nacos</groupId>
             <artifactId>nacos-spring-config-ex</artifactId>
             <version>1.1.0</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>fastjson</artifactId>
+                    <groupId>com.alibaba</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>guava</artifactId>
+                    <groupId>com.google.guava</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>logstash-logback-encoder</artifactId>
+                    <groupId>net.logstash.logback</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
     </dependencies>
