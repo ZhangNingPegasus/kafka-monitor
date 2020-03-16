@@ -1,10 +1,35 @@
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+
+    <!-- id标识，唯一即可，若pom中的appendAssemblyId设置为true，则会添加此id作为后缀 -->
     <id>${project.version}</id>
 
     <formats>
+        <!-- 打包的格式 -->
         <format>tar.gz</format>
     </formats>
+
+    <!-- 打包的文件不包含项目目录，压缩包下直接是文件 -->
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+<!--    &lt;!&ndash; 配置依赖的输出 &ndash;&gt;-->
+    <!--    <dependencySets>-->
+    <!--        <dependencySet>-->
+    <!--            &lt;!&ndash; 是否把当前项目的输出jar包并使用，true则会把当前项目输出为jar包到输出目录,false不输出 &ndash;&gt;-->
+    <!--            <useProjectArtifact>false</useProjectArtifact>-->
+    <!--            <scope>system</scope>-->
+    <!--            &lt;!&ndash; 依赖输出目录，相对输出目录的根目录，当前示例把依赖输出到lib目录 &ndash;&gt;-->
+    <!--            <outputDirectory>/lib</outputDirectory>-->
+    <!--        </dependencySet>-->
+    <!--        <dependencySet>-->
+    <!--            &lt;!&ndash; 是否把当前项目的输出jar包并使用，true则会把当前项目输出为jar包到输出目录,false不输出 &ndash;&gt;-->
+    <!--            <useProjectArtifact>false</useProjectArtifact>-->
+    <!--            <scope>runtime</scope>-->
+    <!--            &lt;!&ndash; 依赖输出目录，相对输出目录的根目录，当前示例把依赖输出到lib目录 &ndash;&gt;-->
+    <!--            <outputDirectory>/lib</outputDirectory>-->
+    <!--        </dependencySet>-->
+    <!--    </dependencySets>-->
+
 
     <fileSets>
         <!--
@@ -13,7 +38,9 @@
        -->
 
         <fileSet>
+            <!-- 源目录，此处是把编译出来的class文件都输出到根目录下的bin目录 -->
             <directory>${basedir}/src/main/bin</directory>
+            <!-- 输出目录 -->
             <outputDirectory>bin</outputDirectory>
             <fileMode>0755</fileMode>
             <includes>

@@ -16,7 +16,7 @@ nacos:
   acmConfigPath: acmConfig.properties
 
 server:
-  port: 50011
+  port: 9999
   tomcat:
     uri-encoding: UTF-8
   compression:
