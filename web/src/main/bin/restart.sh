@@ -3,4 +3,4 @@
 args=$@
 
 sh stop.sh $args
-sh startup.sh $args
+sh start.sh $args
