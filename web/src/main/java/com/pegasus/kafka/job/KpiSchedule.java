@@ -32,7 +32,7 @@ public class KpiSchedule {
     }
 
     //每10分钟执行一次
-    @Scheduled(cron = "0 0/10 * * * ?")
+    @Scheduled(cron = "0 0/5 * * * ?")
     public void collect() {
         Date now = new Date();
         List<SysKpi> sysKpiList = new ArrayList<>(32);

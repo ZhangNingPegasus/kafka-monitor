@@ -64,8 +64,9 @@ public class KafkaRecordService implements SmartLifecycle, DisposableBean {
             KafkaTopicRecord kafkaTopicRecord = genericApplicationContext.getBean(beanName, KafkaTopicRecord.class);
             if (kafkaTopicRecord.isRunning()) {
                 kafkaTopicRecord.stop();
+                genericApplicationContext.removeBeanDefinition(beanName);
             }
-            genericApplicationContext.removeBeanDefinition(beanName);
+
             this.topicBeanMap.remove(beanName);
             try {
                 kafkaConsumerService.delete(kafkaTopicRecord.getConsumerGroupdId());
@@ -127,16 +128,9 @@ public class KafkaRecordService implements SmartLifecycle, DisposableBean {
                 try {
                     this.topicNames.clear();
                     this.topicNames.addAll(getSubscribeTopicNames());
-
                     List<String> currentTopicNames = kafkaService.listTopicNames();
-                    List<String> newFoundTopicNames = new ArrayList<>();
-                    for (String currentTopicName : currentTopicNames) {
-                        if (!this.topicNames.contains(currentTopicName)) {
-                            newFoundTopicNames.add(currentTopicName);
-                        }
-                    }
 
-                    if (newFoundTopicNames.size() > 0) {
+                    if (!this.topicNames.containsAll(currentTopicNames) || !currentTopicNames.containsAll(this.topicNames)) {
                         List<Topic> topicList = convert(currentTopicNames);
                         if (topicList != null && topicList.size() > 0) {
                             stopAll();
@@ -158,11 +152,21 @@ public class KafkaRecordService implements SmartLifecycle, DisposableBean {
     }
 
     private Set<String> getSubscribeTopicNames() {
+        Set<String> notExists = new HashSet<>(TOPIC_NUMBER_FACTOR);
         Set<String> result = new HashSet<>(TOPIC_NUMBER_FACTOR);
+        GenericApplicationContext genericApplicationContext = (GenericApplicationContext) applicationContext;
+
         for (String beanName : this.topicBeanMap.keySet()) {
-            GenericApplicationContext genericApplicationContext = (GenericApplicationContext) applicationContext;
-            KafkaTopicRecord bean = genericApplicationContext.getBean(beanName, KafkaTopicRecord.class);
-            result.addAll(bean.getTopicsNames());
+            if (genericApplicationContext.containsBean(beanName)) {
+                KafkaTopicRecord bean = genericApplicationContext.getBean(beanName, KafkaTopicRecord.class);
+                result.addAll(bean.getTopicsNames());
+            } else {
+                notExists.add(beanName);
+            }
+        }
+
+        for (String key : notExists) {
+            this.topicBeanMap.remove(key);
         }
         return result;
     }

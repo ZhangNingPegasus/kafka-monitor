@@ -38,7 +38,7 @@ public class LogSizeSchedule {
     }
 
     //每5分钟执行一次
-    @Scheduled(cron = "0 0/5 * * * ?")
+    @Scheduled(cron = "0 0/1 * * * ?")
     public void collect() throws Exception {
         Date now = new Date();
         SysLogSizeService.Matrix matrix = sysLogSizeService.kpi(now);
