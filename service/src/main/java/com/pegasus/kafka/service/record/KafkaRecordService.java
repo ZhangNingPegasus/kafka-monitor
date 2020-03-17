@@ -57,7 +57,7 @@ public class KafkaRecordService implements SmartLifecycle, DisposableBean {
         }
     }
 
-    private void uninstallTopic(Topic topic) {
+    public void uninstallTopic(Topic topic) {
         if (containsTopicName(topic)) {
             String beanName = getBeanName(topic);
             GenericApplicationContext genericApplicationContext = (GenericApplicationContext) applicationContext;

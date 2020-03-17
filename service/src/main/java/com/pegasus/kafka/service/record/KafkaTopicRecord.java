@@ -32,17 +32,19 @@ public class KafkaTopicRecord implements SmartLifecycle, DisposableBean {
     private final TopicRecordService topicRecordService;
     private final ThreadService threadService;
     private final KafkaConsumerService kafkaConsumerService;
+    private final KafkaRecordService kafkaRecordService;
     private boolean running;
     private Topic topic;
     private String consumerGroupdId;
     private CountDownLatch cdl;
 
-    public KafkaTopicRecord(Topic topic, KafkaService kafkaService, TopicRecordService topicRecordService, ThreadService threadService, KafkaConsumerService kafkaConsumerService) {
+    public KafkaTopicRecord(Topic topic, KafkaService kafkaService, TopicRecordService topicRecordService, ThreadService threadService, KafkaConsumerService kafkaConsumerService, KafkaRecordService kafkaRecordService) {
         this.topic = topic;
         this.kafkaService = kafkaService;
         this.topicRecordService = topicRecordService;
         this.threadService = threadService;
         this.kafkaConsumerService = kafkaConsumerService;
+        this.kafkaRecordService = kafkaRecordService;
         this.consumerGroupdId = String.format("%s_%s", Constants.KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_MESSAGE, this.topic.getName());
     }
 
@@ -150,12 +152,13 @@ public class KafkaTopicRecord implements SmartLifecycle, DisposableBean {
             } finally {
                 if (kafkaConsumer != null) {
                     kafkaConsumer.close();
-                    logger.info(String.format("[%s] : topic [%s] is stopping to collect.", Thread.currentThread().getName(), this.topic.getName()));
                 }
+                kafkaRecordService.uninstallTopic(this.topic);
                 try {
                     kafkaService.deleteConsumerGroups(consumerGroupdId);
                 } catch (Exception ignored) {
                 }
+                logger.info(String.format("[%s] : topic [%s] is stopping to collect.", Thread.currentThread().getName(), this.topic.getName()));
                 cdl.countDown();
             }
         });
