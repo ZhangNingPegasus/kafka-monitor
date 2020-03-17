@@ -5,6 +5,18 @@ SERVER_NAME='kafka-monitor'
 # jar名称
 JAR_NAME='kafka-monitor.jar'
 
+COMMON_LOG_DIR="/wyyt/logs/kafka-monitor"
+
+LOGS_JVM=$COMMON_LOG_DIR/gc_log
+if [ ! -d $LOGS_JVM ]; then
+    mkdir $LOGS_JVM
+fi
+
+LOGS_HEAPDUMP=$COMMON_LOG_DIR/heapdump
+if [ ! -d $LOGS_HEAPDUMP ]; then
+    mkdir $LOGS_HEAPDUMP
+fi
+
 cd `dirname $0`
 BIN_DIR=`pwd`
 cd ..
@@ -41,7 +53,7 @@ if [ ! -d $LOGS_DIR ]; then
   mkdir $LOGS_DIR
 fi
 STDOUT_FILE=$LOGS_DIR/stdout.log
-JAVA_OPTS=" -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true "
+JAVA_OPTS=" -Xloggc:$LOGS_JVM/kafka-monitor-gc.log -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCApplicationStoppedTime -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true "
 JAVA_DEBUG_OPTS=""
 
 JAVA_JMX_OPTS=""
@@ -51,9 +63,9 @@ fi
 JAVA_MEM_OPTS=""
 BITS=`java -version 2>&1 | grep -i 64-bit`
 if [ -n "$BITS" ]; then
-  JAVA_MEM_OPTS=" -server -Xmx2G -Xms2G -Xmn512m -Xss256k -XX:+DisableExplicitGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:LargePageSizeInBytes=128m -XX:+UseFastAccessorMethods -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 "
+  JAVA_MEM_OPTS=" -server -Xmx2G -Xms2G -Xmn512m -Xss256k -XX:NewRatio=1 -XX:SurvivorRatio=2 -XX:MaxDirectMemorySize=512m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=$LOGS_HEAPDUMP/ -XX:+DisableExplicitGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:LargePageSizeInBytes=128m -XX:+UseFastAccessorMethods -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 "
 else
-  JAVA_MEM_OPTS=" -server -Xms2G -Xmx2G -XX:SurvivorRatio=2 -XX:+UseParallelGC "
+  JAVA_MEM_OPTS=" -server -Xms2G -Xmx2G -XX:SurvivorRatio=2 -XX:+UseParallelGC -XX:MaxDirectMemorySize=512m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=$LOGS_HEAPDUMP/  "
 fi
 CONFIG_FILES=" -Dlogging.path=$LOGS_DIR -Dlogging.config=$CONF_DIR/logback.xml -Dspring.config.location=$CONF_DIR/application.yml "
 echo -e "Starting the $SERVER_NAME ..."
