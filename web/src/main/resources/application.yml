@@ -1,18 +1,18 @@
 zookeeper:
-  connect: ${zk.connect}
+  connect: ${zk.connect:192.168.6.166:2181,192.168.6.167:2181,192.168.0.197:2181}
 database:
-  name: ${db.name}
-  host: ${db.host}
-  port: ${db.port}
-  username: ${db.username}
-  password: ${db.password}
+  name: ${db.name:kafka_monitor_test}
+  host: ${db.host:192.168.6.167}
+  port: ${db.port:3306}
+  username: ${db.username:root}
+  password: ${db.password:zhangningpegasus}
   retention:
-    days: ${db.retention.days}
+    days: ${db.retention.days:3}
 
 nacos:
   config:
   nacosLocalSnapshotPath: /wyyt/etc/acm/kafka-monitor
-  nacosLogPath:  /wyyt/logs/tomcat/kafka-monitor
+  nacosLogPath:  /wyyt/logs/kafka-monitor
   acmConfigPath: acmConfig.properties
 
 server:
