@@ -22,7 +22,7 @@ import java.util.*;
  * *****************************************************************
  */
 public class Common {
-    private static final String DATA_BASE_URL = "jdbc:mysql://%s:%s/%s?allowPublicKeyRetrieval=true&serverTimezone=CST&characterEncoding=utf8&useUnicode=true&autoReconnect=true&allowMultiQueries=true&useSSL=false&rewriteBatchedStatements=true&zeroDateTimeBehavior=CONVERT_TO_NULL";
+    private static final String DATA_BASE_URL = "jdbc:mysql://%s:%s/%s?allowPublicKeyRetrieval=true&serverTimezone=CTT&characterEncoding=utf8&useUnicode=true&autoReconnect=true&allowMultiQueries=true&useSSL=false&rewriteBatchedStatements=true&zeroDateTimeBehavior=CONVERT_TO_NULL";
     private final static long KB_IN_BYTES = 1024;
     private final static long MB_IN_BYTES = 1024 * KB_IN_BYTES;
     private final static long GB_IN_BYTES = 1024 * MB_IN_BYTES;

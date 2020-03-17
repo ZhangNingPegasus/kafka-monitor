@@ -60,6 +60,8 @@ public class MybatisPlusConfig {
         MybatisConfiguration configuration = new MybatisConfiguration();
         configuration.setJdbcTypeForNull(JdbcType.NULL);
         configuration.setMapUnderscoreToCamelCase(true);
+        //这个配置会将执行的sql打印出来，在开发或测试的时候可以用
+        //configuration.setLogImpl(org.apache.ibatis.logging.stdout.StdOutImpl.class);
         configuration.setCacheEnabled(false);
         sqlSessionFactory.setConfiguration(configuration);
         sqlSessionFactory.setPlugins(paginationInterceptor());
