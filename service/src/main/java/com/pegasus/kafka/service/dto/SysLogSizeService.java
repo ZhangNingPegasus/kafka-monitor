@@ -73,7 +73,8 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
                     sysLag.setConsumerName(kafkaConsumerVo.getGroupId());
                     sysLag.setTopicName(topicName);
                     sysLag.setLag(lag);
-                    sysLag.setCreateTime(now);
+                    //sysLag.setCreateTime(now);
+                    sysLag.setCreateTime(new Date());
                     sysLagList.add(sysLag);
                     sysLogSizeMap.put(topicName, logSize);
                 } catch (Exception ignored) {
@@ -87,7 +88,8 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
         for (String topicName : topicNames) {
             try {
                 SysLogSize sysLogSize = new SysLogSize(topicName, topicRecordService.getRecordsCount(topicName));
-                sysLogSize.setCreateTime(now);
+//                sysLogSize.setCreateTime(now);
+                sysLogSize.setCreateTime(new Date());
                 sysLogSizeList.add(sysLogSize);
             } catch (Exception ignored) {
 
