@@ -67,8 +67,7 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
         }
     }
 
-    @TranSave
-    void batchSave(String topicName, List<TopicRecord> topicRecordList) throws SQLException {
+    private void batchSave(String topicName, List<TopicRecord> topicRecordList) throws SQLException {
         if (topicRecordList == null || topicRecordList.size() < 1) {
             return;
         }
@@ -95,7 +94,7 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
         batchSave(tableName, topicRecordList, recordTableName, topicRecordValueList);
     }
 
-    public void batchSave(String topicTableName,
+    private void batchSave(String topicTableName,
                           List<TopicRecord> topicRecordList,
                           String recordTableName,
                           List<TopicRecordValue> topicRecordValueList) throws SQLException {
