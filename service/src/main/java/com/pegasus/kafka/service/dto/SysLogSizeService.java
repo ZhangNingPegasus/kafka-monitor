@@ -17,7 +17,6 @@ import com.pegasus.kafka.entity.vo.TopicRecordCountVo;
 import com.pegasus.kafka.mapper.SysLogSizeMapper;
 import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
-import com.pegasus.kafka.service.record.RecordService;
 import lombok.Data;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
@@ -36,6 +35,7 @@ import java.util.*;
  */
 @Service
 public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize> {
+    private final static int BATCH_SIZE = 1024;
     private final KafkaConsumerService kafkaConsumerService;
     private final EhcacheService ehcacheService;
     private final KafkaService kafkaService;
@@ -48,10 +48,10 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
         this.topicRecordService = topicRecordService;
     }
 
-    public Matrix kpi(Date now) throws Exception {
+    public Matrix kpi() throws Exception {
         Matrix result = new Matrix();
-        List<SysLag> sysLagList = new ArrayList<>(RecordService.BATCH_SIZE);
-        Map<String, Long> sysLogSizeMap = new HashMap<>(RecordService.BATCH_SIZE);
+        List<SysLag> sysLagList = new ArrayList<>(BATCH_SIZE);
+        Map<String, Long> sysLogSizeMap = new HashMap<>(BATCH_SIZE);
         List<KafkaConsumerVo> kafkaConsumerVoList = kafkaConsumerService.listKafkaConsumers();
         for (KafkaConsumerVo kafkaConsumerVo : kafkaConsumerVoList) {
             Set<String> topicNames = kafkaConsumerVo.getTopicNames();
@@ -73,7 +73,6 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
                     sysLag.setConsumerName(kafkaConsumerVo.getGroupId());
                     sysLag.setTopicName(topicName);
                     sysLag.setLag(lag);
-                    //sysLag.setCreateTime(now);
                     sysLag.setCreateTime(new Date());
                     sysLagList.add(sysLag);
                     sysLogSizeMap.put(topicName, logSize);
@@ -82,13 +81,12 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
             }
         }
 
-        List<SysLogSize> sysLogSizeList = new ArrayList<>(RecordService.BATCH_SIZE);
+        List<SysLogSize> sysLogSizeList = new ArrayList<>(BATCH_SIZE);
 
         List<String> topicNames = kafkaService.listTopicNames();
         for (String topicName : topicNames) {
             try {
                 SysLogSize sysLogSize = new SysLogSize(topicName, topicRecordService.getRecordsCount(topicName));
-//                sysLogSize.setCreateTime(now);
                 sysLogSize.setCreateTime(new Date());
                 sysLogSizeList.add(sysLogSize);
             } catch (Exception ignored) {

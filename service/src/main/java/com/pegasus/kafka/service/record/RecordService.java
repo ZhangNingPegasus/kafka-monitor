@@ -8,6 +8,7 @@ import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.core.ThreadService;
 import com.pegasus.kafka.service.dto.TopicRecordService;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -22,20 +23,25 @@ import org.springframework.context.SmartLifecycle;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class RecordService implements SmartLifecycle, DisposableBean {
-    public static final Integer BATCH_SIZE = 2048;
     private static final Logger logger = LoggerFactory.getLogger(RecordService.class);
+    private static final Integer MAX_SIZE = 16392;
     private final KafkaService kafkaService;
     private final TopicRecordService topicRecordService;
     private final ThreadService threadService;
     private final KafkaConsumerService kafkaConsumerService;
     private final CoreService kafkaRecordService;
+    private final BlockingQueue<TopicRecord> blockingQueue;
     private boolean running;
     private Topic topic;
     private String consumerGroupdId;
+    private AtomicLong discardCount;
     private CountDownLatch cdl;
 
     public RecordService(Topic topic,
@@ -51,6 +57,8 @@ public class RecordService implements SmartLifecycle, DisposableBean {
         this.kafkaConsumerService = kafkaConsumerService;
         this.kafkaRecordService = kafkaRecordService;
         this.consumerGroupdId = String.format("%s_%s", Constants.KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_MESSAGE, this.topic.getName());
+        this.discardCount = new AtomicLong(0L);
+        this.blockingQueue = new LinkedBlockingQueue(16392);
     }
 
     public List<String> getTopicsNames() {
@@ -63,7 +71,8 @@ public class RecordService implements SmartLifecycle, DisposableBean {
 
     @Override
     public void start() {
-        cdl = new CountDownLatch(1);
+        setRunning(true);
+        cdl = new CountDownLatch(2);
 
         threadService.submit(() -> {
             Thread.currentThread().setName(String.format("thread-kafka-record-%s", this.topic.getName()));
@@ -128,9 +137,8 @@ public class RecordService implements SmartLifecycle, DisposableBean {
                     }
                 }
 
-                setRunning(true);
-
                 for (String topicName : this.topic.getTopicNameList()) {
+                    topicRecordService.createTable(topicName);
                     logger.info(String.format("[%s] : topic [%s] is beginning to collect.", Thread.currentThread().getName(), topicName));
                 }
 
@@ -139,19 +147,18 @@ public class RecordService implements SmartLifecycle, DisposableBean {
                     if (records.isEmpty()) {
                         continue;
                     }
-
-                    List<TopicRecord> topicRecordList = new ArrayList<>((int) (records.count() / 0.75));
                     for (ConsumerRecord<String, String> record : records) {
                         TopicRecord topicRecord = new TopicRecord();
-                        topicRecord.setTopicName(record.topic());
+                        topicRecord.setTopicName(StringUtils.isEmpty(record.topic()) ? "" : record.topic());
                         topicRecord.setPartitionId(record.partition());
                         topicRecord.setOffset(record.offset());
-                        topicRecord.setKey(record.key());
-                        topicRecord.setValue(record.value());
+                        topicRecord.setKey(StringUtils.isEmpty(record.key()) ? "" : record.key());
+                        topicRecord.setValue(StringUtils.isEmpty(record.value()) ? "" : record.value());
                         topicRecord.setTimestamp(new Date(record.timestamp()));
-                        topicRecordList.add(topicRecord);
+                        if (!this.blockingQueue.offer(topicRecord)) {
+                            logger.error(String.format("buffer full for topic [%s], [%s], conent is [%s]", topicRecord.getTopicName(), discardCount.incrementAndGet(), topicRecord));
+                        }
                     }
-                    topicRecordService.batchSave(topicRecordList);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -167,6 +174,27 @@ public class RecordService implements SmartLifecycle, DisposableBean {
                 logger.info(String.format("[%s] : topic [%s] is stopping to collect.", Thread.currentThread().getName(), this.topic.getName()));
                 cdl.countDown();
             }
+        });
+
+        threadService.submit(() -> {
+            while (isRunning()) {
+                try {
+                    List<TopicRecord> topicRecordList = new ArrayList<>(MAX_SIZE / 2);
+                    for (int i = 0; i < MAX_SIZE / 2; i++) {
+                        TopicRecord topicRecord = this.blockingQueue.poll(1L, TimeUnit.SECONDS);
+                        if (topicRecord == null) {
+                            break;
+                        }
+                        topicRecordList.add(topicRecord);
+                    }
+
+                    if (topicRecordList.size() > 0) {
+                        topicRecordService.batchSave(topicRecordList);
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+            cdl.countDown();
         });
     }
 

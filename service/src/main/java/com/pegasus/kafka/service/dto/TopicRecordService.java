@@ -12,6 +12,10 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -25,9 +29,11 @@ import java.util.*;
 @Service
 public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicRecord> {
     public static final String TABLE_PREFIX = "topic_";
+    private final DataSource dataSource;
     private final Set<String> tableNames;
 
-    public TopicRecordService(SchemaService schemaService) {
+    public TopicRecordService(DataSource dataSource, SchemaService schemaService) {
+        this.dataSource = dataSource;
         tableNames = schemaService.listTables();
     }
 
@@ -50,23 +56,24 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
         }
 
         if (topicRecordMap.size() > 0) {
-            topicRecordMap.forEach(this::batchSave);
+            topicRecordMap.forEach((topicName, topicRecordList1) -> {
+                try {
+                    batchSave(topicName, topicRecordList1);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    log.error("数据插入失败", e);
+                }
+            });
         }
     }
 
     @TranSave
-    void batchSave(String topicName, List<TopicRecord> topicRecordList) {
+    void batchSave(String topicName, List<TopicRecord> topicRecordList) throws SQLException {
         if (topicRecordList == null || topicRecordList.size() < 1) {
             return;
         }
         String tableName = convertToTableName(topicName);
         String recordTableName = convertToRecordTableName(topicName);
-        if (!tableNames.contains(tableName)) {
-            createTableIfNotExists(tableName);
-        }
-        if (!tableNames.contains(recordTableName)) {
-            createRecordTableIfNotExists(recordTableName);
-        }
 
         List<TopicRecordValue> topicRecordValueList = new ArrayList<>(topicRecordList.size());
 
@@ -85,8 +92,57 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
             }
         }
 
-        this.baseMapper.batchSave(tableName, topicRecordList);
-        this.baseMapper.batchSaveRecord(recordTableName, topicRecordValueList);
+        batchSave(tableName, topicRecordList, recordTableName, topicRecordValueList);
+    }
+
+    public void batchSave(String topicTableName,
+                          List<TopicRecord> topicRecordList,
+                          String recordTableName,
+                          List<TopicRecordValue> topicRecordValueList) throws SQLException {
+        if (topicRecordList.size() < 1 && topicRecordValueList.size() < 1) {
+            return;
+        }
+        Connection connection = null;
+
+        try {
+            connection = dataSource.getConnection();
+            connection.setAutoCommit(false);
+
+            if (topicRecordList.size() > 0) {
+                try (PreparedStatement cmd = connection.prepareStatement(String.format("INSERT IGNORE INTO `%s`(`partition_id`,`offset`,`key`,`value`,`timestamp`) VALUES(?,?,?,?,?)", topicTableName))) {
+                    for (TopicRecord topicRecord : topicRecordList) {
+                        cmd.setInt(1, topicRecord.getPartitionId());
+                        cmd.setLong(2, topicRecord.getOffset());
+                        cmd.setString(3, topicRecord.getKey());
+                        cmd.setString(4, topicRecord.getValue());
+                        cmd.setDate(5, new java.sql.Date(topicRecord.getTimestamp().getTime()));
+                        cmd.addBatch();
+                    }
+                    cmd.executeBatch();
+                    connection.commit();
+                }
+            }
+
+            if (topicRecordValueList.size() > 0) {
+                try (PreparedStatement cmd = connection.prepareStatement(String.format("INSERT IGNORE INTO `%s`(`partition_id`,`offset`,`value`) VALUES(?,?,?)", recordTableName))) {
+                    for (TopicRecordValue topicRecordValue : topicRecordValueList) {
+                        cmd.setInt(1, topicRecordValue.getPartitionId());
+                        cmd.setLong(2, topicRecordValue.getOffset());
+                        cmd.setString(3, topicRecordValue.getValue());
+                        cmd.addBatch();
+                    }
+                    cmd.executeBatch();
+                    connection.commit();
+                }
+            }
+        } catch (Exception e) {
+            log.error("", e);
+        } finally {
+            if (connection != null) {
+                connection.setAutoCommit(true);
+                connection.close();
+            }
+        }
     }
 
 
@@ -121,6 +177,18 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
             return this.baseMapper.findRecordValue(convertToRecordTableName(topicName), partitionId, offset);
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    @TranSave
+    public void createTable(String topicName) {
+        String tableName = convertToTableName(topicName);
+        String recordTableName = convertToRecordTableName(topicName);
+        if (!tableNames.contains(tableName)) {
+            createTableIfNotExists(tableName);
+        }
+        if (!tableNames.contains(recordTableName)) {
+            createRecordTableIfNotExists(recordTableName);
         }
     }
 

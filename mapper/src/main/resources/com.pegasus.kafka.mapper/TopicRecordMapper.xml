@@ -2,44 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.pegasus.kafka.mapper.TopicRecordMapper">
-    <insert id="batchSave">
-        INSERT IGNORE INTO `${tableName}`
-        (
-        `partition_id`,
-        `offset`,
-        `key`,
-        `value`,
-        `timestamp`
-        )
-        VALUES
-        <foreach collection="topicRecords" item="item" separator=",">
-            (
-            #{item.partitionId},
-            #{item.offset},
-            #{item.key},
-            #{item.value},
-            #{item.timestamp}
-            )
-        </foreach>
-    </insert>
-
-    <insert id="batchSaveRecord">
-        INSERT IGNORE INTO `${recordTableName}`
-        (
-        `partition_id`,
-        `offset`,
-        `value`
-        )
-        VALUES
-        <foreach collection="topicRecordValues" item="item" separator=",">
-            (
-            #{item.partitionId},
-            #{item.offset},
-            #{item.value}
-            )
-        </foreach>
-    </insert>
-
     <update id="createTableIfNotExists">
          SET NAMES utf8mb4;
          SET FOREIGN_KEY_CHECKS = 0;
@@ -125,10 +87,10 @@
         FROM `${tableName}`
         WHERE 1 = 1
         <if test="from != null">
-            AND `create_time` &gt;= #{from}
+            AND `timestamp` &gt;= #{from}
         </if>
         <if test="to != null">
-            AND `create_time` &lt; #{to}
+            AND `timestamp` &lt; #{to}
         </if>
     </select>
 

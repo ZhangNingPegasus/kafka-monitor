@@ -6,6 +6,7 @@ import com.pegasus.kafka.common.utils.Common;
 import com.pegasus.kafka.entity.vo.KafkaTopicRecordVo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.Date;
 
@@ -18,6 +19,7 @@ import java.util.Date;
  * Ning.Zhang       Initialize         11/7/2019      Initialize   *
  * *****************************************************************
  */
+@ToString
 @EqualsAndHashCode(callSuper = false)
 @Data
 public class TopicRecord extends BaseDto {

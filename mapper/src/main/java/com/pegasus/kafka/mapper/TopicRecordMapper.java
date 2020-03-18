@@ -4,7 +4,6 @@ package com.pegasus.kafka.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.pegasus.kafka.entity.dto.TopicRecord;
-import com.pegasus.kafka.entity.dto.TopicRecordValue;
 import com.pegasus.kafka.entity.po.MaxOffset;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -26,11 +25,6 @@ public interface TopicRecordMapper extends BaseMapper<TopicRecord> {
 
     void createRecordTableIfNotExists(@Param(value = "recordTableName") String recordTableName);
 
-    void batchSave(@Param(value = "tableName") String tableName,
-                   @Param(value = "topicRecords") List<TopicRecord> topicRecords);
-
-    void batchSaveRecord(@Param(value = "recordTableName") String recordTableName,
-                         @Param(value = "topicRecordValues") List<TopicRecordValue> topicRecordValues);
 
     List<TopicRecord> listRecords(IPage page,
                                   @Param(value = "tableName") String tableName,
