@@ -23,7 +23,7 @@
         </filter>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>
-                /wyyt/logs/kafka/kafka_monitor/kafka_monitor.%d{yyyy-MM-dd-HH}.%i.log.gz
+                /wyyt/logs/kafka_monitor/kafka_monitor-filebeat.%d{yyyy-MM-dd-HH}.%i.log.gz
             </fileNamePattern>
             <maxFileSize>100MB</maxFileSize>
         </rollingPolicy>
