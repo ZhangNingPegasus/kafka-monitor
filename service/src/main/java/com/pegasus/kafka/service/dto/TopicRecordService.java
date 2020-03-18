@@ -25,10 +25,10 @@ import java.util.*;
 @Service
 public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicRecord> {
     public static final String TABLE_PREFIX = "topic_";
-    private final SchemaService schemaService;
+    private final Set<String> tableNames;
 
     public TopicRecordService(SchemaService schemaService) {
-        this.schemaService = schemaService;
+        tableNames = schemaService.listTables();
     }
 
     public void batchSave(List<TopicRecord> topicRecordList) {
@@ -61,7 +61,6 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
         }
         String tableName = convertToTableName(topicName);
         String recordTableName = convertToRecordTableName(topicName);
-        Set<String> tableNames = schemaService.listTables();
         if (!tableNames.contains(tableName)) {
             createTableIfNotExists(tableName);
         }

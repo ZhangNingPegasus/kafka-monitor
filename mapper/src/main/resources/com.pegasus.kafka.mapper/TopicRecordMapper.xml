@@ -125,7 +125,7 @@
         FROM `${tableName}`
         WHERE 1 = 1
         <if test="from != null">
-            `create_time` &gt;= #{from}
+            AND `create_time` &gt;= #{from}
         </if>
         <if test="to != null">
             AND `create_time` &lt; #{to}

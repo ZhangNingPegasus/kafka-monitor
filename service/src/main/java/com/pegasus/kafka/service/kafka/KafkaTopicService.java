@@ -14,7 +14,7 @@ import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.dto.SysLagService;
 import com.pegasus.kafka.service.dto.SysLogSizeService;
 import com.pegasus.kafka.service.dto.TopicRecordService;
-import com.pegasus.kafka.service.record.KafkaRecordService;
+import com.pegasus.kafka.service.record.CoreService;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.kafka.common.ConsumerGroupState;
 import org.apache.zookeeper.data.Stat;
@@ -43,9 +43,9 @@ public class KafkaTopicService {
     private final SysLagService sysLagService;
     private final SysLogSizeService sysLogSizeService;
     private final KafkaConsumerService kafkaConsumerService;
-    private final KafkaRecordService kafkaRecordService;
+    private final CoreService kafkaRecordService;
 
-    public KafkaTopicService(KafkaService kafkaService, TopicRecordService topicRecordService, SysLagService sysLagService, @Lazy SysLogSizeService sysLogSizeService, KafkaConsumerService kafkaConsumerService, KafkaRecordService kafkaRecordService) {
+    public KafkaTopicService(KafkaService kafkaService, TopicRecordService topicRecordService, SysLagService sysLagService, @Lazy SysLogSizeService sysLogSizeService, KafkaConsumerService kafkaConsumerService, CoreService kafkaRecordService) {
         this.kafkaService = kafkaService;
         this.topicRecordService = topicRecordService;
         this.sysLagService = sysLagService;
@@ -103,26 +103,6 @@ public class KafkaTopicService {
         result.setLogSize(topicRecordService.listMaxOffsetCount(topicName));
         try {
             result.setLogSize(topicRecordService.listMaxOffsetCount(topicName));
-
-//            Long[] daysValue = new Long[8];
-//
-//            daysValue[0] = kafkaService.listLogSize(topicName);
-//            daysValue[1] = sysLogSizeService.getHistoryLogSize(topicName, 1);
-//            daysValue[2] = sysLogSizeService.getHistoryLogSize(topicName, 2);
-//            daysValue[3] = sysLogSizeService.getHistoryLogSize(topicName, 3);
-//            daysValue[4] = sysLogSizeService.getHistoryLogSize(topicName, 4);
-//            daysValue[5] = sysLogSizeService.getHistoryLogSize(topicName, 5);
-//            daysValue[6] = sysLogSizeService.getHistoryLogSize(topicName, 6);
-//            daysValue[7] = sysLogSizeService.getHistoryLogSize(topicName, 7);
-//
-//            result.setDay0LogSize(Common.calculateHistoryLogSize(daysValue, 0)); //今天
-//            result.setDay1LogSize(Common.calculateHistoryLogSize(daysValue, 1)); //昨天
-//            result.setDay2LogSize(Common.calculateHistoryLogSize(daysValue, 2)); //前天
-//            result.setDay3LogSize(Common.calculateHistoryLogSize(daysValue, 3)); //前3天
-//            result.setDay4LogSize(Common.calculateHistoryLogSize(daysValue, 4)); //前4天
-//            result.setDay5LogSize(Common.calculateHistoryLogSize(daysValue, 5)); //前5天
-//            result.setDay6LogSize(Common.calculateHistoryLogSize(daysValue, 6)); //前6天
-
             result.setDay0LogSize(sysLogSizeService.getHistoryLogSize(topicName, 0)); //今天
             result.setDay1LogSize(sysLogSizeService.getHistoryLogSize(topicName, 1)); //昨天
             result.setDay2LogSize(sysLogSizeService.getHistoryLogSize(topicName, 2)); //前天
@@ -214,11 +194,11 @@ public class KafkaTopicService {
             }
         }
         kafkaRecordService.uninstallTopicName(topicName);
-        kafkaService.deleteTopic(topicName);
         sysLagService.deleteTopic(topicName);
         sysLogSizeService.deleteTopic(topicName);
         topicRecordService.dropTable(topicName);
         Thread.sleep(1000);
+        kafkaService.deleteTopic(topicName);
     }
 
     public String listTopicSize(String topicName) throws Exception {

@@ -25,20 +25,25 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class KafkaTopicRecord implements SmartLifecycle, DisposableBean {
+public class RecordService implements SmartLifecycle, DisposableBean {
     public static final Integer BATCH_SIZE = 2048;
-    private static final Logger logger = LoggerFactory.getLogger(KafkaTopicRecord.class);
+    private static final Logger logger = LoggerFactory.getLogger(RecordService.class);
     private final KafkaService kafkaService;
     private final TopicRecordService topicRecordService;
     private final ThreadService threadService;
     private final KafkaConsumerService kafkaConsumerService;
-    private final KafkaRecordService kafkaRecordService;
+    private final CoreService kafkaRecordService;
     private boolean running;
     private Topic topic;
     private String consumerGroupdId;
     private CountDownLatch cdl;
 
-    public KafkaTopicRecord(Topic topic, KafkaService kafkaService, TopicRecordService topicRecordService, ThreadService threadService, KafkaConsumerService kafkaConsumerService, KafkaRecordService kafkaRecordService) {
+    public RecordService(Topic topic,
+                         KafkaService kafkaService,
+                         TopicRecordService topicRecordService,
+                         ThreadService threadService,
+                         KafkaConsumerService kafkaConsumerService,
+                         CoreService kafkaRecordService) {
         this.topic = topic;
         this.kafkaService = kafkaService;
         this.topicRecordService = topicRecordService;
@@ -61,7 +66,7 @@ public class KafkaTopicRecord implements SmartLifecycle, DisposableBean {
         cdl = new CountDownLatch(1);
 
         threadService.submit(() -> {
-            Thread.currentThread().setName(String.format("thread-data-sync-%s", this.topic.getName()));
+            Thread.currentThread().setName(String.format("thread-kafka-record-%s", this.topic.getName()));
 
             try {
                 List<String> groupIdList = kafkaConsumerService.listAllConsumers();
@@ -131,9 +136,10 @@ public class KafkaTopicRecord implements SmartLifecycle, DisposableBean {
 
                 while (isRunning()) {
                     ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(200));
-                    if (records.count() < 1) {
+                    if (records.isEmpty()) {
                         continue;
                     }
+
                     List<TopicRecord> topicRecordList = new ArrayList<>((int) (records.count() / 0.75));
                     for (ConsumerRecord<String, String> record : records) {
                         TopicRecord topicRecord = new TopicRecord();

@@ -35,4 +35,7 @@ public class PropertyService {
 
     @Value("${database.retention.days}")
     private Integer dbRetentionDays;
+
+    @Value("${topic.blacklist}")
+    private String topicBlackList;
 }
