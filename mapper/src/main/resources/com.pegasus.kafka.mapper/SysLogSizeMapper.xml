@@ -56,13 +56,15 @@
         INSERT IGNORE INTO `sys_log_size`
         (
         `topic_name`,
-        `log_size`
+        `log_size`,
+        `create_time`
         )
         VALUES
         <foreach collection="sysLogSizeList" item="item" separator=",">
             (
             #{item.topicName},
-            #{item.logSize}
+            #{item.logSize},
+            #{item.createTime}
             )
         </foreach>
     </insert>

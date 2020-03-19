@@ -48,7 +48,7 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
         this.topicRecordService = topicRecordService;
     }
 
-    public Matrix kpi() throws Exception {
+    public Matrix kpi(Date now) throws Exception {
         Matrix result = new Matrix();
         List<SysLag> sysLagList = new ArrayList<>(BATCH_SIZE);
         Map<String, Long> sysLogSizeMap = new HashMap<>(BATCH_SIZE);
@@ -73,7 +73,7 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
                     sysLag.setConsumerName(kafkaConsumerVo.getGroupId());
                     sysLag.setTopicName(topicName);
                     sysLag.setLag(lag);
-                    sysLag.setCreateTime(new Date());
+                    sysLag.setCreateTime(now);
                     sysLagList.add(sysLag);
                     sysLogSizeMap.put(topicName, logSize);
                 } catch (Exception ignored) {
@@ -87,7 +87,7 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
         for (String topicName : topicNames) {
             try {
                 SysLogSize sysLogSize = new SysLogSize(topicName, topicRecordService.getRecordsCount(topicName));
-                sysLogSize.setCreateTime(new Date());
+                sysLogSize.setCreateTime(now);
                 sysLogSizeList.add(sysLogSize);
             } catch (Exception ignored) {
 

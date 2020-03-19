@@ -153,6 +153,8 @@
                 });
                 element.render('progress');
 
+                let timeTps = null;
+
                 function refreshTopicTpsChart() {
                     const tpsTopicName = $.trim($("#tpsTopicName").siblings().find("dd[class='layui-this']").html());
                     const topicCreateTimeRange = $.trim($("#topicCreateTimeRange").val());
@@ -171,8 +173,19 @@
                         const echart = echarts.init(ele[0], layui.echartsTheme);
                         echart.setOption(topicChart(data));
                         window.onresize = echart.resize;
+
+                        if (timeTps != null) {
+                            clearInterval(timeTps);
+                        }
+                        timeTps = setInterval(function () {
+                            admin.post("getTopicChart?topicName=" + tpsTopicName + "&createTimeRange=" + topicCreateTimeRange, {}, function (data) {
+                                echart.setOption(topicChart(data.data));
+                            });
+                        }, 60000);
                     }
                 }
+
+                let timeLag = null;
 
                 function refreshLagChart() {
                     const consumerId = $.trim($("#consumerName").siblings().find("dd[class='layui-this']").html());
@@ -192,6 +205,15 @@
                         const echart = echarts.init(ele[0], layui.echartsTheme);
                         echart.setOption(lagChart(data));
                         window.onresize = echart.resize;
+
+                        if (timeLag != null) {
+                            clearInterval(timeLag);
+                        }
+                        timeLag = setInterval(function () {
+                            admin.post("getLagChart?groupId=" + consumerId + "&createTimeRange=" + lagCreateTimeRange, {}, function (data) {
+                                echart.setOption(lagChart(data.data));
+                            });
+                        }, 60000);
                     }
                 }
 
@@ -269,7 +291,7 @@
                 now.setDate(now.getDate() + 1);
                 const to = now.format('yyyy-MM-dd' + ' 00:00:00');
                 now.setDate(now.getDate() - 1);
-                now.setMinutes(now.getMinutes() - 30);
+                now.setMinutes(now.getMinutes() - 3);
                 const from = now.format('yyyy-MM-dd HH:mm' + ':00');
                 $("#lagCreateTimeRange,#topicCreateTimeRange,#rankCreateTimeRange").val(from + ' - ' + to);
 
@@ -298,7 +320,7 @@
                 });
 
                 $("#btnTopicRefresh").click(function () {
-                        refreshTopicTpsChart();
+                    refreshTopicTpsChart();
                 });
 
                 $("#btnTopicRankRefresh").click(function () {

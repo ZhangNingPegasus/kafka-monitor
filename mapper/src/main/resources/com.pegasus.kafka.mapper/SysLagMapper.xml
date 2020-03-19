@@ -25,14 +25,16 @@
         (
         `consumer_name`,
         `topic_name`,
-        `lag`
+        `lag`,
+        `create_time`
         )
         VALUES
         <foreach collection="sysLagList" item="item" separator=",">
             (
             #{item.consumerName},
             #{item.topicName},
-            #{item.lag}
+            #{item.lag},
+            #{item.createTime}
             )
         </foreach>
     </insert>

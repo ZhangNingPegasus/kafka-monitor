@@ -41,17 +41,19 @@ public class LogSizeSchedule {
     @Scheduled(cron = "0 0/1 * * * ?")
     public void collect() throws Exception {
         Date now = new Date();
-        SysLogSizeService.Matrix matrix = sysLogSizeService.kpi();
+        SysLogSizeService.Matrix matrix = sysLogSizeService.kpi(now);
         try {
             sysLogSizeService.batchSave(matrix.getSysLogSizeList());
         } catch (Exception ignored) {
             ignored.printStackTrace();
         }
+
         try {
             sysLagService.batchSave(matrix.getSysLagList());
         } catch (Exception ignored) {
             ignored.printStackTrace();
         }
+
 
         List<SysAlertConsumer> sysAlertConsumerList = sysAlertConsumerService.list();
 
