@@ -196,7 +196,7 @@ public class DashboardController {
             }
             series.setData(data);
         }
-        ehcacheService.set(key, result);
+        ehcacheService.set(key, result, 60);
         return Result.ok(result);
     }
 
@@ -233,7 +233,7 @@ public class DashboardController {
 
         result.setTopicNames(topicNames);
         result.setSeries(seriesList);
-        ehcacheService.set(key, result);
+        ehcacheService.set(key, result, 60);
         return Result.ok(result);
     }
 
@@ -284,6 +284,4 @@ public class DashboardController {
 
         return Result.ok(result);
     }
-
-
 }

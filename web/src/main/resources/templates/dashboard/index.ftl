@@ -181,7 +181,7 @@
                             admin.post("getTopicChart?topicName=" + tpsTopicName + "&createTimeRange=" + topicCreateTimeRange, {}, function (data) {
                                 echart.setOption(topicChart(data.data));
                             });
-                        }, 60000);
+                        }, 30000);
                     }
                 }
 
@@ -213,7 +213,7 @@
                             admin.post("getLagChart?groupId=" + consumerId + "&createTimeRange=" + lagCreateTimeRange, {}, function (data) {
                                 echart.setOption(lagChart(data.data));
                             });
-                        }, 60000);
+                        }, 30000);
                     }
                 }
 
@@ -291,7 +291,7 @@
                 now.setDate(now.getDate() + 1);
                 const to = now.format('yyyy-MM-dd' + ' 00:00:00');
                 now.setDate(now.getDate() - 1);
-                now.setMinutes(now.getMinutes() - 3);
+                now.setMinutes(now.getMinutes() - 30);
                 const from = now.format('yyyy-MM-dd HH:mm' + ':00');
                 $("#lagCreateTimeRange,#topicCreateTimeRange,#rankCreateTimeRange").val(from + ' - ' + to);
 
