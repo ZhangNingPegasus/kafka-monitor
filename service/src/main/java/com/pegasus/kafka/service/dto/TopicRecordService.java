@@ -95,9 +95,9 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
     }
 
     private void batchSave(String topicTableName,
-                          List<TopicRecord> topicRecordList,
-                          String recordTableName,
-                          List<TopicRecordValue> topicRecordValueList) throws SQLException {
+                           List<TopicRecord> topicRecordList,
+                           String recordTableName,
+                           List<TopicRecordValue> topicRecordValueList) throws SQLException {
         if (topicRecordList.size() < 1 && topicRecordValueList.size() < 1) {
             return;
         }
@@ -114,7 +114,7 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
                         cmd.setLong(2, topicRecord.getOffset());
                         cmd.setString(3, topicRecord.getKey());
                         cmd.setString(4, topicRecord.getValue());
-                        cmd.setDate(5, new java.sql.Date(topicRecord.getTimestamp().getTime()));
+                        cmd.setTimestamp(5, new java.sql.Timestamp(topicRecord.getTimestamp().getTime()));
                         cmd.addBatch();
                     }
                     cmd.executeBatch();
