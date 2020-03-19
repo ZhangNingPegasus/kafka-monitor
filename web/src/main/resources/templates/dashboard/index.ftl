@@ -155,9 +155,26 @@
 
                 let timeTps = null;
 
+                function checkTimeRange(id, dateRange) {
+                    const split = dateRange.split(' - ');
+                    const start = new Date(split[0]);
+                    const now = new Date();
+                    if ((now - start) > 1000 * 60 * 40) {
+                        now.setDate(now.getDate() + 1);
+                        const to = now.format('yyyy-MM-dd' + ' 00:00:00');
+                        now.setDate(now.getDate() - 1);
+                        now.setMinutes(now.getMinutes() - 30);
+                        const from = now.format('yyyy-MM-dd HH:mm' + ':00');
+                        dateRange = from + ' - ' + to;
+                        $("#" + id).val(dateRange);
+                    }
+                    return dateRange;
+                }
+
                 function refreshTopicTpsChart() {
                     const tpsTopicName = $.trim($("#tpsTopicName").siblings().find("dd[class='layui-this']").html());
                     const topicCreateTimeRange = $.trim($("#topicCreateTimeRange").val());
+
                     if (tpsTopicName == null || tpsTopicName === '' || topicCreateTimeRange == null || topicCreateTimeRange === '') {
                         _init({topicNames: [], times: [], series: []});
                         return;
@@ -178,7 +195,7 @@
                             clearInterval(timeTps);
                         }
                         timeTps = setInterval(function () {
-                            admin.post("getTopicChart?topicName=" + tpsTopicName + "&createTimeRange=" + topicCreateTimeRange, {}, function (data) {
+                            admin.post("getTopicChart?topicName=" + tpsTopicName + "&createTimeRange=" + checkTimeRange('topicCreateTimeRange', topicCreateTimeRange), {}, function (data) {
                                 echart.setOption(topicChart(data.data));
                             });
                         }, 30000);
@@ -210,7 +227,7 @@
                             clearInterval(timeLag);
                         }
                         timeLag = setInterval(function () {
-                            admin.post("getLagChart?groupId=" + consumerId + "&createTimeRange=" + lagCreateTimeRange, {}, function (data) {
+                            admin.post("getLagChart?groupId=" + consumerId + "&createTimeRange=" + checkTimeRange('lagCreateTimeRange', lagCreateTimeRange), {}, function (data) {
                                 echart.setOption(lagChart(data.data));
                             });
                         }, 30000);
