@@ -53,7 +53,7 @@ if [ ! -d $LOGS_DIR ]; then
   mkdir $LOGS_DIR
 fi
 STDOUT_FILE=$LOGS_DIR/stdout.log
-JAVA_OPTS=" -Xloggc:$LOGS_JVM/kafka-monitor-gc.log -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCApplicationStoppedTime -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true "
+JAVA_OPTS=" -Xloggc:$LOGS_JVM/kafka-monitor-gc.log  -XX:NumberOfGCLogFiles=10  -XX:+UseGCLogFileRotation  -XX:GCLogFileSize=20M -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCApplicationStoppedTime -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true "
 JAVA_DEBUG_OPTS=""
 
 JAVA_JMX_OPTS=""
