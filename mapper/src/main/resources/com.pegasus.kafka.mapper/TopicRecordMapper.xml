@@ -46,6 +46,10 @@
         DROP TABLE IF EXISTS `${tableName}`;
     </delete>
 
+    <delete id="truncateTable">
+        TRUNCATE TABLE `${tableName}`;
+    </delete>
+
     <select id="listRecords" resultType="com.pegasus.kafka.entity.dto.TopicRecord">
         SELECT
         *

@@ -73,7 +73,8 @@ public abstract class AuthDirective {
         INSERT,
         DELETE,
         UPDATE,
-        SELECT
+        SELECT,
+        ONLY_SELECT
     }
 
     private interface HandlePermission {

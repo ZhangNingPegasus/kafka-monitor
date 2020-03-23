@@ -22,10 +22,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -193,10 +190,11 @@ public class KafkaTopicService {
                 throw new BusinessException(ResultCode.TOPIC_IS_RUNNING);
             }
         }
+
         kafkaRecordService.uninstallTopicName(topicName);
         sysLagService.deleteTopic(topicName);
         sysLogSizeService.deleteTopic(topicName);
-        topicRecordService.dropTable(topicName);
+        topicRecordService.truncateTable(topicName);
         Thread.sleep(1000);
         kafkaService.deleteTopic(topicName);
     }

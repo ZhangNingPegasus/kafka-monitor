@@ -45,6 +45,7 @@ public interface TopicRecordMapper extends BaseMapper<TopicRecord> {
 
     void dropTable(@Param(value = "tableName") String tableName);
 
+    void truncateTable(@Param(value = "tableName") String tableName);
 
     Long getRecordsCount(@Param(value = "tableName") String tableName, @Param(value = "from") Date from, @Param(value = "to") Date to);
 
@@ -53,4 +54,6 @@ public interface TopicRecordMapper extends BaseMapper<TopicRecord> {
     Date getMaxCreateTime(@Param(value = "tableName") String tableName);
 
     Long getMaxOffset(@Param(value = "tableName") String tableName);
+
+
 }

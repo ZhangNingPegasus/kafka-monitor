@@ -139,9 +139,9 @@
                     {field: 'partitionIndex', title: '分区索引', templet: '#colPartitionIndex', width: 120},
                     {field: 'createTime', title: '创建时间', templet: '#colCreateTime', width: 160},
                     {field: 'modifyTime', title: '修改时间', templet: '#colModifyTime', width: 160}
-                    <@select>
+                    <@not_only_select>
                     , {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 240}
-                    </@select>
+                    </@not_only_select>
                 ]],
                 done: function () {
                     $("a[class='topicName layui-table-link']").click(function () {

@@ -61,6 +61,16 @@ public class FreeMarkerConfig implements InitializingBean {
         return new NoSelectDirective();
     }
 
+    @Bean
+    public OnlySelectDirective onlySelectDirective() {
+        return new OnlySelectDirective();
+    }
+
+    @Bean
+    public NotOnlySelectDirective notOnlySelectDirective() {
+        return new NotOnlySelectDirective();
+    }
+
     @Override
     public void afterPropertiesSet() {
         freeMarkerConfiguration.setSharedVariable("insert", insertDirective());
@@ -72,5 +82,9 @@ public class FreeMarkerConfig implements InitializingBean {
         freeMarkerConfiguration.setSharedVariable("no_delete", noDeleteDirective());
         freeMarkerConfiguration.setSharedVariable("no_update", noUpdateDirective());
         freeMarkerConfiguration.setSharedVariable("no_select", noSelectDirective());
+
+        freeMarkerConfiguration.setSharedVariable("only_select", onlySelectDirective());
+
+        freeMarkerConfiguration.setSharedVariable("not_only_select", notOnlySelectDirective());
     }
 }

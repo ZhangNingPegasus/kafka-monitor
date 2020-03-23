@@ -63,7 +63,7 @@ public class DeleteSchedule {
         }
 
         for (String tableName : needDropList) {
-            topicRecordService.getBaseMapper().dropTable(tableName);
+            topicRecordService.getBaseMapper().truncateTable(tableName);
         }
     }
 }

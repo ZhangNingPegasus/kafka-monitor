@@ -10,7 +10,6 @@ import com.pegasus.kafka.entity.po.MaxOffset;
 import com.pegasus.kafka.mapper.TopicRecordMapper;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -144,12 +143,19 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
         }
     }
 
-
-    @TranRead
-    @Transactional
+    @TranSave
     public void dropTable(String topicName) {
         this.baseMapper.dropTable(convertToTableName(topicName));
         this.baseMapper.dropTable(convertToRecordTableName(topicName));
+    }
+
+    @TranSave
+    public void truncateTable(String topicName) {
+        try {
+            this.baseMapper.truncateTable(convertToTableName(topicName));
+            this.baseMapper.truncateTable(convertToRecordTableName(topicName));
+        } catch (Exception ignored) {
+        }
     }
 
     @TranRead
