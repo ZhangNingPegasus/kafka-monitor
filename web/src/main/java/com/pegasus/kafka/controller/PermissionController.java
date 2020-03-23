@@ -72,10 +72,10 @@ public class PermissionController {
     @ResponseBody
     public Result<?> add(@RequestParam(value = "sysRoleId", required = true) Long sysRoleId,
                          @RequestParam(value = "sysPageId", required = true) Long sysPageId,
-                         @RequestParam(value = "insert", required = true) Boolean insert,
-                         @RequestParam(value = "delete", required = true) Boolean delete,
-                         @RequestParam(value = "update", required = true) Boolean update,
-                         @RequestParam(value = "select", required = true) Boolean select) {
+                         @RequestParam(value = "insert", required = true, defaultValue = "false") Boolean insert,
+                         @RequestParam(value = "delete", required = true, defaultValue = "false") Boolean delete,
+                         @RequestParam(value = "update", required = true, defaultValue = "false") Boolean update,
+                         @RequestParam(value = "select", required = true, defaultValue = "false") Boolean select) {
         SysPermission authPermission = new SysPermission();
         authPermission.setSysRoleId(sysRoleId);
         authPermission.setSysPageId(sysPageId);

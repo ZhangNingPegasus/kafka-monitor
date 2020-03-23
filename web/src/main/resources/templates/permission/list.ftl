@@ -135,11 +135,12 @@
             const checkStatus = table.checkStatus(obj.config.id);
             switch (obj.event) {
                 case 'batchDel':
-                    var data = checkStatus.data;
+                    const data = checkStatus.data;
                     if (data.length > 0) {
                         layer.confirm(admin.DEL_QUESTION, function (index) {
-                            var keys = "";
-                            for (var j = 0, len = data.length; j < len; j++) {
+                            let keys = "";
+                            let j = 0, len = data.length;
+                            for (; j < len; j++) {
                                 keys = keys + data[j].id + ","
                             }
                             admin.post('del', {ids: keys}, function () {
