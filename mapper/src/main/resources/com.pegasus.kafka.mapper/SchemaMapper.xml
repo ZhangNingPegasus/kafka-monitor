@@ -66,6 +66,7 @@
         `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
         `consumer_name` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '消费者名称',
         `topic_name` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '消费者订阅的主题名称',
+        `offset` bigint(10) UNSIGNED NOT NULL COMMENT '当前消费的偏移量位置',
         `lag` bigint(10) UNSIGNED NOT NULL COMMENT '消息堆积数量',
         `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
         PRIMARY KEY (`id`) USING BTREE,

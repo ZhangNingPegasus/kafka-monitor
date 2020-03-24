@@ -31,8 +31,16 @@ public class SysLag extends BaseDto {
     private String topicName;
 
     /**
+     * 当前消费的偏移量位置
+     */
+    @TableField(value = "`offset`")
+    private Long offset;
+
+    /**
      * 消息堆积数量
      */
     @TableField(value = "`lag`")
     private Long lag;
+
+
 }

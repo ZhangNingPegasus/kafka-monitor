@@ -201,6 +201,89 @@ public class DashboardController {
     }
 
 
+    @PostMapping("getConsumeTpsChart")
+    @ResponseBody
+    public Result<LineInfo> getConsumeTpsChart(@RequestParam(name = "groupId", required = true) String groupId,
+                                               @RequestParam(name = "createTimeRange", required = true) String createTimeRange) throws ParseException {
+        String key = String.format("DashboardController::getConsumeTpsChart:%s:%s", groupId, createTimeRange);
+        LineInfo cache = ehcacheService.get(key);
+        if (cache != null) {
+            return Result.ok(cache);
+        }
+        groupId = groupId.trim();
+        createTimeRange = createTimeRange.trim();
+        if (StringUtils.isEmpty(groupId) || StringUtils.isEmpty(createTimeRange)) {
+            return Result.ok();
+        }
+        LineInfo result = new LineInfo();
+        Common.TimeRange timeRange = Common.splitTime(createTimeRange);
+        Date from = timeRange.getStart(), to = timeRange.getEnd();
+
+        List<SysLag> sysLagList = sysLagService.listByGroupId("所有消费组".equals(groupId) ? null : groupId, from, to);
+        List<String> topicNames = sysLagList.stream().map(SysLag::getTopicName).distinct().collect(Collectors.toList());
+        List<String> times = sysLagList.stream().map(p -> Common.format(p.getCreateTime())).distinct().collect(Collectors.toList());
+        if (times.size() > 0) {
+            times.remove(0);
+        }
+        result.setTopicNames(topicNames);
+        result.setTimes(times);
+
+        List<LineInfo.Series> seriesList = new ArrayList<>(result.getTopicNames().size());
+        for (String topicName : result.getTopicNames()) {
+            LineInfo.Series series = new LineInfo.Series();
+            series.setName(topicName);
+            series.setType("line");
+            series.setSmooth(true);
+            seriesList.add(series);
+        }
+        result.setSeries(seriesList);
+
+        for (LineInfo.Series series : result.getSeries()) {
+            List<SysLag> sysLags = sysLagList.stream().filter(p -> p.getTopicName().equals(series.getName())).collect(Collectors.toList());
+            List<Double> data = new ArrayList<>(result.getTimes().size());
+            for (String time : result.getTimes()) {
+                Long preLogSize = null;
+                Long curLogSize = null;
+                Date preDate = null;
+                Date curDate = null;
+                for (int i = 0; i < sysLags.size(); i++) {
+                    SysLag sysLag = sysLags.get(i);
+                    if (sysLag.getTopicName().equals(series.getName()) && Common.format(sysLag.getCreateTime()).equals(time)) {
+                        curLogSize = sysLag.getOffset();
+                        curDate = sysLag.getCreateTime();
+                        int preIndex = i - 1;
+                        if (preIndex >= 0 && preIndex < sysLags.size()) {
+                            preLogSize = sysLags.get(preIndex).getOffset();
+                            preDate = sysLags.get(preIndex).getCreateTime();
+                        }
+                        break;
+                    }
+                }
+                Long offset = null;
+                if (curLogSize != null) {
+                    offset = curLogSize - (preLogSize == null ? 0 : preLogSize);
+                    if (offset < 0) {
+                        offset = 0L;
+                    }
+                }
+                Double seconds = 60.0D;
+                if (curDate != null && preDate != null) {
+                    seconds = (curDate.getTime() - preDate.getTime()) / 1000.0D;
+                }
+
+                if (offset == null) {
+                    data.add(null);
+                } else {
+                    data.add(Common.numberic(offset / seconds));
+                }
+            }
+            series.setData(data);
+        }
+        ehcacheService.set(key, result, 60);
+        return Result.ok(result);
+    }
+
+
     @PostMapping("getTopicRankChart")
     @ResponseBody
     public Result<LineInfo> getTopicRankChart(@RequestParam(name = "createTimeRange", required = true) String createTimeRange) throws ParseException {

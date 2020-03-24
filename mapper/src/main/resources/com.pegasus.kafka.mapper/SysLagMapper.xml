@@ -25,6 +25,7 @@
         (
         `consumer_name`,
         `topic_name`,
+        `offset`,
         `lag`,
         `create_time`
         )
@@ -33,6 +34,7 @@
             (
             #{item.consumerName},
             #{item.topicName},
+            #{item.offset},
             #{item.lag},
             #{item.createTime}
             )

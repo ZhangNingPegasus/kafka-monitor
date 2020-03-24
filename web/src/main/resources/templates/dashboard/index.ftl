@@ -44,6 +44,42 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="layui-card">
+                    <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+                        <div class="layui-form-item">
+                            <div class="layui-inline">消费组名称</div>
+                            <div class="layui-inline" style="width:265px">
+                                <select id="consumeTpsName" name="consumeTpsName" lay-filter="consumeTpsName"
+                                        lay-verify="required" lay-search>
+                                    <option value="">请选择消费组</option>
+                                    <#list consumers as consumer>
+                                        <option value="${consumer.groupId}">${consumer.groupId}</option>
+                                    </#list>
+                                </select>
+                            </div>
+
+                            <div class="layui-inline">时间范围</div>
+                            <div class="layui-inline" style="width:300px">
+                                <input type="text" id="consumeTpsTimeRange" name="consumeTpsTimeRange"
+                                       lay-verify="required" class="layui-input" placeholder="请选择时间范围"
+                                       autocomplete="off">
+                            </div>
+                            <button id="btnConsumeTpsRefresh" type="button" class="layui-btn layui-btn-xs"
+                                    style="float: right;margin-top: 10px">刷 新
+                            </button>
+                        </div>
+                    </div>
+                    <div class="layui-card-body">
+                        <div class="layui-carousel layadmin-carousel layadmin-dataview" data-anim="fade"
+                             lay-filter="LAY-index-normcol">
+                            <div carousel-item id="consumeTpsChart">
+                                <div><i class="layui-icon layui-icon-loading1 layadmin-loading"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="layui-card">
                     <div class="layui-form layui-card-header layuiadmin-card-header-auto">
                         <div class="layui-form-item">
@@ -68,6 +104,8 @@
                     </div>
                 </div>
             </div>
+
+
             <div class="layui-col-md6">
                 <div class="layui-card">
                     <div class="layui-form layui-card-header layuiadmin-card-header-auto">
@@ -234,6 +272,38 @@
                     }
                 }
 
+                let timeConsumeTps = null;
+
+                function refreshConsumeTpsChart() {
+                    const consumerId = $.trim($("#consumeTpsName").siblings().find("dd[class='layui-this']").html());
+                    const consumeTpsTimeRange = $.trim($("#consumeTpsTimeRange").val());
+                    if (consumerId == null || consumerId === '' || consumeTpsTimeRange == null || consumeTpsTimeRange === '') {
+                        _init({topicNames: [], times: [], series: []});
+                        return;
+                    }
+
+                    admin.post("getConsumeTpsChart?groupId=" + consumerId + "&createTimeRange=" + consumeTpsTimeRange, {}, function (data) {
+                        _init(data.data);
+                    });
+
+                    function _init(data) {
+                        const ele = $('#consumeTpsChart').children('div');
+                        ele.removeAttr("_echarts_instance_").empty();
+                        const echart = echarts.init(ele[0], layui.echartsTheme);
+                        echart.setOption(lagChart(data));
+                        window.onresize = echart.resize;
+
+                        if (timeConsumeTps != null) {
+                            clearInterval(timeConsumeTps);
+                        }
+                        timeConsumeTps = setInterval(function () {
+                            admin.post("getConsumeTpsChart?groupId=" + consumerId + "&createTimeRange=" + checkTimeRange('consumeTpsTimeRange', consumeTpsTimeRange), {}, function (data) {
+                                echart.setOption(consumeTpsChart(data.data));
+                            });
+                        }, 30000);
+                    }
+                }
+
                 function refreshTopicRankChart() {
                     const rankCreateTimeRange = $.trim($("#rankCreateTimeRange").val());
                     admin.post("getTopicRankChart?createTimeRange=" + rankCreateTimeRange, {}, function (data) {
@@ -281,6 +351,18 @@
                 });
 
                 laydate.render({
+                    elem: '#consumeTpsTimeRange',
+                    type: 'datetime',
+                    range: true,
+                    min: -${savingDays-1},
+                    max: 1,
+                    btns: ['confirm'],
+                    done: function () {
+                        refreshConsumeTpsChart();
+                    }
+                });
+
+                laydate.render({
                     elem: '#topicCreateTimeRange',
                     type: 'datetime',
                     range: true,
@@ -310,7 +392,7 @@
                 now.setDate(now.getDate() - 1);
                 now.setMinutes(now.getMinutes() - 30);
                 const from = now.format('yyyy-MM-dd HH:mm' + ':00');
-                $("#lagCreateTimeRange,#topicCreateTimeRange,#rankCreateTimeRange").val(from + ' - ' + to);
+                $("#lagCreateTimeRange,#topicCreateTimeRange,#consumeTpsTimeRange,#rankCreateTimeRange").val(from + ' - ' + to);
 
                 form.on('select(consumerName)', function () {
                     refreshLagChart();
@@ -318,6 +400,10 @@
 
                 $("#lagCreateTimeRange").change(function () {
                     refreshLagChart();
+                });
+
+                $("#consumeTpsTimeRange").change(function () {
+                    refreshConsumeTpsChart();
                 });
 
                 $("#topicCreateTimeRange").change(function () {
@@ -328,12 +414,20 @@
                     refreshTopicTpsChart();
                 });
 
+                form.on('select(consumeTpsName)', function () {
+                    refreshConsumeTpsChart();
+                });
+
                 form.on('select(hisTopicName)', function () {
                     refreshTopicHistoryChart();
                 });
 
                 $("#btnLagRefresh").click(function () {
                     refreshLagChart();
+                });
+
+                $("#btnConsumeTpsRefresh").click(function () {
+                    refreshConsumeTpsChart();
                 });
 
                 $("#btnTopicRefresh").click(function () {
@@ -350,11 +444,13 @@
 
                 $('#tpsTopicName option:eq(1)').attr('selected', 'selected');
                 $('#consumerName option:eq(1)').attr('selected', 'selected');
+                $('#consumeTpsName option:eq(1)').attr('selected', 'selected');
                 $('#hisTopicName option:eq(1)').attr('selected', 'selected');
                 layui.form.render('select');
 
                 refreshTopicTpsChart();
                 refreshLagChart();
+                refreshConsumeTpsChart();
                 refreshTopicRankChart();
                 refreshTopicHistoryChart();
             });

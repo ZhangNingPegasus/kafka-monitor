@@ -356,14 +356,7 @@ public class KafkaService {
     private Map<Integer, Long> listOffset(String groupId, String topicName, List<String> partitionIds) throws Exception {
         Map<Integer, Long> partitionOffset = new HashMap<>();
         kafkaAdminClientDo(adminClient -> {
-            List<TopicPartition> tps = new ArrayList<>();
-            for (String partitionId : partitionIds) {
-                TopicPartition tp = new TopicPartition(topicName, Integer.parseInt(partitionId));
-                tps.add(tp);
-            }
-            ListConsumerGroupOffsetsOptions listConsumerGroupOffsetsOptions = new ListConsumerGroupOffsetsOptions();
-            listConsumerGroupOffsetsOptions.topicPartitions();
-            ListConsumerGroupOffsetsResult listConsumerGroupOffsetsResult = adminClient.listConsumerGroupOffsets(groupId, listConsumerGroupOffsetsOptions);
+            ListConsumerGroupOffsetsResult listConsumerGroupOffsetsResult = adminClient.listConsumerGroupOffsets(groupId);
             for (Map.Entry<TopicPartition, OffsetAndMetadata> entry : listConsumerGroupOffsetsResult.partitionsToOffsetAndMetadata().get().entrySet()) {
                 if (topicName.equals(entry.getKey().topic())) {
                     partitionOffset.put(entry.getKey().partition(), entry.getValue().offset());

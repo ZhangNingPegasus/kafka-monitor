@@ -143,7 +143,7 @@ public class RecordService implements SmartLifecycle, DisposableBean {
                 }
 
                 while (isRunning()) {
-                    ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(200));
+                    ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(100));
                     if (records.isEmpty()) {
                         continue;
                     }
@@ -179,9 +179,9 @@ public class RecordService implements SmartLifecycle, DisposableBean {
         threadService.submit(() -> {
             while (isRunning()) {
                 try {
-                    List<TopicRecord> topicRecordList = new ArrayList<>(MAX_SIZE / 2);
-                    for (int i = 0; i < MAX_SIZE / 2; i++) {
-                        TopicRecord topicRecord = this.blockingQueue.poll(1L, TimeUnit.SECONDS);
+                    List<TopicRecord> topicRecordList = new ArrayList<>(MAX_SIZE / 4);
+                    for (int i = 0; i < MAX_SIZE / 4; i++) {
+                        TopicRecord topicRecord = this.blockingQueue.poll(100L, TimeUnit.MILLISECONDS);
                         if (topicRecord == null) {
                             break;
                         }

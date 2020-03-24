@@ -48,8 +48,26 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
         this.topicRecordService = topicRecordService;
     }
 
+    private Map<String, SysLogSize> collectLogSize(Date now) throws Exception {
+        Map<String, SysLogSize> result = new HashMap<>();
+        List<String> topicNames = kafkaService.listTopicNames();
+        for (String topicName : topicNames) {
+            try {
+                SysLogSize sysLogSize = new SysLogSize(topicName, topicRecordService.getRecordsCount(topicName));
+                sysLogSize.setCreateTime(now);
+                result.put(topicName, sysLogSize);
+            } catch (Exception ignored) {
+            }
+        }
+        return result;
+    }
+
     public Matrix kpi(Date now) throws Exception {
         Matrix result = new Matrix();
+
+        Map<String, SysLogSize> logSizeMap = collectLogSize(now);
+
+
         List<SysLag> sysLagList = new ArrayList<>(BATCH_SIZE);
         Map<String, Long> sysLogSizeMap = new HashMap<>(BATCH_SIZE);
         List<KafkaConsumerVo> kafkaConsumerVoList = kafkaConsumerService.listKafkaConsumers();
@@ -61,17 +79,22 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
                 }
                 Long logSize = 0L;
                 long lag = 0L;
+                long offset = 0L;
                 try {
                     List<OffsetVo> offsetVoList = kafkaService.listOffsetVo(kafkaConsumerVoList, kafkaConsumerVo.getGroupId(), topicName);
                     for (OffsetVo offsetVo : offsetVoList) {
                         if (offsetVo.getLag() != null && offsetVo.getLag() >= 0) {
                             lag += offsetVo.getLag();
                         }
+                        if (offsetVo.getOffset() != null && offsetVo.getOffset() >= 0) {
+                            offset += offsetVo.getOffset();
+                        }
                         logSize += offsetVo.getLogSize();
                     }
                     SysLag sysLag = new SysLag();
                     sysLag.setConsumerName(kafkaConsumerVo.getGroupId());
                     sysLag.setTopicName(topicName);
+                    sysLag.setOffset(offset);
                     sysLag.setLag(lag);
                     sysLag.setCreateTime(now);
                     sysLagList.add(sysLag);
@@ -81,21 +104,8 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
             }
         }
 
-        List<SysLogSize> sysLogSizeList = new ArrayList<>(BATCH_SIZE);
-
-        List<String> topicNames = kafkaService.listTopicNames();
-        for (String topicName : topicNames) {
-            try {
-                SysLogSize sysLogSize = new SysLogSize(topicName, topicRecordService.getRecordsCount(topicName));
-                sysLogSize.setCreateTime(now);
-                sysLogSizeList.add(sysLogSize);
-            } catch (Exception ignored) {
-
-            }
-        }
-
         result.setSysLagList(sysLagList);
-        result.setSysLogSizeList(sysLogSizeList);
+        result.setSysLogSizeList(new ArrayList<>(logSizeMap.values()));
         return result;
     }
 

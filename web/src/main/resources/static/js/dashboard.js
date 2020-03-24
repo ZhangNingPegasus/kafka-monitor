@@ -1,7 +1,7 @@
 function topicChart(data) {
     return {
         title: {
-            text: '消息TPS图'
+            text: '生产速率图'
         },
         grid: {
             left: '4%',
@@ -64,7 +64,70 @@ function topicChart(data) {
 function lagChart(data) {
     return {
         title: {
-            text: '消息堆积图'
+            text: '堆积速率图'
+        },
+        grid: {
+            left: '4%',
+            right: '9%',
+            bottom: 40,
+            containLabel: true
+        },
+        toolbox: {
+            feature: {
+                dataZoom: {
+                    yAxisIndex: 'none'
+                },
+                restore: {},
+                saveAsImage: {}
+            }
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'cross',
+                animation: false,
+                label: {
+                    backgroundColor: '#505765'
+                }
+            }
+        },
+        dataZoom: [
+            {
+                show: true,
+                realtime: true,
+                start: 0,
+                end: 100
+            },
+            {
+                type: 'inside',
+                realtime: true,
+                start: 0,
+                end: 100
+            }
+        ],
+        yAxis: {
+            type: 'value'
+        },
+        legend: {
+            data: data.topicNames,
+            x: 'center'
+        },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            axisLine: {onZero: false},
+            data: data.times.map(function (str) {
+                return str.replace(' ', '\n')
+            })
+        },
+        series: data.series
+    };
+}
+
+function consumeTpsChart(data) {
+    return {
+        title: {
+            text: '消费速率图'
         },
         grid: {
             left: '4%',
