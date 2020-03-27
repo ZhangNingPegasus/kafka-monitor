@@ -1,11 +1,11 @@
-function topicChart(data) {
+function initTopicSendChart(data) {
     return {
         title: {
-            text: '生产速率图'
+            text: '发送速率'
         },
         grid: {
-            left: '4%',
-            right: '9%',
+            left: '2%',
+            right: '2%',
             bottom: 40,
             containLabel: true
         },
@@ -43,6 +43,7 @@ function topicChart(data) {
             }
         ],
         yAxis: {
+            name: "每秒消息发送数",
             type: 'value'
         },
         legend: {
@@ -61,14 +62,14 @@ function topicChart(data) {
     };
 }
 
-function lagChart(data) {
+function initLagChart(data) {
     return {
         title: {
-            text: '堆积速率图'
+            text: '堆积速率'
         },
         grid: {
-            left: '4%',
-            right: '9%',
+            left: '2%',
+            right: '2%',
             bottom: 40,
             containLabel: true
         },
@@ -106,6 +107,7 @@ function lagChart(data) {
             }
         ],
         yAxis: {
+            name: '每秒消息堆积数',
             type: 'value'
         },
         legend: {
@@ -124,14 +126,14 @@ function lagChart(data) {
     };
 }
 
-function consumeTpsChart(data) {
+function initConsumeTpsChart(data) {
     return {
         title: {
-            text: '消费速率图'
+            text: '消费速率'
         },
         grid: {
-            left: '4%',
-            right: '9%',
+            left: '2%',
+            right: '2%',
             bottom: 40,
             containLabel: true
         },
@@ -169,6 +171,7 @@ function consumeTpsChart(data) {
             }
         ],
         yAxis: {
+            name: '每秒消息消费数',
             type: 'value'
         },
         legend: {
@@ -187,14 +190,14 @@ function consumeTpsChart(data) {
     };
 }
 
-function topicRankChart(data) {
+function initTopicRankChart(data) {
     return {
         title: {
             text: '主题前5排行榜'
         },
         grid: {
-            left: '4%',
-            right: '9%',
+            left: '2%',
+            right: '2%',
             bottom: 40,
             containLabel: true
         },
@@ -225,20 +228,21 @@ function topicRankChart(data) {
             })
         },
         yAxis: {
+            name: '发送总量最多的前5个Topic',
             type: 'value'
         },
         series: data.series
     };
 }
 
-function topicHistoryChart(data) {
+function initTopicHistoryChart(data) {
     return {
         title: {
-            text: '最近7天消息记录'
+            text: '最近7天消息发送数量'
         },
         grid: {
-            left: '4%',
-            right: '9%',
+            left: '2%',
+            right: '2%',
             bottom: 40,
             containLabel: true
         },
@@ -273,6 +277,7 @@ function topicHistoryChart(data) {
             })
         },
         yAxis: {
+            name: '每天消息发送总量',
             type: 'value'
         },
         series: data.series

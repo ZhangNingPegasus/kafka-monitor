@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <encoder>
+            <pattern>%d{MM-dd HH:mm:ss.SSS} %-5level [%thread{36}]
+                %logger{36}.%method\(%file:%line\) - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <appender name="elkLog"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <file>/wyyt/logs/kafka/kafka-monitor/kafka-monitor.log</file> <!-- 路径也要按照规范修改 -->
+        <encoder class="net.logstash.logback.encoder.ex.LogstashEncoderEx"> <!-- ELK 最新接入方式 -->
+            <!--includeCallerData 请求者信息字段 需要开启异步写入，否则比较比较耗性能-->
+            <includeCallerData>true</includeCallerData>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>
+                /wyyt/logs/kafka/kafka-monitor/kafka-monitor-filebeat.%d{yyyy-MM-dd-HH}.%i.log.gz
+            </fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+        </rollingPolicy>
+    </appender>
+
+    <!--日志采用异步方式，提升服务TPS处理能力-->
+    <appender name="async_elkLog" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+        <discardingThreshold>0</discardingThreshold>
+        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+        <queueSize>512</queueSize>
+        <appender-ref ref="elkLog"/>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="console"/>
+        <appender-ref ref="async_elkLog"/>
+    </root>
+
+</configuration>

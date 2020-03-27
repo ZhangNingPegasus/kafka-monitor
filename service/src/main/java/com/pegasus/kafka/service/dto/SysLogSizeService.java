@@ -20,7 +20,6 @@ import com.pegasus.kafka.service.kafka.KafkaConsumerService;
 import lombok.Data;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -112,11 +111,9 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
     @TranRead
     public List<SysLogSize> listByTopicName(String topicName, Date from, Date to) {
         QueryWrapper<SysLogSize> queryWrapper = new QueryWrapper<>();
-        LambdaQueryWrapper<SysLogSize> lambda = queryWrapper.lambda();
-        if (!StringUtils.isEmpty(topicName)) {
-            lambda.eq(SysLogSize::getTopicName, topicName);
-        }
-        lambda.ge(SysLogSize::getCreateTime, from)
+        LambdaQueryWrapper<SysLogSize> lambda = queryWrapper.lambda()
+                .eq(SysLogSize::getTopicName, topicName)
+                .ge(SysLogSize::getCreateTime, from)
                 .le(SysLogSize::getCreateTime, to)
                 .orderByAsc(SysLogSize::getCreateTime);
         return this.list(queryWrapper);

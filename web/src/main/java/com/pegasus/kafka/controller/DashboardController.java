@@ -7,6 +7,7 @@ import com.pegasus.kafka.common.utils.Common;
 import com.pegasus.kafka.entity.dto.SysLag;
 import com.pegasus.kafka.entity.dto.SysLogSize;
 import com.pegasus.kafka.entity.echarts.LineInfo;
+import com.pegasus.kafka.entity.vo.KafkaConsumerVo;
 import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.dto.SysLagService;
 import com.pegasus.kafka.service.dto.SysLogSizeService;
@@ -59,16 +60,26 @@ public class DashboardController {
     @GetMapping("index")
     public String index(Model model) throws Exception {
         model.addAttribute("savingDays", propertyService.getDbRetentionDays());
-        model.addAttribute("consumers", kafkaConsumerService.listKafkaConsumers());
         model.addAttribute("topics", kafkaService.listTopicNames());
         return String.format("%s/index", PREFIX);
     }
 
-    @PostMapping("getTopicChart")
+    @PostMapping("getConsumersByTopicName")
     @ResponseBody
-    public Result<LineInfo> getTopicChart(@RequestParam(name = "topicName", required = true) String topicName,
-                                          @RequestParam(name = "createTimeRange", required = true) String createTimeRange) throws ParseException {
-        String key = String.format("DashboardController::getTopicChart:%s:%s", topicName, createTimeRange);
+    public Result<List<KafkaConsumerVo>> getConsumersByTopicName(@RequestParam(name = "topicName", required = true) String topicName) throws Exception {
+        return Result.ok(kafkaConsumerService.listKafkaConsumersByTopicName(topicName));
+    }
+
+
+    @PostMapping("getTopicSendChart")
+    @ResponseBody
+    public Result<LineInfo> getTopicSendChart(@RequestParam(name = "topicName", required = true) String topicName,
+                                              @RequestParam(name = "createTimeRange", required = true) String createTimeRange) throws ParseException {
+        if (StringUtils.isEmpty(topicName.trim()) || StringUtils.isEmpty(createTimeRange.trim())) {
+            return Result.ok(new LineInfo(new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+        }
+
+        String key = String.format("DashboardController::getTopicSendChart:%s:%s", topicName, createTimeRange);
         LineInfo cache = ehcacheService.get(key);
         if (cache != null) {
             return Result.ok(cache);
@@ -83,7 +94,7 @@ public class DashboardController {
         Common.TimeRange timeRange = Common.splitTime(createTimeRange);
         Date from = timeRange.getStart(), to = timeRange.getEnd();
         from = DateUtils.addMinutes(from, -1);
-        List<SysLogSize> sysLogSizeList = sysLogSizeService.listByTopicName(topicName.equals("所有主题") ? null : topicName, from, to);
+        List<SysLogSize> sysLogSizeList = sysLogSizeService.listByTopicName(topicName, from, to);
 
         List<String> topicNames = sysLogSizeList.stream().map(SysLogSize::getTopicName).distinct().collect(Collectors.toList());
         List<String> times = sysLogSizeList.stream().map(p -> Common.format(p.getCreateTime())).distinct().collect(Collectors.toList());
@@ -151,7 +162,8 @@ public class DashboardController {
 
     @PostMapping("getLagChart")
     @ResponseBody
-    public Result<LineInfo> getLagChart(@RequestParam(name = "groupId", required = true) String groupId,
+    public Result<LineInfo> getLagChart(@RequestParam(name = "topicName", required = true) String topicName,
+                                        @RequestParam(name = "groupId", required = true) String groupId,
                                         @RequestParam(name = "createTimeRange", required = true) String createTimeRange) throws ParseException {
         String key = String.format("DashboardController::getLagChart:%s:%s", groupId, createTimeRange);
         LineInfo cache = ehcacheService.get(key);
@@ -167,7 +179,7 @@ public class DashboardController {
         Common.TimeRange timeRange = Common.splitTime(createTimeRange);
         Date from = timeRange.getStart(), to = timeRange.getEnd();
 
-        List<SysLag> sysLagList = sysLagService.listByGroupId("所有消费组".equals(groupId) ? null : groupId, from, to);
+        List<SysLag> sysLagList = sysLagService.listByGroupId(topicName, groupId, from, to);
         List<String> topicNames = sysLagList.stream().map(SysLag::getTopicName).distinct().collect(Collectors.toList());
         List<String> times = sysLagList.stream().map(p -> Common.format(p.getCreateTime())).distinct().collect(Collectors.toList());
 
@@ -175,9 +187,9 @@ public class DashboardController {
         result.setTimes(times);
 
         List<LineInfo.Series> seriesList = new ArrayList<>(result.getTopicNames().size());
-        for (String topicName : result.getTopicNames()) {
+        for (String name : result.getTopicNames()) {
             LineInfo.Series series = new LineInfo.Series();
-            series.setName(topicName);
+            series.setName(name);
             series.setType("line");
             series.setSmooth(true);
             seriesList.add(series);
@@ -200,10 +212,10 @@ public class DashboardController {
         return Result.ok(result);
     }
 
-
     @PostMapping("getConsumeTpsChart")
     @ResponseBody
-    public Result<LineInfo> getConsumeTpsChart(@RequestParam(name = "groupId", required = true) String groupId,
+    public Result<LineInfo> getConsumeTpsChart(@RequestParam(name = "topicName", required = true) String topicName,
+                                               @RequestParam(name = "groupId", required = true) String groupId,
                                                @RequestParam(name = "createTimeRange", required = true) String createTimeRange) throws ParseException {
         String key = String.format("DashboardController::getConsumeTpsChart:%s:%s", groupId, createTimeRange);
         LineInfo cache = ehcacheService.get(key);
@@ -219,7 +231,7 @@ public class DashboardController {
         Common.TimeRange timeRange = Common.splitTime(createTimeRange);
         Date from = timeRange.getStart(), to = timeRange.getEnd();
 
-        List<SysLag> sysLagList = sysLagService.listByGroupId("所有消费组".equals(groupId) ? null : groupId, from, to);
+        List<SysLag> sysLagList = sysLagService.listByGroupId(topicName, groupId, from, to);
         List<String> topicNames = sysLagList.stream().map(SysLag::getTopicName).distinct().collect(Collectors.toList());
         List<String> times = sysLagList.stream().map(p -> Common.format(p.getCreateTime())).distinct().collect(Collectors.toList());
         if (times.size() > 0) {
@@ -229,9 +241,9 @@ public class DashboardController {
         result.setTimes(times);
 
         List<LineInfo.Series> seriesList = new ArrayList<>(result.getTopicNames().size());
-        for (String topicName : result.getTopicNames()) {
+        for (String name : result.getTopicNames()) {
             LineInfo.Series series = new LineInfo.Series();
-            series.setName(topicName);
+            series.setName(name);
             series.setType("line");
             series.setSmooth(true);
             seriesList.add(series);

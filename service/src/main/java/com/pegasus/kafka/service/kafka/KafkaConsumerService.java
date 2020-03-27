@@ -8,6 +8,7 @@ import com.pegasus.kafka.service.dto.SysLagService;
 import org.apache.kafka.clients.admin.ConsumerGroupListing;
 import org.apache.kafka.clients.admin.ListConsumerGroupsResult;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,12 +31,29 @@ public class KafkaConsumerService {
         this.sysLagService = sysLagService;
     }
 
-    public List<KafkaConsumerVo> listKafkaConsumers(String searchGroupId) throws Exception {
+    public List<KafkaConsumerVo> listKafkaConsumersByGroupdId(String searchGroupId) throws Exception {
         return kafkaService.listKafkaConsumers(searchGroupId);
     }
 
     public List<KafkaConsumerVo> listKafkaConsumers() throws Exception {
-        return listKafkaConsumers(null);
+        return kafkaService.listKafkaConsumers(null);
+    }
+
+    public List<KafkaConsumerVo> listKafkaConsumersByTopicName(String topicName) throws Exception {
+        List<KafkaConsumerVo> result = new ArrayList<>();
+
+        if (StringUtils.isEmpty(topicName)) {
+            return result;
+        }
+
+        List<KafkaConsumerVo> kafkaConsumerVoList = listKafkaConsumers();
+        for (KafkaConsumerVo kafkaConsumerVo : kafkaConsumerVoList) {
+            if (kafkaConsumerVo.getTopicNames().contains(topicName)) {
+                result.add(kafkaConsumerVo);
+            }
+        }
+
+        return result;
     }
 
     public List<String> listAllConsumers() throws Exception {

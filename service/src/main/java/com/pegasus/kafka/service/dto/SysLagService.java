@@ -8,7 +8,6 @@ import com.pegasus.kafka.common.annotation.TranSave;
 import com.pegasus.kafka.entity.dto.SysLag;
 import com.pegasus.kafka.mapper.SysLagMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -25,15 +24,15 @@ import java.util.List;
 public class SysLagService extends ServiceImpl<SysLagMapper, SysLag> {
 
     @TranRead
-    public List<SysLag> listByGroupId(String groupId, Date from, Date to) {
+    public List<SysLag> listByGroupId(String topicName,
+                                      String groupId,
+                                      Date from,
+                                      Date to) {
         QueryWrapper<SysLag> queryWrapper = new QueryWrapper<>();
-        LambdaQueryWrapper<SysLag> lambda = queryWrapper.lambda();
-
-        if (!StringUtils.isEmpty(groupId)) {
-            lambda.eq(SysLag::getConsumerName, groupId);
-        }
-
-        lambda.ge(SysLag::getCreateTime, from)
+        LambdaQueryWrapper<SysLag> lambda = queryWrapper.lambda()
+                .eq(SysLag::getTopicName, topicName)
+                .eq(SysLag::getConsumerName, groupId)
+                .ge(SysLag::getCreateTime, from)
                 .le(SysLag::getCreateTime, to)
                 .orderByAsc(SysLag::getCreateTime);
         return this.list(queryWrapper);

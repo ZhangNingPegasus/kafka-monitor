@@ -134,7 +134,7 @@ public class ConsumerController {
         groupId = groupId.trim();
         List<KafkaTopicVo> result = new ArrayList<>();
 
-        List<KafkaConsumerVo> kafkaConsumerVoList = kafkaConsumerService.listKafkaConsumers(groupId);
+        List<KafkaConsumerVo> kafkaConsumerVoList = kafkaConsumerService.listKafkaConsumersByGroupdId(groupId);
 
         if (kafkaConsumerVoList != null && kafkaConsumerVoList.size() > 0) {
             KafkaConsumerVo kafkaConsumerVo = kafkaConsumerVoList.get(0);

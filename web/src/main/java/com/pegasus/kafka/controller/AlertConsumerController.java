@@ -7,7 +7,6 @@ import com.pegasus.kafka.entity.dto.SysAlertConsumer;
 import com.pegasus.kafka.entity.vo.KafkaConsumerVo;
 import com.pegasus.kafka.service.dto.SysAlertConsumerService;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
-import com.pegasus.kafka.service.kafka.KafkaTopicService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -31,13 +30,11 @@ public class AlertConsumerController {
     public static final String PREFIX = "alertconsumer";
     private final SysAlertConsumerService sysAlertConsumerService;
     private final KafkaConsumerService kafkaConsumerService;
-    private final KafkaTopicService kafkaTopicService;
 
-
-    public AlertConsumerController(SysAlertConsumerService sysAlertConsumerService, KafkaConsumerService kafkaConsumerService, KafkaTopicService kafkaTopicService, KafkaTopicService kafkaTopicService1) {
+    public AlertConsumerController(SysAlertConsumerService sysAlertConsumerService,
+                                   KafkaConsumerService kafkaConsumerService) {
         this.sysAlertConsumerService = sysAlertConsumerService;
         this.kafkaConsumerService = kafkaConsumerService;
-        this.kafkaTopicService = kafkaTopicService1;
     }
 
     @GetMapping("tolist")
@@ -76,7 +73,7 @@ public class AlertConsumerController {
     @ResponseBody
     public Result<List<String>> listTopics(@RequestParam(value = "groupId", required = true) String groupId) throws Exception {
         List<String> result = new ArrayList<>();
-        List<KafkaConsumerVo> kafkaConsumerVoList = kafkaConsumerService.listKafkaConsumers(groupId);
+        List<KafkaConsumerVo> kafkaConsumerVoList = kafkaConsumerService.listKafkaConsumersByGroupdId(groupId);
         for (KafkaConsumerVo kafkaConsumerVo : kafkaConsumerVoList) {
             result.addAll(kafkaConsumerVo.getTopicNames());
         }

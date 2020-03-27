@@ -1,46 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-
-    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
-        <target>System.out</target>
+    <!-- %m输出的信息,%p日志级别,%t线程名,%d日期,%c类的全名,%i索引【从数字0开始递增】,,, -->
+    <!-- appender是configuration的子节点，是负责写日志的组件。 -->
+    <!-- ConsoleAppender：把日志输出到控制台 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{MM-dd HH:mm:ss.SSS} %-5level [%thread{36}]
-                %logger{36}.%method\(%file:%line\) - %msg%n
-            </pattern>
+            <pattern>%d %p (%file:%line\)- %m%n</pattern>
+            <!-- 控制台也要使用UTF-8，不要使用GBK，否则会中文乱码 -->
+            <charset>UTF-8</charset>
         </encoder>
     </appender>
-
-    <appender name="elkLog"
-              class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <append>true</append>
-        <file>/wyyt/logs/kafka/kafka-monitor/kafka-monitor.log</file> <!-- 路径也要按照规范修改 -->
-        <encoder class="net.logstash.logback.encoder.ex.LogstashEncoderEx"> <!-- ELK 最新接入方式 -->
-            <!--includeCallerData 请求者信息字段 需要开启异步写入，否则比较比较耗性能-->
-            <includeCallerData>true</includeCallerData>
-        </encoder>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
-        </filter>
+    <!-- RollingFileAppender：滚动记录文件，先将日志记录到指定文件，当符合某个条件时，将日志记录到其他文件 -->
+    <!-- 以下的大概意思是：1.先按日期存日志，日期变了，将前一天的日志文件名重命名为XXX%日期%索引，新的日志仍然是error.log -->
+    <!-- 2.如果日期没有发生变化，但是当前日志的文件大小超过1KB时，对当前日志进行分割 重命名 -->
+    <appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>log/meta.log</File>
+        <!-- rollingPolicy:当发生滚动时，决定 RollingFileAppender 的行为，涉及文件移动和重命名。 -->
+        <!-- TimeBasedRollingPolicy： 最常用的滚动策略，它根据时间来制定滚动策略，既负责滚动也负责出发滚动 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>
-                /wyyt/logs/kafka/kafka-monitor/kafka-monitor-filebeat.%d{yyyy-MM-dd-HH}.%i.log.gz
-            </fileNamePattern>
-            <maxFileSize>100MB</maxFileSize>
+            <!-- 活动文件的名字会根据fileNamePattern的值，每隔一段时间改变一次。 文件名：log/error.2018-07-04.0.log-->
+            <fileNamePattern>log/error.%d.%i.log</fileNamePattern>
+            <!-- maxFileSize:这是活动文件的大小，默认值是10MB -->
+            <maxFileSize>128MB</maxFileSize>
+            <!-- 每产生一个日志文件，该日志文件的保存期限为30天 -->
+            <maxHistory>30</maxHistory>
         </rollingPolicy>
+        <encoder>
+            <!-- pattern节点，用来设置日志的输入格式 -->
+            <pattern>%d %p (%file:%line\)- %m%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
     </appender>
 
-    <!--日志采用异步方式，提升服务TPS处理能力-->
-    <appender name="async_elkLog" class="ch.qos.logback.classic.AsyncAppender">
-        <!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
-        <discardingThreshold>0</discardingThreshold>
-        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
-        <queueSize>512</queueSize>
-        <appender-ref ref="elkLog"/>
+    <appender name="ASYNC_ROLLING_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="ROLLING_FILE"/>
     </appender>
 
+    <!-- 控制台输出日志级别 -->
+    <!-- 级别依次为【从高到低】：FATAL > ERROR > WARN > INFO > DEBUG > TRACE  -->
     <root level="INFO">
-        <appender-ref ref="console"/>
-        <appender-ref ref="async_elkLog"/>
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ASYNC_ROLLING_FILE"/>
     </root>
 
+    <logger name="org.apache.kafka" level="off"/>
+    <logger name="org.apache.curator.framework.imps.EnsembleTracker" level="off"/>
 </configuration>
