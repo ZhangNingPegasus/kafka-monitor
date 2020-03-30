@@ -18,13 +18,6 @@
                     return date.format("yyyy-MM-dd HH:mm:ss");
                     }}
                 </script>
-                <script type="text/html" id="type">
-                    {{#  if(d.type==1){ }}
-                    ZOOKEEPER
-                    {{#  } else { }}
-                    KAFKA
-                    {{#  } }}
-                </script>
                 <script type="text/html" id="grid-toolbar">
                     <div class="layui-btn-container">
                         <@insert>
@@ -65,9 +58,14 @@
                 },
                 cols: [[
                     {type: 'numbers', title: '序号', width: 50},
-                    {field: 'type', title: '集群类型', templet: '#type', width: 200},
-                    {field: 'server', title: '主机地址'},
-                    {field: 'email', title: '通知邮箱', width: 300},
+                    {field: 'topicName', title: '主题名称'},
+                    {field: 'fromTime', title: '开始时间', width: 150},
+                    {field: 'toTime', title: '结束时间', width: 150},
+                    {field: 'fromTps', title: 'TPS下限', width: 150},
+                    {field: 'toTps', title: 'TPS上限', width: 150},
+                    {field: 'fromMomTps', title: 'TPS上限(环比)', width: 150},
+                    {field: 'toMomTps', title: 'TPS下限(环比)', width: 150},
+                    {field: 'email', title: '通知邮箱', width: 150},
                     {field: 'createTime', title: '创建时间', templet: '#createTime', width: 200}
                     <@select>
                     , {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 160}
@@ -79,9 +77,9 @@
                 if (obj.event === 'add') {
                     layer.open({
                         type: 2,
-                        title: '创建消费组警告',
+                        title: '创建主题警告',
                         content: 'toadd',
-                        area: ['880px', '350px'],
+                        area: ['880px', '600px'],
                         btn: admin.BUTTONS,
                         resize: false,
                         yes: function (index, layero) {
@@ -89,6 +87,9 @@
                                 submit = layero.find('iframe').contents().find('#' + submitID);
                             iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
                                 const field = data.field;
+                                const split = field.rangeTime.split(" - ");
+                                field.fromTime = split[0];
+                                field.toTime = split[1];
                                 admin.post('add', field, function () {
                                     table.reload('grid');
                                     layer.close(index);
@@ -104,7 +105,6 @@
             });
 
             table.on('tool(grid)', function (obj) {
-
                 const data = obj.data;
                 if (obj.event === 'del') {
                     layer.confirm(admin.DEL_QUESTION, function (index) {
@@ -128,7 +128,7 @@
                     const id = data.id;
                     layer.open({
                         type: 2,
-                        title: '编辑消费组警告',
+                        title: '编辑主题警告',
                         content: 'toedit/' + id,
                         area: ['880px', '400px'],
                         btn: admin.BUTTONS,
@@ -139,6 +139,9 @@
                             iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
                                 const field = data.field;
                                 field.id = id;
+                                const split = field.rangeTime.split(" - ");
+                                field.fromTime = split[0];
+                                field.toTime = split[1];
                                 admin.post('edit', field, function () {
                                     table.reload('grid');
                                     layer.close(index);

@@ -58,7 +58,7 @@ public class RecordService implements SmartLifecycle, DisposableBean {
         this.kafkaRecordService = kafkaRecordService;
         this.consumerGroupdId = String.format("%s_%s", Constants.KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_MESSAGE, this.topic.getName());
         this.discardCount = new AtomicLong(0L);
-        this.blockingQueue = new LinkedBlockingQueue(16392);
+        this.blockingQueue = new LinkedBlockingQueue(65568);
     }
 
     public List<String> getTopicsNames() {
@@ -156,7 +156,7 @@ public class RecordService implements SmartLifecycle, DisposableBean {
                         topicRecord.setValue(StringUtils.isEmpty(record.value()) ? "" : record.value());
                         topicRecord.setTimestamp(new Date(record.timestamp()));
                         if (!this.blockingQueue.offer(topicRecord)) {
-                            logger.error(String.format("buffer full for topic [%s], [%s], conent is [%s]", topicRecord.getTopicName(), discardCount.incrementAndGet(), topicRecord));
+                            logger.error(String.format("buffer full for topic [%s], [%s], content is [%s]", topicRecord.getTopicName(), discardCount.incrementAndGet(), topicRecord));
                         }
                     }
                 }
@@ -177,19 +177,13 @@ public class RecordService implements SmartLifecycle, DisposableBean {
         });
 
         threadService.submit(() -> {
+            List<TopicRecord> topicRecordList = new ArrayList<>(10000);
             while (isRunning()) {
                 try {
-                    List<TopicRecord> topicRecordList = new ArrayList<>(MAX_SIZE / 4);
-                    for (int i = 0; i < MAX_SIZE / 4; i++) {
-                        TopicRecord topicRecord = this.blockingQueue.poll(100L, TimeUnit.MILLISECONDS);
-                        if (topicRecord == null) {
-                            break;
-                        }
-                        topicRecordList.add(topicRecord);
-                    }
-
+                    blockingQueue.drainTo(topicRecordList, 10000);
                     if (topicRecordList.size() > 0) {
                         topicRecordService.batchSave(topicRecordList);
+                        topicRecordList.clear();
                     }
                 } catch (Exception ignored) {
                 }

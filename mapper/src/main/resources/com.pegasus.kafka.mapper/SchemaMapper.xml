@@ -194,47 +194,51 @@
 
         INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
-        (11, '消费组设置', '/alertconsumer/tolist', b'1', b'0', b'0', '', 10, 1, '', now());
+        (11, '主题设置', '/alerttopic/tolist', b'1', b'0', b'0', '', 10, 1, '', now());
 
         INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
-        (12, '集群主机设置', '/alertcluster/tolist', b'1', b'0', b'0', '', 10, 2, '', now());
+        (12, '消费组设置', '/alertconsumer/tolist', b'1', b'0', b'0', '', 10, 2, '', now());
 
         INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
-        (13, '权限设置', '', b'1', b'0', b'0', 'layui-icon-password', 0, 9, '', now());
+        (13, '集群主机设置', '/alertcluster/tolist', b'1', b'0', b'0', '', 10, 3, '', now());
 
         INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
-        (14, '管理员配置', '/admin/tolist', b'1', b'0', b'0', '', 13, 1, '', now());
+        (14, '权限设置', '', b'1', b'0', b'0', 'layui-icon-password', 0, 9, '', now());
 
         INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
-        (15, '角色管理', '/role/tolist', b'1', b'0', b'0', '', 13, 2, '', now());
+        (15, '管理员配置', '/admin/tolist', b'1', b'0', b'0', '', 14, 1, '', now());
 
         INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
-        (16, '权限管理', '/permission/tolist', b'1', b'0', b'0', '', 13, 3, '', now());
+        (16, '角色管理', '/role/tolist', b'1', b'0', b'0', '', 14, 2, '', now());
 
         INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
-        (17, '系统设置', '', b'1', b'0', b'0', 'layui-icon-set', 0, 10, '', now());
+        (17, '权限管理', '/permission/tolist', b'1', b'0', b'0', '', 14, 3, '', now());
 
         INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
-        (18, '页面配置', '/page/tolist', b'1', b'0', b'0', '', 17, 1, '', now());
+        (18, '系统设置', '', b'1', b'0', b'0', 'layui-icon-set', 0, 10, '', now());
 
         INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
-        (19, '邮件发送设置', '/mailconfig/tolist', b'1', b'0', b'0', '', 17, 2, '', now());
+        (19, '页面配置', '/page/tolist', b'1', b'0', b'0', '', 18, 1, '', now());
 
         INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
-        (20, '钉钉机器人设置', '/dingdingconfig/tolist', b'1', b'0', b'0', '', 17, 3, '', now());
+        (20, '邮件发送设置', '/mailconfig/tolist', b'1', b'0', b'0', '', 18, 2, '', now());
 
         INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
         `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
-        (21, '大屏幕', '/bigscreen/tolist', b'1', b'0', b'1', 'layui-icon-chart-screen', 0, 11, '', now());
+        (21, '钉钉机器人设置', '/dingdingconfig/tolist', b'1', b'0', b'0', '', 18, 3, '', now());
+
+        INSERT IGNORE INTO ${dbName}.`sys_page`(`id`, `name`, `url`,
+        `is_menu`, `is_default`, `is_blank`, `icon_class`, `parent_id`, `order_num`, `remark`, `create_time`) VALUES
+        (22, '大屏幕', '/bigscreen/tolist', b'1', b'0', b'1', 'layui-icon-chart-screen', 0, 11, '', now());
     </insert>
 
     <delete id="deleteExpired">
