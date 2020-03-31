@@ -106,38 +106,38 @@ public class CoreService implements SmartLifecycle, DisposableBean {
 
     @Override
     public void start() {
-        threadService.submit(() -> {
-            Thread.currentThread().setName("thread-new-topic-detect");
-            setRunning(true);
-
-            while (isRunning()) {
-                try {
-                    Set<String> currentTopicNames = getTopicsFromKafka();
-                    if (currentTopicNames.size() > 0) {
-
-                        this.topicNames.clear();
-                        this.topicNames.addAll(getSubscribeTopicNames());
-
-                        if (!this.topicNames.containsAll(currentTopicNames) || !currentTopicNames.containsAll(this.topicNames)) {
-                            List<Topic> topicList = convert(new ArrayList<>(currentTopicNames));
-                            if (topicList != null) {
-                                stopTheWorld();
-                                for (Topic topic : topicList) {
-                                    installTopic(topic);
-                                }
-                            }
-                        }
-                    }
-
-                    try {
-                        Thread.sleep(10000);
-                    } catch (Exception ignored) {
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+//        threadService.submit(() -> {
+//            Thread.currentThread().setName("thread-new-topic-detect");
+//            setRunning(true);
+//
+//            while (isRunning()) {
+//                try {
+//                    Set<String> currentTopicNames = getTopicsFromKafka();
+//                    if (currentTopicNames.size() > 0) {
+//
+//                        this.topicNames.clear();
+//                        this.topicNames.addAll(getSubscribeTopicNames());
+//
+//                        if (!this.topicNames.containsAll(currentTopicNames) || !currentTopicNames.containsAll(this.topicNames)) {
+//                            List<Topic> topicList = convert(new ArrayList<>(currentTopicNames));
+//                            if (topicList != null) {
+//                                stopTheWorld();
+//                                for (Topic topic : topicList) {
+//                                    installTopic(topic);
+//                                }
+//                            }
+//                        }
+//                    }
+//
+//                    try {
+//                        Thread.sleep(10000);
+//                    } catch (Exception ignored) {
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
     }
 
     private Set<String> getTopicsFromKafka() throws Exception {

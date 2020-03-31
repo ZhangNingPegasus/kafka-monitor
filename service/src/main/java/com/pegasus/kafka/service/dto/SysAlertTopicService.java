@@ -1,11 +1,18 @@
 package com.pegasus.kafka.service.dto;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.pegasus.kafka.common.annotation.TranRead;
 import com.pegasus.kafka.common.annotation.TranSave;
+import com.pegasus.kafka.common.exception.BusinessException;
 import com.pegasus.kafka.entity.dto.SysAlertTopic;
 import com.pegasus.kafka.mapper.SysAlertTopicMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * The service for table 'sys_alert_topic'.
@@ -28,6 +35,15 @@ public class SysAlertTopicService extends ServiceImpl<SysAlertTopicMapper, SysAl
                         Integer toMomTps,
                         String email
     ) {
+        if (StringUtils.isEmpty(topicName)) {
+            throw new BusinessException("主题名称不允许为空");
+        }
+
+        SysAlertTopic orgiSysAlertTopic = getByTopicName(topicName);
+        if (orgiSysAlertTopic != null) {
+            throw new BusinessException(String.format("主题[%s]的TPS设置已存在", topicName));
+        }
+
         SysAlertTopic sysAlertTopic = new SysAlertTopic();
         sysAlertTopic.setTopicName(topicName);
         sysAlertTopic.setFromTime(fromTime);
@@ -50,8 +66,18 @@ public class SysAlertTopicService extends ServiceImpl<SysAlertTopicMapper, SysAl
                           Integer fromMomTps,
                           Integer toMomTps,
                           String email) {
-        UpdateWrapper<SysAlertTopic> updateWrapper = new UpdateWrapper<>();
+        if (StringUtils.isEmpty(topicName)) {
+            throw new BusinessException("主题名称不允许为空");
+        }
 
+        SysAlertTopic orgiSysAlertTopic = getByTopicName(topicName);
+        if (orgiSysAlertTopic != null) {
+            if (!topicName.equals(topicName)) {
+                throw new BusinessException(String.format("主题[%s]的TPS设置已存在", topicName));
+            }
+        }
+
+        UpdateWrapper<SysAlertTopic> updateWrapper = new UpdateWrapper<>();
         updateWrapper.lambda()
                 .eq(SysAlertTopic::getId, id)
                 .set(SysAlertTopic::getTopicName, topicName)
@@ -64,5 +90,22 @@ public class SysAlertTopicService extends ServiceImpl<SysAlertTopicMapper, SysAl
                 .set(SysAlertTopic::getEmail, email);
 
         return this.update(updateWrapper);
+    }
+
+    @TranRead
+    public List<String> listTopicNames() {
+        QueryWrapper<SysAlertTopic> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().select(SysAlertTopic::getTopicName);
+        return this.list(queryWrapper).stream().map(SysAlertTopic::getTopicName).collect(Collectors.toList());
+    }
+
+    @TranRead
+    public SysAlertTopic getByTopicName(String topicName) {
+        if (StringUtils.isEmpty(topicName)) {
+            return null;
+        }
+        QueryWrapper<SysAlertTopic> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(SysAlertTopic::getTopicName, topicName);
+        return this.getOne(queryWrapper);
     }
 }

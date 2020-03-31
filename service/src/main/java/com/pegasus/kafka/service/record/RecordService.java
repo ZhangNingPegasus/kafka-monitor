@@ -96,7 +96,8 @@ public class RecordService implements SmartLifecycle, DisposableBean {
                 properties.setProperty(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, kafkaService.getKafkaBrokerServer());
                 properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, this.consumerGroupdId);
                 properties.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
-                properties.setProperty(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "1000");
+                properties.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "2048");
+                properties.setProperty(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, String.valueOf(1000));
                 properties.setProperty(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, String.valueOf(1000 * 60));
                 properties.setProperty(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, String.valueOf(1000 * 60));
                 properties.setProperty(ConsumerConfig.ISOLATION_LEVEL_CONFIG, "read_committed");

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Comparator;
 import java.util.List;
 
 import static com.pegasus.kafka.controller.AlertTopicController.PREFIX;
@@ -43,7 +44,11 @@ public class AlertTopicController {
 
     @GetMapping("toadd")
     public String toAdd(Model model) throws Exception {
-        model.addAttribute("topics", kafkaService.listTopicNames());
+        List<String> topicNameList = sysAlertTopicService.listTopicNames();
+        List<String> allTopicNameList = kafkaService.listTopicNames();
+        allTopicNameList.removeAll(topicNameList);
+        allTopicNameList.sort(Comparator.naturalOrder());
+        model.addAttribute("topics", allTopicNameList);
         return String.format("%s/add", PREFIX);
     }
 
@@ -51,7 +56,12 @@ public class AlertTopicController {
     public String toEdit(Model model,
                          @PathVariable(required = true, value = "id") String id) throws Exception {
         SysAlertTopic sysAlertTopic = sysAlertTopicService.getById(id);
-        model.addAttribute("topics", kafkaService.listTopicNames());
+        List<String> topicNameList = sysAlertTopicService.listTopicNames();
+        List<String> allTopicNameList = kafkaService.listTopicNames();
+        allTopicNameList.removeAll(topicNameList);
+        allTopicNameList.add(sysAlertTopic.getTopicName());
+        allTopicNameList.sort(Comparator.naturalOrder());
+        model.addAttribute("topics", allTopicNameList);
         model.addAttribute("item", sysAlertTopic);
         return String.format("%s/edit", PREFIX);
     }
@@ -65,35 +75,30 @@ public class AlertTopicController {
         return Result.ok(this.sysAlertTopicService.page(new Page<>(pageNum, pageSize), queryWrapper));
     }
 
-
-    @PostMapping("add")
+    @PostMapping("save")
     @ResponseBody
-    public Result<?> add(@RequestParam(value = "topicName", required = true) String topicName,
-                         @RequestParam(value = "fromTime", required = true) String fromTime,
-                         @RequestParam(value = "toTime", required = true) String toTime,
-                         @RequestParam(value = "fromTps", required = true) Integer fromTps,
-                         @RequestParam(value = "toTps", required = true) Integer toTps,
-                         @RequestParam(value = "fromMomTps", required = true) Integer fromMomTps,
-                         @RequestParam(value = "toMomTps", required = true) Integer toMomTps,
-                         @RequestParam(value = "email", required = true) String email
+    public Result<?> save(@RequestParam(value = "id", required = false) Long id,
+                          @RequestParam(value = "topicName", required = false) String topicName,
+                          @RequestParam(value = "fromTime", required = false) String fromTime,
+                          @RequestParam(value = "toTime", required = false) String toTime,
+                          @RequestParam(value = "fromTps", required = false) Integer fromTps,
+                          @RequestParam(value = "toTps", required = false) Integer toTps,
+                          @RequestParam(value = "fromMomTps", required = false) Integer fromMomTps,
+                          @RequestParam(value = "toMomTps", required = false) Integer toMomTps,
+                          @RequestParam(value = "email", required = false) String email
     ) {
-        sysAlertTopicService.save(topicName, fromTime, toTime, fromTps, toTps, fromMomTps, toMomTps, email);
-        return Result.ok();
-    }
+        if (fromTps == null &&
+                toTps == null &&
+                fromMomTps == null &&
+                toMomTps == null) {
+            return Result.error("TPS设置至少需要填写一个");
+        }
 
-    @PostMapping("edit")
-    @ResponseBody
-    public Result<?> edit(@RequestParam(value = "id", required = true) Long id,
-                          @RequestParam(value = "topicName", required = true) String topicName,
-                          @RequestParam(value = "fromTime", required = true) String fromTime,
-                          @RequestParam(value = "toTime", required = true) String toTime,
-                          @RequestParam(value = "fromTps", required = true) Integer fromTps,
-                          @RequestParam(value = "toTps", required = true) Integer toTps,
-                          @RequestParam(value = "fromMomTps", required = true) Integer fromMomTps,
-                          @RequestParam(value = "toMomTps", required = true) Integer toMomTps,
-                          @RequestParam(value = "email", required = true) String email
-    ) {
-        sysAlertTopicService.update(id, topicName, fromTime, toTime, fromTps, toTps, fromMomTps, toMomTps, email);
+        if (id == null) {
+            sysAlertTopicService.save(topicName, fromTime, toTime, fromTps, toTps, fromMomTps, toMomTps, email);
+        } else {
+            sysAlertTopicService.update(id, topicName, fromTime, toTime, fromTps, toTps, fromMomTps, toMomTps, email);
+        }
         return Result.ok();
     }
 

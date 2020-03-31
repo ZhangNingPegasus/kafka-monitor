@@ -20,7 +20,12 @@
             </div>
         </div>
         <div class="layui-card">
-            <div class="layui-card-header">Kafka集群</div>
+            <div class="layui-card-header">
+                Kafka集群&nbsp;&nbsp;
+                <button id="btnOpenSetting" type="button"
+                        class="layui-btn layui-btn-xs layui-btn-normal layui-btn-radius">&nbsp;显示Java代码配置信息&nbsp;
+                </button>
+            </div>
             <div class="layui-card-body">
                 <table id="grid" lay-filter="grid"></table>
                 <script type="text/html" id="colVersion">
@@ -48,6 +53,18 @@
     <script>
         layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table', 'carousel', 'echarts'], function () {
             const admin = layui.admin, table = layui.table, $ = layui.$, echarts = layui.echarts;
+
+            $("#btnOpenSetting").click(function () {
+                layer.open({
+                    type: 2,
+                    title: '<i class="layui-icon layui-icon-code-circle"></i>&nbsp;&nbsp;Java代码配置信息',
+                    content: 'tosetting',
+                    area: ['1500px', '815px'],
+                    btn: ['确定'],
+                    resize: false
+                });
+            });
+
             layui.use(['carousel'], function () {
                 const $ = layui.$, carousel = layui.carousel, element = layui.element, device = layui.device();
                 $('.layadmin-carousel').each(function () {

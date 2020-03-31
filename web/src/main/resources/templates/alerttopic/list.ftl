@@ -59,16 +59,15 @@
                 cols: [[
                     {type: 'numbers', title: '序号', width: 50},
                     {field: 'topicName', title: '主题名称'},
-                    {field: 'fromTime', title: '开始时间', width: 150},
-                    {field: 'toTime', title: '结束时间', width: 150},
+                    {field: 'fromTime', title: '开始时间(时:分:秒)', width: 150},
+                    {field: 'toTime', title: '结束时间(时:分:秒)', width: 150},
                     {field: 'fromTps', title: 'TPS下限', width: 150},
                     {field: 'toTps', title: 'TPS上限', width: 150},
                     {field: 'fromMomTps', title: 'TPS上限(环比)', width: 150},
                     {field: 'toMomTps', title: 'TPS下限(环比)', width: 150},
-                    {field: 'email', title: '通知邮箱', width: 150},
-                    {field: 'createTime', title: '创建时间', templet: '#createTime', width: 200}
+                    {field: 'email', title: '通知邮箱', width: 150}
                     <@select>
-                    , {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 160}
+                    , {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 150}
                     </@select>
                 ]]
             });
@@ -90,7 +89,16 @@
                                 const split = field.rangeTime.split(" - ");
                                 field.fromTime = split[0];
                                 field.toTime = split[1];
-                                admin.post('add', field, function () {
+
+                                if (field.fromTps == "" &&
+                                    field.toTps == "" &&
+                                    field.fromMomTps == "" &&
+                                    field.toMomTps == ""
+                                ) {
+                                    admin.error("系统提示", "TPS设置至少需要填写一个");
+                                    return;
+                                }
+                                admin.post('save', field, function () {
                                     table.reload('grid');
                                     layer.close(index);
                                 }, function (result) {
@@ -142,7 +150,15 @@
                                 const split = field.rangeTime.split(" - ");
                                 field.fromTime = split[0];
                                 field.toTime = split[1];
-                                admin.post('edit', field, function () {
+                                if (field.fromTps == "" &&
+                                    field.toTps == "" &&
+                                    field.fromMomTps == "" &&
+                                    field.toMomTps == ""
+                                ) {
+                                    admin.error("系统提示", "TPS设置至少需要填写一个");
+                                    return;
+                                }
+                                admin.post('save', field, function () {
                                     table.reload('grid');
                                     layer.close(index);
                                 }, function (result) {

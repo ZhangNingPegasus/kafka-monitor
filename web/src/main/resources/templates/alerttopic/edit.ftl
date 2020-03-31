@@ -26,14 +26,14 @@
             <label class="layui-form-label">监控时间</label>
             <div class="layui-input-inline" style="width:700px">
                 <input id="rangeTime" name="rangeTime" type="text" class="layui-input"
-                       value="${item.fromTime} - ${item.toTime}" placeholder=" - " autocomplete="off"/>
+                       value="${item.fromTime!''} - ${item.toTime!''}" placeholder=" - " autocomplete="off"/>
             </div>
         </div>
 
         <div class="layui-form-item">
             <label class="layui-form-label">TPS下限</label>
             <div class="layui-input-inline" style="width:700px">
-                <input type="number" name="fromTps" value="${item.fromTps}" placeholder="请填写TPS下限" autocomplete="off"
+                <input type="number" name="fromTps" value="${item.fromTps!''}" placeholder="请填写TPS下限" autocomplete="off"
                        class="layui-input">
             </div>
         </div>
@@ -41,7 +41,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">TPS上限</label>
             <div class="layui-input-inline" style="width:700px">
-                <input type="number" name="toTps" value="${item.toTps}" placeholder="请填写TPS上限" autocomplete="off"
+                <input type="number" name="toTps" value="${item.toTps!''}" placeholder="请填写TPS上限" autocomplete="off"
                        class="layui-input">
             </div>
         </div>
@@ -49,7 +49,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">TPS下限（环比）</label>
             <div class="layui-input-inline" style="width:700px">
-                <input type="number" name="fromMomTps" value="${item.fromMomTps}" placeholder="请填写TPS下限（环比）"
+                <input type="number" name="fromMomTps" value="${item.fromMomTps!''}" placeholder="请填写TPS下限（环比）"
                        autocomplete="off"
                        class="layui-input">
             </div>
@@ -58,7 +58,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">TPS上限（环比）</label>
             <div class="layui-input-inline" style="width:700px">
-                <input type="number" name="toMomTps" value="${item.toMomTps}" placeholder="请填写TPS上限（环比）"
+                <input type="number" name="toMomTps" value="${item.toMomTps!''}" placeholder="请填写TPS上限（环比）"
                        autocomplete="off"
                        class="layui-input">
             </div>
@@ -67,7 +67,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">通知邮箱</label>
             <div class="layui-input-inline" style="width:700px">
-                <input type="email" name="email" value="${item.email}" placeholder="请填写警告接受邮箱地址" autocomplete="off"
+                <input type="email" name="email" value="${item.email!''}" placeholder="请填写警告接受邮箱地址" autocomplete="off"
                        class="layui-input">
             </div>
         </div>

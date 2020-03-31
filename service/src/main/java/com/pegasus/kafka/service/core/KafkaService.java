@@ -741,10 +741,12 @@ public class KafkaService {
         try {
             Properties props = new Properties();
             props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, getKafkaBrokerServer());
-            props.put("acks", "all");
+            props.put(ProducerConfig.ACKS_CONFIG, "all");
+            props.put(ProducerConfig.RETRIES_CONFIG, "3");
             props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, Constants.KAFKA_COMPRESS_TYPE);
-            props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-            props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+            props.put(ProducerConfig.CLIENT_ID_CONFIG, String.format("%s_SEND_MSG", Constants.KAFKA_MONITOR_PEGASUS_SYSTEM_PREFIX));
+            props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
+            props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
             kafkaProducer = new KafkaProducer<>(props);
             kafkaProducerAction.action(kafkaProducer);
         } finally {
@@ -760,11 +762,11 @@ public class KafkaService {
             Properties props = new Properties();
             props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, getKafkaBrokerServer());
             props.put(ConsumerConfig.GROUP_ID_CONFIG, Constants.KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_MONITOR);
-            props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, Constants.KAFKA_COMPRESS_TYPE);
-            props.setProperty("enable.auto.commit", "true");
-            props.setProperty("auto.commit.interval.ms", "1000");
-            props.setProperty("isolation.level", "read_committed");
-            props.setProperty("auto.offset.reset", "earliest");
+            props.put(ConsumerConfig.CLIENT_ID_CONFIG, String.format("%s_SEND_MSG", Constants.KAFKA_MONITOR_PEGASUS_SYSTEM_PREFIX));
+            props.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
+            props.setProperty(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "1000");
+            props.setProperty(ConsumerConfig.ISOLATION_LEVEL_CONFIG, "read_committed");
+            props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
             props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getCanonicalName());
             props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getCanonicalName());
             kafkaConsumer = new KafkaConsumer<>(props);
