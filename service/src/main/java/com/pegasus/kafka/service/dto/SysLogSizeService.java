@@ -111,12 +111,42 @@ public class SysLogSizeService extends ServiceImpl<SysLogSizeMapper, SysLogSize>
     @TranRead
     public List<SysLogSize> listByTopicName(String topicName, Date from, Date to) {
         QueryWrapper<SysLogSize> queryWrapper = new QueryWrapper<>();
-        LambdaQueryWrapper<SysLogSize> lambda = queryWrapper.lambda()
+        queryWrapper.lambda()
                 .eq(SysLogSize::getTopicName, topicName)
                 .ge(SysLogSize::getCreateTime, from)
                 .le(SysLogSize::getCreateTime, to)
                 .orderByAsc(SysLogSize::getCreateTime);
         return this.list(queryWrapper);
+    }
+
+    @TranRead
+    public Map<String, List<SysLogSize>> listByTopicNames(List<String> topicNameList, Date from, Date to) {
+        Map<String, List<SysLogSize>> result = null;
+
+        QueryWrapper<SysLogSize> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda()
+                .in(SysLogSize::getTopicName, topicNameList)
+                .ge(SysLogSize::getCreateTime, from)
+                .le(SysLogSize::getCreateTime, to)
+                .orderByAsc(SysLogSize::getTopicName)
+                .orderByDesc(SysLogSize::getCreateTime);
+        List<SysLogSize> sysLogSizeList = this.list(queryWrapper);
+
+        if (sysLogSizeList != null && sysLogSizeList.size() > 0) {
+            result = new HashMap<>((int) (0.75 * sysLogSizeList.size()));
+            for (SysLogSize sysLogSize : sysLogSizeList) {
+                String key = sysLogSize.getTopicName();
+                if (result.containsKey(key)) {
+                    result.get(key).add(sysLogSize);
+                } else {
+                    List<SysLogSize> value = new ArrayList<>();
+                    value.add(sysLogSize);
+                    result.put(key, value);
+                }
+            }
+        }
+
+        return result;
     }
 
     @TranRead

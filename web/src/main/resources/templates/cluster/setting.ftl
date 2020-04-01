@@ -77,9 +77,9 @@
             autoRefresh: true
         });
 
-        txtSpringBoot.setSize('auto', '650px');
-        txtSpring.setSize('auto', '650px');
-        txtJava.setSize('auto', '650px');
+        txtSpringBoot.setSize('auto', '750px');
+        txtSpring.setSize('auto', '750px');
+        txtJava.setSize('auto', '750px');
     });
 </script>
 </body>

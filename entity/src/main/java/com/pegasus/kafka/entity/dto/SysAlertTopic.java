@@ -41,4 +41,16 @@ public class SysAlertTopic extends BaseDto {
 
     @TableField(value = "`email`")
     private String email;
+
+    public String toInfo() {
+        return String.format("TPS范围: [%s, %s]; 变化范围: [%s, %s]", this.fromTps, this.toTps, this.fromMomTps, this.toMomTps);
+    }
+
+    public String toTpsInfo() {
+        return String.format("TPS范围: [%s, %s]", this.fromTps, this.toTps);
+    }
+
+    public String toMomTpsInfo() {
+        return String.format("变化范围: [%s, %s]", this.fromMomTps, this.toMomTps);
+    }
 }

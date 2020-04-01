@@ -8,7 +8,6 @@ import com.pegasus.kafka.service.alert.AlertService;
 import com.pegasus.kafka.service.alert.DingDingService;
 import com.pegasus.kafka.service.alert.MailService;
 import com.pegasus.kafka.service.dto.SysAlertClusterService;
-import com.pegasus.kafka.service.dto.SysAlertConsumerService;
 import com.pegasus.kafka.service.kafka.KafkaBrokerService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -34,8 +33,11 @@ public class AlertSchedule {
     private final MailService mailService;
     private final AlertService alertService;
 
-
-    public AlertSchedule(SysAlertConsumerService sysAlertConsumerService, SysAlertClusterService sysAlertClusterService, KafkaBrokerService kafkaBrokerService, DingDingService dingDingService, MailService mailService, AlertService alertService) {
+    public AlertSchedule(SysAlertClusterService sysAlertClusterService,
+                         KafkaBrokerService kafkaBrokerService,
+                         DingDingService dingDingService,
+                         MailService mailService,
+                         AlertService alertService) {
         this.sysAlertClusterService = sysAlertClusterService;
         this.kafkaBrokerService = kafkaBrokerService;
         this.dingDingService = dingDingService;
@@ -43,28 +45,29 @@ public class AlertSchedule {
         this.alertService = alertService;
     }
 
-    @Scheduled(cron = "0/10 * * * * ?") //每10秒执行一次
-    public void alert() throws InterruptedException {
-        AlertService.Alert alert = alertService.poll();
-        if (alert == null) {
-            return;
-        }
-
-        if (!StringUtils.isEmpty(alert.getEmail())) {
-            try {
-                mailService.send(alert.getEmail(), alert.getEmailTitle(), alert.getEmailContent());
-            } catch (Exception ignored) {
+    //每10秒执行一次
+    @Scheduled(cron = "0/10 * * * * ?")
+    public void alert() {
+        List<AlertService.Alert> alertList = alertService.getAll();
+        for (AlertService.Alert alert : alertList) {
+            if (alert == null) {
+                continue;
             }
-        }
-
-        if (!StringUtils.isEmpty(alert.getDingContent())) {
-            try {
-                DingDingMessage message = new DingDingMessage();
-                message.setMsgtype("text");
-                message.setText(new DingDingMessage.Text(alert.getDingContent()));
-                message.setAt(new DingDingMessage.At(Collections.singletonList(""), true));
-                dingDingService.send(message);
-            } catch (Exception ignored) {
+            if (!StringUtils.isEmpty(alert.getEmail())) {
+                try {
+                    mailService.send(alert.getEmail(), alert.getEmailTitle(), alert.getEmailContent());
+                } catch (Exception ignored) {
+                }
+            }
+            if (!StringUtils.isEmpty(alert.getDingContent())) {
+                try {
+                    DingDingMessage message = new DingDingMessage();
+                    message.setMsgtype("text");
+                    message.setText(new DingDingMessage.Text(alert.getDingContent()));
+                    message.setAt(new DingDingMessage.At(Collections.singletonList(""), true));
+                    dingDingService.send(message);
+                } catch (Exception ignored) {
+                }
             }
         }
     }
@@ -92,7 +95,7 @@ public class AlertSchedule {
                 alert.setEmailTitle(String.format("ZOOKEEPER主机[%s]不可用, 请检查.", ip));
                 alert.setDingContent(alert.getEmailTitle());
                 alert.setDingContent(alert.getEmailTitle());
-                alertService.offer(alert);
+                alertService.offer(String.format("alert_zookeeper_%s", zooKeeper.getId()), alert);
             }
         }
 
@@ -107,7 +110,7 @@ public class AlertSchedule {
                 alert.setEmailTitle(String.format("KAFKA主机[%s]不可用, 请检查.", ip));
                 alert.setDingContent(alert.getEmailTitle());
                 alert.setDingContent(alert.getEmailTitle());
-                alertService.offer(alert);
+                alertService.offer(String.format("alert_kafka_%s", kafka.getId()), alert);
             }
         }
     }

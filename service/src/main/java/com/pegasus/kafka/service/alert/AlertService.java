@@ -1,9 +1,15 @@
 package com.pegasus.kafka.service.alert;
 
+import io.netty.util.HashedWheelTimer;
 import lombok.Data;
+import net.sf.ehcache.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -18,44 +24,30 @@ import java.util.concurrent.TimeUnit;
 public class AlertService {
 
     private ArrayBlockingQueue<Alert> alertList;
+    private final Map<String, Alert> duplicateMap;
+    private final HashedWheelTimer timer;
 
     public AlertService() {
         alertList = new ArrayBlockingQueue<>(1024);
+        duplicateMap = new ConcurrentHashMap<>(1024);
+        timer = new HashedWheelTimer(Executors.defaultThreadFactory(),
+                100,
+                TimeUnit.MILLISECONDS,
+                512);
     }
 
-    public boolean offer(String dingContent) {
-        Alert alert = new Alert();
-        alert.setEmail(null);
-        alert.setEmailTitle(null);
-        alert.setEmailContent(null);
-        alert.setDingContent(dingContent);
-        return alertList.offer(alert);
+    public void offer(String id, Alert alert) {
+        if (!duplicateMap.containsKey(id)) {
+            duplicateMap.put(id, alert);
+            timer.newTimeout(timeout -> duplicateMap.remove(id), 60 * 10, TimeUnit.SECONDS);
+            alertList.offer(alert);
+        }
     }
 
-    public boolean offer(String email, String emailTitle, String emailContent) {
-        Alert alert = new Alert();
-        alert.setEmail(email);
-        alert.setEmailTitle(emailTitle);
-        alert.setEmailContent(emailContent);
-        alert.setDingContent(null);
-        return alertList.offer(alert);
-    }
-
-    public boolean offer(String email, String emailTitle, String emailContent, String dingContent) {
-        Alert alert = new Alert();
-        alert.setEmail(email);
-        alert.setEmailTitle(emailTitle);
-        alert.setEmailContent(emailContent);
-        alert.setDingContent(dingContent);
-        return alertList.offer(alert);
-    }
-
-    public boolean offer(Alert alert) {
-        return alertList.offer(alert);
-    }
-
-    public Alert poll() throws InterruptedException {
-        return alertList.poll(5, TimeUnit.MILLISECONDS);
+    public List<Alert> getAll() {
+        List<Alert> result = new ArrayList<>(1024);
+        alertList.drainTo(result, 1024);
+        return result;
     }
 
     @Data

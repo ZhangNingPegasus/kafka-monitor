@@ -59,15 +59,15 @@
                 cols: [[
                     {type: 'numbers', title: '序号', width: 50},
                     {field: 'topicName', title: '主题名称'},
-                    {field: 'fromTime', title: '开始时间(时:分:秒)', width: 150},
-                    {field: 'toTime', title: '结束时间(时:分:秒)', width: 150},
-                    {field: 'fromTps', title: 'TPS下限', width: 150},
-                    {field: 'toTps', title: 'TPS上限', width: 150},
-                    {field: 'fromMomTps', title: 'TPS上限(环比)', width: 150},
-                    {field: 'toMomTps', title: 'TPS下限(环比)', width: 150},
-                    {field: 'email', title: '通知邮箱', width: 150}
+                    {field: 'fromTime', title: '开始时间(时:分:秒)', width: 200},
+                    {field: 'toTime', title: '结束时间(时:分:秒)', width: 200},
+                    {field: 'fromTps', title: 'TPS下限', width: 200},
+                    {field: 'toTps', title: 'TPS上限', width: 200},
+                    {field: 'fromMomTps', title: 'TPS变化上限', width: 200},
+                    {field: 'toMomTps', title: 'TPS变化下限', width: 200},
+                    {field: 'email', title: '通知邮箱', width: 200}
                     <@select>
-                    , {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 150}
+                    , {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 200}
                     </@select>
                 ]]
             });
@@ -86,16 +86,7 @@
                                 submit = layero.find('iframe').contents().find('#' + submitID);
                             iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
                                 const field = data.field;
-                                const split = field.rangeTime.split(" - ");
-                                field.fromTime = split[0];
-                                field.toTime = split[1];
-
-                                if (field.fromTps == "" &&
-                                    field.toTps == "" &&
-                                    field.fromMomTps == "" &&
-                                    field.toMomTps == ""
-                                ) {
-                                    admin.error("系统提示", "TPS设置至少需要填写一个");
+                                if (checkField(field) === false) {
                                     return;
                                 }
                                 admin.post('save', field, function () {
@@ -138,7 +129,7 @@
                         type: 2,
                         title: '编辑主题警告',
                         content: 'toedit/' + id,
-                        area: ['880px', '400px'],
+                        area: ['880px', '600px'],
                         btn: admin.BUTTONS,
                         resize: false,
                         yes: function (index, layero) {
@@ -147,15 +138,7 @@
                             iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
                                 const field = data.field;
                                 field.id = id;
-                                const split = field.rangeTime.split(" - ");
-                                field.fromTime = split[0];
-                                field.toTime = split[1];
-                                if (field.fromTps == "" &&
-                                    field.toTps == "" &&
-                                    field.fromMomTps == "" &&
-                                    field.toMomTps == ""
-                                ) {
-                                    admin.error("系统提示", "TPS设置至少需要填写一个");
+                                if (checkField(field) === false) {
                                     return;
                                 }
                                 admin.post('save', field, function () {
@@ -170,6 +153,38 @@
                     });
                 }
             });
+
+            function checkField(field) {
+                const split = field.rangeTime.split(" - ");
+                field.fromTime = split[0];
+                field.toTime = split[1];
+                if (field.fromTps === "" &&
+                    field.toTps === "" &&
+                    field.fromMomTps === "" &&
+                    field.toMomTps === ""
+                ) {
+                    admin.error("系统提示", "TPS设置至少需要填写一个");
+                    return false;
+                }
+                if (field.fromTps !== '' && parseInt(field.fromTps) < 0) {
+                    admin.error("系统提示", "TPS下限必须大于0");
+                    return false;
+                }
+                if (field.toTps !== '' && parseInt(field.toTps) < 0) {
+                    admin.error("系统提示", "TPS上限必须大于0");
+                    return false;
+                }
+                if (field.fromTps !== '' && field.toTps !== '' && parseInt(field.fromTps) > parseInt(field.toTps)) {
+                    admin.error("系统提示", "TPS下限必须小于TPS上限");
+                    return false;
+                }
+                if (field.fromMomTps !== '' && field.toMomTps !== '' && parseInt(field.fromMomTps) > parseInt(field.toMomTps)) {
+                    admin.error("系统提示", "TPS变化下限必须小于TPS变化上限");
+                    return false;
+                }
+                return true;
+            }
+
         });
     </script>
     </body>

@@ -47,17 +47,17 @@
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">TPS下限（环比）</label>
+            <label class="layui-form-label">变化下限</label>
             <div class="layui-input-inline" style="width:700px">
-                <input type="number" name="fromMomTps" placeholder="请填写TPS下限（环比）" autocomplete="off"
+                <input type="number" name="fromMomTps" placeholder="请填写TPS变化下限" autocomplete="off"
                        class="layui-input">
             </div>
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">TPS上限（环比）</label>
+            <label class="layui-form-label">变化上限</label>
             <div class="layui-input-inline" style="width:700px">
-                <input type="number" name="toMomTps" placeholder="请填写TPS上限（环比）" autocomplete="off"
+                <input type="number" name="toMomTps" placeholder="请填写TPS变化上限" autocomplete="off"
                        class="layui-input">
             </div>
         </div>
