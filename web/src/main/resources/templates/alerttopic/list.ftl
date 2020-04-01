@@ -59,15 +59,15 @@
                 cols: [[
                     {type: 'numbers', title: '序号', width: 50},
                     {field: 'topicName', title: '主题名称'},
-                    {field: 'fromTime', title: '开始时间(时:分:秒)', width: 200},
-                    {field: 'toTime', title: '结束时间(时:分:秒)', width: 200},
-                    {field: 'fromTps', title: 'TPS下限', width: 200},
-                    {field: 'toTps', title: 'TPS上限', width: 200},
-                    {field: 'fromMomTps', title: 'TPS变化上限', width: 200},
-                    {field: 'toMomTps', title: 'TPS变化下限', width: 200},
-                    {field: 'email', title: '通知邮箱', width: 200}
+                    {field: 'fromTime', title: '开始时间(时:分:秒)', width: 150},
+                    {field: 'toTime', title: '结束时间(时:分:秒)', width: 150},
+                    {field: 'fromTps', title: 'TPS下限', width: 150},
+                    {field: 'toTps', title: 'TPS上限', width: 150},
+                    {field: 'fromMomTps', title: 'TPS变化上限', width: 150},
+                    {field: 'toMomTps', title: 'TPS变化下限', width: 150},
+                    {field: 'email', title: '通知邮箱', width: 150}
                     <@select>
-                    , {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 200}
+                    , {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 140}
                     </@select>
                 ]]
             });
