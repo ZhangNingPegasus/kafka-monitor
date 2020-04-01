@@ -59,7 +59,7 @@
                     type: 2,
                     title: '<i class="layui-icon layui-icon-code-circle"></i>&nbsp;&nbsp;Java代码配置信息',
                     content: 'tosetting',
-                    area: ['1600px', '915px'],
+                    area: ['1200px', '815px'],
                     btn: ['确定'],
                     resize: false
                 });
