@@ -61,14 +61,11 @@ public class DingDingService {
         try {
             HttpResponse response = httpclient.execute(httppost);
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                String result = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-                return result;
+                return EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return "";
     }
-
-
 }

@@ -52,4 +52,12 @@
             AND page.id = #{sysPageId}
         </if>
     </select>
+
+    <select id="getPermissionPagesByRoleId" resultType="com.pegasus.kafka.entity.dto.SysPage">
+        SELECT
+        page.*
+        FROM `sys_page` page
+        LEFT OUTER JOIN `sys_permission` p ON page.id=p.sys_page_id
+        WHERE p.sys_role_id=#{sysRoleId}
+    </select>
 </mapper>

@@ -3,6 +3,7 @@ package com.pegasus.kafka.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.pegasus.kafka.common.response.Result;
 import com.pegasus.kafka.common.utils.Common;
+import com.pegasus.kafka.entity.dto.SysPage;
 import com.pegasus.kafka.entity.dto.SysPermission;
 import com.pegasus.kafka.entity.dto.SysRole;
 import com.pegasus.kafka.entity.vo.PermissionVo;
@@ -54,8 +55,16 @@ public class PermissionController {
     @GetMapping("toadd")
     public String toAdd(Model model) {
         model.addAttribute("roles", sysRoleService.list(new QueryWrapper<SysRole>().lambda().eq(SysRole::getSuperAdmin, false).orderByAsc(SysRole::getCreateTime)));
-        model.addAttribute("pages", sysPageService.list().stream().filter(p -> !StringUtils.isEmpty(p.getUrl())).collect(Collectors.toList()));
         return String.format("%s/%s", PREFIX, "add");
+    }
+
+    @PostMapping("getPages")
+    @ResponseBody
+    public Result<List<SysPage>> getPages(@RequestParam(value = "sysRoleId", required = true) Long sysRoleId) {
+        List<SysPage> allPages = sysPageService.list();
+        List<SysPage> pages = sysPermissionService.getPermissionPagesByRoleId(sysRoleId);
+        allPages.removeAll(pages);
+        return Result.ok(allPages.stream().filter(p -> !StringUtils.isEmpty(p.getUrl())).collect(Collectors.toList()));
     }
 
     @PostMapping("list")

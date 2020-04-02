@@ -47,10 +47,10 @@ public class SysAlertTopic extends BaseDto {
     }
 
     public String toTpsInfo() {
-        return String.format("TPS范围: [%s, %s]", this.fromTps, this.toTps);
+        return String.format("[%s, %s]", this.fromTps, this.toTps);
     }
 
     public String toMomTpsInfo() {
-        return String.format("变化范围: [%s, %s]", this.fromMomTps, this.toMomTps);
+        return String.format("[%s, %s]", this.fromMomTps, this.toMomTps);
     }
 }

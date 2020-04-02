@@ -50,19 +50,7 @@ public class ClusterController {
 
     @GetMapping("tosetting")
     public String tosetting(Model model) throws Exception {
-
-        List<KafkaBrokerVo> kafkaBrokerVos = kafkaService.listBrokerInfos();
-
-        StringBuilder brokers = new StringBuilder();
-        for (KafkaBrokerVo kafkaBrokerVo : kafkaBrokerVos) {
-            brokers.append(String.format("%s:%s,", kafkaBrokerVo.getHost(), kafkaBrokerVo.getPort()));
-        }
-        String kafkaUrl = "";
-        if (brokers.length() > 0) {
-            kafkaUrl = brokers.substring(0, brokers.length() - 1);
-        }
-
-
+        String kafkaUrl = kafkaService.getBootstrapServers();
         String springboot = String.format("spring:\n" +
                 "  kafka:\n" +
                 "    #kafka集群地址，多个用逗号隔开\n" +

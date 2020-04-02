@@ -93,7 +93,7 @@ public class RecordService implements SmartLifecycle, DisposableBean {
             KafkaConsumer<String, String> kafkaConsumer = null;
             try {
                 Properties properties = new Properties();
-                properties.setProperty(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, kafkaService.getKafkaBrokerServer());
+                properties.setProperty(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, kafkaService.getBootstrapServers());
                 properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, this.consumerGroupdId);
                 properties.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
                 properties.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "2048");

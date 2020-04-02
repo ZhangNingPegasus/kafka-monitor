@@ -133,12 +133,12 @@
                 cols: [[
                     {type: 'numbers', title: '序号', width: 50},
                     {field: 'topicName', title: '主题名称', templet: '#colTopicName'},
-                    {field: 'logSize', title: '${savingDays}天消息总量', templet: '#colLogSize', width: 200},
+                    {field: 'logSize', title: '${savingDays}天消息总量', templet: '#colLogSize', width: 160},
                     {field: 'subscribeNums', title: '被订阅数', templet: '#subscribeNums', width: 90},
                     {field: 'partitionNum', title: '分区数', templet: '#colPartitionNum', width: 80},
-                    {field: 'partitionIndex', title: '分区索引', templet: '#colPartitionIndex', width: 120},
-                    {field: 'createTime', title: '创建时间', templet: '#colCreateTime', width: 160},
-                    {field: 'modifyTime', title: '修改时间', templet: '#colModifyTime', width: 160}
+                    {field: 'partitionIndex', title: '分区索引', templet: '#colPartitionIndex', width: 200},
+                    {field: 'createTime', title: '创建时间', templet: '#colCreateTime', width: 180},
+                    {field: 'modifyTime', title: '修改时间', templet: '#colModifyTime', width: 180}
                     <@not_only_select>
                     , {fixed: 'right', title: '操作', toolbar: '#grid-bar', width: 240}
                     </@not_only_select>

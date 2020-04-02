@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pegasus.kafka.common.annotation.TranRead;
+import com.pegasus.kafka.entity.dto.SysPage;
 import com.pegasus.kafka.entity.dto.SysPermission;
 import com.pegasus.kafka.entity.vo.PageVo;
 import com.pegasus.kafka.entity.vo.PermissionVo;
@@ -35,5 +36,10 @@ public class SysPermissionService extends ServiceImpl<SysPermissionMapper, SysPe
         List<PermissionVo> list = this.baseMapper.list(page, sysRoleId, sysPageId);
         page.setRecords(list);
         return page;
+    }
+
+    @TranRead
+    public List<SysPage> getPermissionPagesByRoleId(Long sysRoleId) {
+        return this.baseMapper.getPermissionPagesByRoleId(sysRoleId);
     }
 }

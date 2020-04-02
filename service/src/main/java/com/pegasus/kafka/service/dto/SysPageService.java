@@ -58,6 +58,7 @@ public class SysPageService extends ServiceImpl<SysPageMapper, SysPage> {
             return;
         }
         adminVo.setPermissions(getPages(adminVo));
+        adminVo.getPermissions().sort((o1, o2) -> (int) (o1.getOrderNum() - o2.getOrderNum()));
     }
 
     @TranRead
@@ -172,5 +173,4 @@ public class SysPageService extends ServiceImpl<SysPageMapper, SysPage> {
         });
         parentPage.setChildren(childList);
     }
-
 }

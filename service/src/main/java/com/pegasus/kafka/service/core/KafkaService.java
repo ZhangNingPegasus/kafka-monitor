@@ -61,19 +61,6 @@ public class KafkaService {
         return kafkaZkService.getChildren(String.format(Constants.ZK_BROKERS_TOPICS_PARTITION_PATH, topicName));
     }
 
-    public Long listLogSize(String topicName) throws Exception {
-        Long[] result = {0L};
-        List<String> partitionIds = listPartitionIds(topicName);
-
-        kafkaConsumerDo(kafkaConsumer -> {
-            for (String partitionId : partitionIds) {
-                result[0] += listLogSize(kafkaConsumer, topicName, Integer.valueOf(partitionId));
-            }
-        });
-
-        return result[0];
-    }
-
 
     private Long listLogSize(KafkaConsumer kafkaConsumer, String topicName, Integer partitionId) {
         TopicPartition tp = new TopicPartition(topicName, partitionId);
@@ -83,8 +70,6 @@ public class KafkaService {
 //        return endLogSize.get(tp) - startLogSize.get(tp);
         return endLogSize.get(tp);
     }
-
-    //---------------------------------------------------------------------------------------------------------------------
 
     public void createTopics(String topicName, Integer partitionNumber, Integer replicationNumber) throws Exception {
         kafkaAdminClientDo(adminClient -> {
@@ -182,7 +167,6 @@ public class KafkaService {
         }
         return result;
     }
-
 
     public List<String> listAllConsumers() throws Exception {
         AtomicReference<List<String>> result = new AtomicReference<>(new ArrayList<>(1024));
@@ -707,14 +691,18 @@ public class KafkaService {
         return result;
     }
 
-    public String getKafkaBrokerServer() throws Exception {
+    public String getBootstrapServers(boolean port) throws Exception {
         StringBuilder kafkaUrls = new StringBuilder();
         List<KafkaBrokerVo> brokerInfoList = this.listBrokerInfos();
         if (brokerInfoList == null || brokerInfoList.size() < 1) {
             throw new BusinessException(ResultCode.KAFKA_NOT_RUNNING);
         }
         for (KafkaBrokerVo brokerInfo : brokerInfoList) {
-            kafkaUrls.append(String.format("%s:%s,", brokerInfo.getHost(), brokerInfo.getPort()));
+            if (port) {
+                kafkaUrls.append(String.format("%s:%s,", brokerInfo.getHost(), brokerInfo.getPort()));
+            } else {
+                kafkaUrls.append(String.format("%s,", brokerInfo.getHost()));
+            }
         }
         if (kafkaUrls.length() > 0) {
             kafkaUrls.delete(kafkaUrls.length() - 1, kafkaUrls.length());
@@ -722,11 +710,15 @@ public class KafkaService {
         return kafkaUrls.toString();
     }
 
+    public String getBootstrapServers() throws Exception {
+        return getBootstrapServers(true);
+    }
+
     public void kafkaAdminClientDo(KafkaAdminClientAction kafkaAdminClientAction) throws Exception {
         KafkaAdminClient kafkaAdminClient = null;
         try {
             Properties properties = new Properties();
-            properties.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, getKafkaBrokerServer());
+            properties.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, getBootstrapServers());
             kafkaAdminClient = (KafkaAdminClient) AdminClient.create(properties);
             kafkaAdminClientAction.action(kafkaAdminClient);
         } finally {
@@ -740,7 +732,7 @@ public class KafkaService {
         KafkaProducer<String, String> kafkaProducer = null;
         try {
             Properties props = new Properties();
-            props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, getKafkaBrokerServer());
+            props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, getBootstrapServers());
             props.put(ProducerConfig.ACKS_CONFIG, "all");
             props.put(ProducerConfig.RETRIES_CONFIG, "3");
             props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, Constants.KAFKA_COMPRESS_TYPE);
@@ -760,7 +752,7 @@ public class KafkaService {
         KafkaConsumer kafkaConsumer = null;
         try {
             Properties props = new Properties();
-            props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, getKafkaBrokerServer());
+            props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, getBootstrapServers());
             props.put(ConsumerConfig.GROUP_ID_CONFIG, Constants.KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_MONITOR);
             props.put(ConsumerConfig.CLIENT_ID_CONFIG, String.format("%s_SEND_MSG", Constants.KAFKA_MONITOR_PEGASUS_SYSTEM_PREFIX));
             props.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");

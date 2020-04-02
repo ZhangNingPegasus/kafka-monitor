@@ -2,6 +2,7 @@ package com.pegasus.kafka.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.pegasus.kafka.entity.dto.SysPage;
 import com.pegasus.kafka.entity.dto.SysPermission;
 import com.pegasus.kafka.entity.vo.PageVo;
 import com.pegasus.kafka.entity.vo.PermissionVo;
@@ -30,4 +31,6 @@ public interface SysPermissionMapper extends BaseMapper<SysPermission> {
     List<PermissionVo> list(IPage<PermissionVo> page,
                             @Nullable @Param("sysRoleId") Long sysRoleId,
                             @Nullable @Param("sysPageId") Long sysPageId);
+
+    List<SysPage> getPermissionPagesByRoleId(@Param("sysRoleId") Long sysRoleId);
 }

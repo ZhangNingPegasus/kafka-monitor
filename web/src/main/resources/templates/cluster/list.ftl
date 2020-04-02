@@ -93,11 +93,11 @@
                     none: '暂无相关数据'
                 },
                 cols: [[
-                    {type: 'numbers', title: '序号', width: 100},
+                    {type: 'numbers', title: '序号', width: 50},
                     {field: 'host', title: '地址'},
-                    {field: 'port', title: '端口', width: 200},
-                    {field: 'version', title: '版本', templet: '#colVersion', width: 200},
-                    {field: 'mode', title: '模式', templet: '#colMode', width: 200}
+                    {field: 'port', title: '端口', width: 250},
+                    {field: 'version', title: '版本', templet: '#colVersion', width: 250},
+                    {field: 'mode', title: '模式', templet: '#colMode', width: 250}
                 ]]
             });
 
@@ -112,7 +112,7 @@
                     none: '暂无相关数据'
                 },
                 cols: [[
-                    {field: 'name', title: '编号', width: 200},
+                    {field: 'name', title: 'Broker Id', width: 100},
                     {field: 'host', title: '地址'},
                     {field: 'port', title: '端口', width: 225},
                     {field: 'jmxPort', title: 'JMX端口', width: 225},

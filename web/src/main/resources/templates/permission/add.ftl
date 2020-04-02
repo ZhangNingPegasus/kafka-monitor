@@ -8,7 +8,7 @@
     <div class="layui-form-item">
         <label class="layui-form-label">角色名称</label>
         <div class="layui-input-inline">
-            <select name="sysRoleId" lay-verify="required">
+            <select id="sysRoleId" name="sysRoleId" lay-filter="sysRoleId" lay-verify="required">
                 <option value="">请选择角色</option>
                 <#list roles as role>
                     <option value="${role.id}">${role.name}</option>
@@ -19,11 +19,11 @@
     <div class="layui-form-item">
         <label class="layui-form-label">页面名称</label>
         <div class="layui-input-inline">
-            <select name="sysPageId" lay-verify="required">
+            <select id="sysPageId" name="sysPageId" lay-filter="sysPageId" lay-verify="required">
                 <option value="">请选择页面</option>
-                <#list pages as page>
-                    <option value="${page.id}">${page.name}</option>
-                </#list>
+                <#--                <#list pages as page>-->
+                <#--                    <option value="${page.id}">${page.name}</option>-->
+                <#--                </#list>-->
             </select>
         </div>
     </div>
@@ -61,7 +61,21 @@
 </div>
 <script type="text/javascript">
     layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'form'], function () {
+        const admin = layui.admin, $ = layui.$, form = layui.form;
         parent.layer.iframeAuto(parent.layer.getFrameIndex(window.name));
+
+        form.on('select(sysRoleId)', function (data) {
+            const sysRoleId = data.value;
+            $("select[name=sysPageId]").html("<option value=\"\">请选择页面</option>");
+            admin.post("getPages", {'sysRoleId': sysRoleId}, function (res) {
+                $.each(res.data, function (key, val) {
+                    const option = $("<option>").val(val.id).text(val.name);
+                    $("select[name=sysPageId]").append(option);
+                });
+                $('#sysPageId option:eq(1)').attr('selected', 'selected');
+                layui.form.render('select');
+            });
+        });
     });
 </script>
 </body>
