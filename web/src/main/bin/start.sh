@@ -5,7 +5,7 @@ SERVER_NAME='kafka-monitor'
 # jar名称
 JAR_NAME='kafka-monitor.jar'
 
-COMMON_LOG_DIR="/wyyt/logs/kafka-monitor"
+COMMON_LOG_DIR="/wyyt/logs/kafka/kafka-monitor/"
 
 LOGS_JVM=$COMMON_LOG_DIR/gc_log
 if [ ! -d $LOGS_JVM ]; then
