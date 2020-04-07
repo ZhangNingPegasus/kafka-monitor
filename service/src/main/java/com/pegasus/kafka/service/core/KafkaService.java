@@ -66,8 +66,6 @@ public class KafkaService {
         TopicPartition tp = new TopicPartition(topicName, partitionId);
         kafkaConsumer.assign(Collections.singleton(tp));
         Map<TopicPartition, Long> endLogSize = kafkaConsumer.endOffsets(Collections.singleton(tp));
-//        Map<TopicPartition, Long> startLogSize = kafkaConsumer.beginningOffsets(Collections.singleton(tp));
-//        return endLogSize.get(tp) - startLogSize.get(tp);
         return endLogSize.get(tp);
     }
 
@@ -168,18 +166,6 @@ public class KafkaService {
         return result;
     }
 
-    public List<String> listAllConsumers() throws Exception {
-        AtomicReference<List<String>> result = new AtomicReference<>(new ArrayList<>(1024));
-        kafkaAdminClientDo(adminClient -> {
-            ListConsumerGroupsResult listConsumerGroupsResult = adminClient.listConsumerGroups();
-            Collection<ConsumerGroupListing> consumerGroupListings = listConsumerGroupsResult.all().get();
-            for (ConsumerGroupListing consumerGroupListing : consumerGroupListings) {
-                result.get().add(consumerGroupListing.groupId());
-            }
-        });
-        return result.get();
-    }
-
     public List<KafkaConsumerVo> listKafkaConsumers(String searchGroupId) throws Exception {
         List<KafkaConsumerVo> result = new ArrayList<>();
         kafkaAdminClientDo(adminClient -> {
@@ -276,13 +262,13 @@ public class KafkaService {
         List<OffsetVo> result = new ArrayList<>();
 
         List<String> partitionIds = this.listPartitionIds(topicName);
-        Map<Integer, Long> partitionOffset = this.listOffset(groupId, topicName, partitionIds);
+        Map<Integer, Long> partitionOffset = this.listOffset(groupId, topicName);
         Map<TopicPartition, Long> partitionLogSize = this.listLogSize(topicName, partitionIds);
 
         if (kafkaConsumerVoList == null) {
             kafkaConsumerVoList = listKafkaConsumers(groupId);
         } else if (kafkaConsumerVoList.size() > 1) {
-            kafkaConsumerVoList.stream().filter(p -> p.getGroupId().equals(groupId)).collect(Collectors.toList());
+            kafkaConsumerVoList = kafkaConsumerVoList.stream().filter(p -> p.getGroupId().equals(groupId)).collect(Collectors.toList());
         }
         for (Map.Entry<TopicPartition, Long> entrySet : partitionLogSize.entrySet()) {
             int partitionId = entrySet.getKey().partition();
@@ -337,7 +323,7 @@ public class KafkaService {
         return null;
     }
 
-    private Map<Integer, Long> listOffset(String groupId, String topicName, List<String> partitionIds) throws Exception {
+    private Map<Integer, Long> listOffset(String groupId, String topicName) throws Exception {
         Map<Integer, Long> partitionOffset = new HashMap<>();
         kafkaAdminClientDo(adminClient -> {
             ListConsumerGroupOffsetsResult listConsumerGroupOffsetsResult = adminClient.listConsumerGroupOffsets(groupId);
@@ -611,12 +597,9 @@ public class KafkaService {
                         sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + freeMemory);
                         break;
                     case KAFKA_SYSTEM_CPU_LOAD:
+                    case KAFKA_PROCESS_CPU_LOAD:
                         double systemCpuLoad = Double.parseDouble(kafkaJmxService.getData(broker, JMX.OPERATING_SYSTEM, kpi.getName()));
                         sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + systemCpuLoad);
-                        break;
-                    case KAFKA_PROCESS_CPU_LOAD:
-                        double processCpuLoad = Double.parseDouble(kafkaJmxService.getData(broker, JMX.OPERATING_SYSTEM, kpi.getName()));
-                        sysKpi.setValue(Common.numberic(sysKpi.getValue() == null ? 0D : sysKpi.getValue()) + processCpuLoad);
                         break;
                     case KAFKA_THREAD_COUNT:
                         int threadCount = Integer.parseInt(kafkaJmxService.getData(broker, JMX.THREADING, kpi.getName()));

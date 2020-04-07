@@ -1,10 +1,12 @@
 package com.pegasus.kafka.service.record;
 
 
+import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.utils.Common;
 import com.pegasus.kafka.entity.po.Topic;
 import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.core.ThreadService;
+import com.pegasus.kafka.service.kafka.KafkaConsumerService;
 import com.pegasus.kafka.service.property.PropertyService;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -27,6 +29,7 @@ public class CoreService implements SmartLifecycle, DisposableBean {
     private static final int TOPIC_NUMBER_FACTOR = 1024;
     private final ConfigurableApplicationContext applicationContext;
     private final KafkaService kafkaService;
+    private final KafkaConsumerService kafkaConsumerService;
     private final ThreadService threadService;
     private final List<String> blacklist;
     private List<String> topicNames;
@@ -35,10 +38,11 @@ public class CoreService implements SmartLifecycle, DisposableBean {
 
     public CoreService(ConfigurableApplicationContext applicationContext,
                        KafkaService kafkaService,
-                       ThreadService threadService,
+                       KafkaConsumerService kafkaConsumerService, ThreadService threadService,
                        PropertyService propertyService) {
         this.applicationContext = applicationContext;
         this.kafkaService = kafkaService;
+        this.kafkaConsumerService = kafkaConsumerService;
         this.threadService = threadService;
         this.topicNames = new ArrayList<>(TOPIC_NUMBER_FACTOR);
         this.beanNameTopicMap = new HashMap<>(TOPIC_NUMBER_FACTOR);
@@ -69,7 +73,6 @@ public class CoreService implements SmartLifecycle, DisposableBean {
             this.beanNameTopicMap.remove(beanName);
         }
     }
-
 
     public void uninstallTopicName(String topicName) {
         boolean exit;
@@ -160,6 +163,22 @@ public class CoreService implements SmartLifecycle, DisposableBean {
         List<Topic> topicList = new ArrayList<>(this.beanNameTopicMap.values());
         for (Topic value : topicList) {
             uninstallTopic(value);
+        }
+        deleteAllSystemConsumers();
+    }
+
+    private void deleteAllSystemConsumers() {
+        try {
+            List<String> groupIdList = kafkaConsumerService.listAllConsumers();
+            for (String groupId : groupIdList) {
+                try {
+                    if (groupId.startsWith(Constants.KAFKA_MONITOR_PEGASUS_SYSTEM_PREFIX)) {
+                        kafkaConsumerService.delete(groupId);
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+        } catch (Exception ignored) {
         }
     }
 

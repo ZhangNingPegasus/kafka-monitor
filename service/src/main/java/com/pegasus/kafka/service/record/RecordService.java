@@ -7,7 +7,6 @@ import com.pegasus.kafka.entity.po.Topic;
 import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.core.ThreadService;
 import com.pegasus.kafka.service.dto.TopicRecordService;
-import com.pegasus.kafka.service.kafka.KafkaConsumerService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -34,7 +33,6 @@ public class RecordService implements SmartLifecycle, DisposableBean {
     private final KafkaService kafkaService;
     private final TopicRecordService topicRecordService;
     private final ThreadService threadService;
-    private final KafkaConsumerService kafkaConsumerService;
     private final CoreService kafkaRecordService;
     private final BlockingQueue<TopicRecord> blockingQueue;
     private boolean running;
@@ -47,13 +45,11 @@ public class RecordService implements SmartLifecycle, DisposableBean {
                          KafkaService kafkaService,
                          TopicRecordService topicRecordService,
                          ThreadService threadService,
-                         KafkaConsumerService kafkaConsumerService,
                          CoreService kafkaRecordService) {
         this.topic = topic;
         this.kafkaService = kafkaService;
         this.topicRecordService = topicRecordService;
         this.threadService = threadService;
-        this.kafkaConsumerService = kafkaConsumerService;
         this.kafkaRecordService = kafkaRecordService;
         this.consumerGroupdId = String.format("%s_%s", Constants.KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_MESSAGE, this.topic.getName());
         this.discardCount = new AtomicLong(0L);
@@ -72,31 +68,13 @@ public class RecordService implements SmartLifecycle, DisposableBean {
         threadService.submit(() -> {
             Thread.currentThread().setName(String.format("thread-kafka-record-%s", this.topic.getName()));
 
-            try {
-                List<String> groupIdList = kafkaConsumerService.listAllConsumers();
-                for (String groupId : groupIdList) {
-                    try {
-                        if (groupId.startsWith(Constants.KAFKA_MONITOR_PEGASUS_SYSTEM_PREFIX)) {
-                            kafkaConsumerService.delete(groupId);
-                        }
-                    } catch (Exception ignored) {
-                    }
-                }
-            } catch (Exception ignored) {
-            }
-
             KafkaConsumer<String, String> kafkaConsumer = null;
             try {
                 Properties properties = new Properties();
                 properties.setProperty(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, kafkaService.getBootstrapServers());
                 properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, this.consumerGroupdId);
                 properties.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
-                properties.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "2048");
-                properties.setProperty(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, String.valueOf(1000));
-                properties.setProperty(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, String.valueOf(1000 * 60));
-                properties.setProperty(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, String.valueOf(1000 * 60));
                 properties.setProperty(ConsumerConfig.ISOLATION_LEVEL_CONFIG, "read_committed");
-                properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
                 properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getCanonicalName());
                 properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getCanonicalName());
 
@@ -139,7 +117,7 @@ public class RecordService implements SmartLifecycle, DisposableBean {
                 }
 
                 while (isRunning()) {
-                    ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(100));
+                    ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(1000));
                     if (records.isEmpty()) {
                         continue;
                     }
@@ -174,24 +152,14 @@ public class RecordService implements SmartLifecycle, DisposableBean {
 
         threadService.submit(() -> {
             Thread.currentThread().setName(String.format("thread-record-saving-%s", this.topic.getName()));
-            int count = 0;
-            List<TopicRecord> topicRecordList = new ArrayList<>(10000);
+            List<TopicRecord> topicRecordList = new ArrayList<>(8192);
             while (isRunning()) {
                 try {
-                    blockingQueue.drainTo(topicRecordList, 10000);
+                    Thread.sleep(200);
+                    blockingQueue.drainTo(topicRecordList, 8192);
                     if (topicRecordList.size() > 0) {
                         topicRecordService.batchSave(topicRecordList);
                         topicRecordList.clear();
-                        if (count > 0) {
-                            count--;
-                        }
-                    } else {
-                        count++;
-                    }
-
-                    if (count >= 10) {
-                        Thread.sleep(1000);
-                        count = 0;
                     }
                 } catch (Exception ignored) {
                 }
