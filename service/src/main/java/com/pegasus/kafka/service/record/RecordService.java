@@ -31,7 +31,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class RecordService implements SmartLifecycle, DisposableBean {
     private static final Logger logger = LoggerFactory.getLogger(RecordService.class);
-    private static final Integer MAX_SIZE = 16392;
     private final KafkaService kafkaService;
     private final TopicRecordService topicRecordService;
     private final ThreadService threadService;
@@ -63,10 +62,6 @@ public class RecordService implements SmartLifecycle, DisposableBean {
 
     public List<String> getTopicsNames() {
         return this.topic.getTopicNameList();
-    }
-
-    public String getConsumerGroupdId() {
-        return this.consumerGroupdId;
     }
 
     @Override
@@ -178,6 +173,8 @@ public class RecordService implements SmartLifecycle, DisposableBean {
         });
 
         threadService.submit(() -> {
+            Thread.currentThread().setName(String.format("thread-record-saving-%s", this.topic.getName()));
+            int count = 0;
             List<TopicRecord> topicRecordList = new ArrayList<>(10000);
             while (isRunning()) {
                 try {
@@ -185,6 +182,16 @@ public class RecordService implements SmartLifecycle, DisposableBean {
                     if (topicRecordList.size() > 0) {
                         topicRecordService.batchSave(topicRecordList);
                         topicRecordList.clear();
+                        if (count > 0) {
+                            count--;
+                        }
+                    } else {
+                        count++;
+                    }
+
+                    if (count >= 10) {
+                        Thread.sleep(1000);
+                        count = 0;
                     }
                 } catch (Exception ignored) {
                 }

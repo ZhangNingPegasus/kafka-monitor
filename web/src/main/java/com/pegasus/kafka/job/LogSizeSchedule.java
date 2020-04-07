@@ -82,6 +82,7 @@ public class LogSizeSchedule {
         String kafkaUrl = kafkaService.getBootstrapServers(false);
 
         threadService.submit(() -> {
+            Thread.currentThread().setName("thread-collect-lag-info");
             try {
                 lagAlert(matrix, now, kafkaUrl);
             } catch (Exception e) {
@@ -91,6 +92,7 @@ public class LogSizeSchedule {
         });
 
         threadService.submit(() -> {
+            Thread.currentThread().setName("thread-collect-tps-info");
             try {
                 tpsAlert(kafkaUrl);
             } catch (Exception e) {
