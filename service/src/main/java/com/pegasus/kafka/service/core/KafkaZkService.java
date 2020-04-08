@@ -142,9 +142,9 @@ public class KafkaZkService implements InitializingBean, DisposableBean {
         this.client = CuratorFrameworkFactory.builder()
                 .connectString(propertyService.getZookeeper())
                 // 连接超时时间
-                .sessionTimeoutMs(30000)
+                .sessionTimeoutMs(60000)
                 // 会话超时时间
-                .connectionTimeoutMs(10000)
+                .connectionTimeoutMs(15000)
 //                // 刚开始重试间隔为1秒，之后重试间隔逐渐增加，最多重试不超过五次
                 .retryPolicy(new ExponentialBackoffRetry(1000, 3))
                 .build();
