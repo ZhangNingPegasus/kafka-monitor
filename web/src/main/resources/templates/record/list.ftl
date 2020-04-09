@@ -93,7 +93,7 @@
                 }
                 admin.post('listTopicPartitions', {'topicName': data.value}, function (res) {
                     $.each(res.data, function (key, val) {
-                        partitionId.append($("<option>").val(val.partitionId).text(val.partitionId));
+                        partitionId.append($("<option>").val(val).text(val));
                     });
                     form.render('select');
                 });

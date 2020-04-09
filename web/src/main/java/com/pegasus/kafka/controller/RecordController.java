@@ -5,7 +5,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.response.Result;
 import com.pegasus.kafka.common.utils.Common;
-import com.pegasus.kafka.entity.vo.*;
+import com.pegasus.kafka.entity.vo.KafkaConsumerVo;
+import com.pegasus.kafka.entity.vo.KafkaRecordConsumeVo;
+import com.pegasus.kafka.entity.vo.KafkaTopicRecordVo;
+import com.pegasus.kafka.entity.vo.OffsetVo;
 import com.pegasus.kafka.service.core.KafkaService;
 import com.pegasus.kafka.service.dto.TopicRecordService;
 import com.pegasus.kafka.service.kafka.KafkaConsumerService;
@@ -87,8 +90,8 @@ public class RecordController {
 
     @PostMapping("listTopicPartitions")
     @ResponseBody
-    public Result<List<KafkaTopicPartitionVo>> listTopicPartitions(@RequestParam(name = "topicName", required = true) String topicName) throws Exception {
-        return Result.ok(kafkaTopicService.listTopicDetails(topicName));
+    public Result<List<String>> listTopicPartitions(@RequestParam(name = "topicName", required = true) String topicName) throws Exception {
+        return Result.ok(kafkaService.listPartitionIds(topicName));
     }
 
     @PostMapping("list")
