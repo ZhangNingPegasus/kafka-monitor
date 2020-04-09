@@ -172,6 +172,7 @@ public class KafkaTopicService {
         List<String> partitionIds = kafkaService.listPartitionIds(topicName);
         if (partitionNumber > partitionIds.size()) {
             kafkaService.alterTopics(topicName, partitionNumber);
+            kafkaRecordService.uninstallTopicName(topicName);
         } else {
             throw new BusinessException(String.format("新的分区数量必须大于%s", partitionIds.size()));
         }

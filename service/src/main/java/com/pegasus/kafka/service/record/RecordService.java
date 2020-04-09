@@ -27,6 +27,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 public class RecordService implements SmartLifecycle, DisposableBean {
     private static final Logger logger = LoggerFactory.getLogger(RecordService.class);
@@ -74,7 +75,10 @@ public class RecordService implements SmartLifecycle, DisposableBean {
                 properties.setProperty(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, kafkaService.getBootstrapServers());
                 properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, this.consumerGroupdId);
                 properties.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
+                properties.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "2048");
+                properties.setProperty(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, String.valueOf(1000));
                 properties.setProperty(ConsumerConfig.ISOLATION_LEVEL_CONFIG, "read_committed");
+                properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
                 properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getCanonicalName());
                 properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getCanonicalName());
 
@@ -83,13 +87,17 @@ public class RecordService implements SmartLifecycle, DisposableBean {
 
                 List<TopicPartition> topicPartitionList = new ArrayList<>(maxOffsetMap.size());
                 for (String topicName : this.topic.getTopicNameList()) {
+                    List<String> partitionIds = kafkaService.listPartitionIds(topicName);
                     if (maxOffsetMap.containsKey(topicName)) {
                         List<MaxOffset> maxOffsetList = maxOffsetMap.get(topicName);
                         for (MaxOffset maxOffset : maxOffsetList) {
                             topicPartitionList.add(new TopicPartition(topicName, maxOffset.getPartitionId()));
                         }
+                        partitionIds.removeAll(maxOffsetList.stream().map(p -> p.getPartitionId().toString()).collect(Collectors.toList()));
+                        for (String partitionId : partitionIds) {
+                            topicPartitionList.add(new TopicPartition(topicName, Integer.parseInt(partitionId)));
+                        }
                     } else {
-                        List<String> partitionIds = kafkaService.listPartitionIds(topicName);
                         for (String partitionId : partitionIds) {
                             topicPartitionList.add(new TopicPartition(topicName, Integer.parseInt(partitionId)));
                         }
@@ -98,7 +106,6 @@ public class RecordService implements SmartLifecycle, DisposableBean {
                 kafkaConsumer.assign(topicPartitionList);
                 for (TopicPartition topicPartition : topicPartitionList) {
                     if (maxOffsetMap.containsKey(topicPartition.topic())) {
-
                         List<MaxOffset> maxOffsetList = maxOffsetMap.get(topicPartition.topic());
                         Optional<MaxOffset> first = maxOffsetList.stream().filter(p -> p.getPartitionId().equals(topicPartition.partition())).findFirst();
                         if (first.isPresent()) {
