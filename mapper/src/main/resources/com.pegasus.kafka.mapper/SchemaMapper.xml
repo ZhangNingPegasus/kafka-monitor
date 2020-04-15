@@ -138,17 +138,17 @@
         CREATE TABLE IF NOT EXISTS ${dbName}.`sys_alert_topic` (
         `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
         `topic_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '主题名称',
-        `from_time` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '监听主题的开始时间',
+        `from_time` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '监听主题的开始时间',
         `to_time` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '监听主题的结束时间',
         `from_tps` int(11) NULL DEFAULT NULL COMMENT '主题发送消息的TPS下限',
         `to_tps` int(11) NULL DEFAULT NULL COMMENT '主题发送消息的TPS上限',
         `from_mom_tps` int(11) NULL DEFAULT NULL COMMENT '主题发送消息的TPS变化下限',
         `to_mom_tps` int(11) NULL DEFAULT NULL COMMENT '主题发送消息的TPS变化上限',
-        `email` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '警报邮件的发送地址',
+        `email` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '警报邮件的发送地址',
         `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '记录创建时间',
         PRIMARY KEY (`id`) USING BTREE,
         UNIQUE INDEX `idx_topic_name`(`topic_name`) USING BTREE
-        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
 
         SET FOREIGN_KEY_CHECKS = 1;
 
