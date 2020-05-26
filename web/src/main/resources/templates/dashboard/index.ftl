@@ -13,7 +13,7 @@
                 <div class="layui-card layui-form layui-card-header layuiadmin-card-header-auto">
                     <div class="layui-form-item">
                         <div class="layui-inline">主题名称</div>
-                        <div class="layui-inline" style="width:265px">
+                        <div class="layui-inline" style="width:350px">
                             <select id="topicName" name="topicName" lay-filter="topicName" lay-verify="required"
                                     lay-search>
                                 <option value="">请选择主题</option>
@@ -24,7 +24,7 @@
                         </div>
 
                         <div class="layui-inline">消费组名称</div>
-                        <div class="layui-inline" style="width:265px">
+                        <div class="layui-inline" style="width:350px">
                             <select id="consumerName" name="consumerName" lay-filter="consumerName"
                                     lay-verify="required"
                                     lay-search>
@@ -43,7 +43,8 @@
                         </button>
 
                         <span style="float: right">
-                            <input id="btnAutoRefresh" lay-filter="btnAutoRefresh" type="checkbox" name="是[否]"
+                            <input id="btnAutoRefresh" lay-filter="btnAutoRefresh"
+                                   type="checkbox" name="是[否]"
                                    title=" 自 动 刷 新 " checked="checked"/>
                         </span>
                     </div>

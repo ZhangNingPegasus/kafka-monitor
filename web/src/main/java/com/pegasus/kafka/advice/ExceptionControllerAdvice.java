@@ -34,6 +34,7 @@ public class ExceptionControllerAdvice {
     @ExceptionHandler(BusinessException.class)
     @ResponseBody
     public Result<?> handleBusinessException(Exception e) {
+
         return handleException(e, false);
     }
 
