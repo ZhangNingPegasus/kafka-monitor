@@ -21,7 +21,7 @@ import java.util.concurrent.Executors;
 @Component
 public class ApplicationListener implements ApplicationContextAware {
     private final SchemaService schemaService;
-    private ExecutorService executorService;
+    private final ExecutorService executorService;
 
     public ApplicationListener(SchemaService schemaService) {
         this.schemaService = schemaService;

@@ -227,11 +227,20 @@ public class ClusterController {
                 "        //消息压缩算法, 支持gzip、snappy、lz4三种 \n" +
                 "        properties1.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, \"lz4\");\n" +
                 "\n" +
+                "        /*\n" +
+                "          enable.idempotence设置成true后，Producer自动升级成幂等性Producer。\n" +
+                "          Kafka会自动去重。Broker会多保存一些字段。当Producer发送了相同字段值的消息后，Broker能够自动知晓这些消息已经重复了。\n" +
+                "          作用范围：\n" +
+                "          只能保证单分区上的幂等性，即一个幂等性Producer能够保证某个主题的一个分区上不出现重复消息。\n" +
+                "          只能实现单回话上的幂等性，这里的会话指的是Producer进程的一次运行。当重启了Producer进程之后，幂等性不保证。\n" +
+                "         */\n" +
+                "        properties1.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);\n" +
+                "\n" +
                 "        //给定一个事务id, 从而开启kafka消息发生端的事务, 事务id自定义,如果不需要，屏蔽即可\n" +
-                "        //properties.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, \"your_transactional_id\");\n" +
+                "        //properties1.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, \"your_transactional_id\");\n" +
                 "\n" +
                 "        //ID在发出请求时传递给服务器;用于服务器端日志记录。\n" +
-                "        props.put(ProducerConfig.CLIENT_ID_CONFIG, \"your_producer_client_id\");\n" +
+                "        properties1.put(ProducerConfig.CLIENT_ID_CONFIG, \"your_producer_client_id\");\n" +
                 "\n" +
                 "        //key的序列化类 \n" +
                 "        properties1.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, org.apache.kafka.common.serialization.StringSerializer.class.getCanonicalName());\n" +
@@ -272,7 +281,7 @@ public class ClusterController {
                 "        properties2.setProperty(ConsumerConfig.GROUP_ID_CONFIG, \"your_consumer_group_name\");\n" +
                 "\n" +
                 "        //ID在发出请求时传递给服务器;用于服务器端日志记录。\n" +
-                "        props.put(ConsumerConfig.CLIENT_ID_CONFIG, \"your_consumer_client_id\");\n" +
+                "        properties2.put(ConsumerConfig.CLIENT_ID_CONFIG, \"your_consumer_client_id\");\n" +
                 "\n" +
                 "        //如果为true，则消费者的偏移量将在后台定期提交，默认值为true\n" +
                 "        properties2.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, \"true\");\n" +
