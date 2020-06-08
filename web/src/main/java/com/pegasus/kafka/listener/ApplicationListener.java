@@ -2,6 +2,7 @@ package com.pegasus.kafka.listener;
 
 
 import com.pegasus.kafka.service.dto.SchemaService;
+import com.pegasus.kafka.service.property.PropertyService;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -22,14 +23,20 @@ import java.util.concurrent.Executors;
 public class ApplicationListener implements ApplicationContextAware {
     private final SchemaService schemaService;
     private final ExecutorService executorService;
+    private final PropertyService propertyService;
 
-    public ApplicationListener(SchemaService schemaService) {
+    public ApplicationListener(SchemaService schemaService,
+                               PropertyService propertyService) {
         this.schemaService = schemaService;
-        executorService = Executors.newSingleThreadExecutor();
+        this.propertyService = propertyService;
+        this.executorService = Executors.newSingleThreadExecutor();
     }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        if (!propertyService.getNeedInitial()) {
+            return;
+        }
         executorService.submit(new SchemaTask());
     }
 

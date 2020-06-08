@@ -18,6 +18,9 @@ public class PropertyService {
     @Value("${zookeeper.connect}")
     private String zookeeper;
 
+    @Value("${database.needInitial}")
+    private Boolean needInitial;
+
     @Value("${database.name}")
     private String dbName;
 

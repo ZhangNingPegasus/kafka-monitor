@@ -89,8 +89,16 @@
                 <script type="text/html" id="grid-toolbar">
                     <div class="layui-btn-container">
                         <@insert>
-                            <button class="layui-btn layui-btn-sm layuiadmin-btn-admin" lay-event="add">创建</button>
+                            <button class="layui-btn layui-btn-sm layuiadmin-btn-admin" lay-event="add">
+                                <i class="layui-icon layui-icon-search layui-icon-add-1"></i>创建
+                            </button>
                         </@insert>
+
+                        <@delete>
+                            <button class="layui-btn layui-btn-sm" lay-event="del">
+                                <i class="layui-icon layui-icon-search layui-icon-delete"></i>删除
+                            </button>
+                        </@delete>
                     </div>
                 </script>
 
@@ -131,6 +139,7 @@
                     none: '暂无相关数据'
                 },
                 cols: [[
+                    {type: 'checkbox', width: 50},
                     {type: 'numbers', title: '序号', width: 50},
                     {field: 'topicName', title: '主题名称', templet: '#colTopicName'},
                     {field: 'logSize', title: '${savingDays}天消息总量', templet: '#colLogSize', width: 160},
@@ -175,6 +184,35 @@
                             submit.trigger('click');
                         }
                     });
+                } else if (obj.event === 'del') {
+                    const checkData = table.checkStatus(obj.config.id).data;
+                    const deleted = [];
+                    $.each(checkData, function (index, item) {
+                        deleted.push(item.topicName);
+                    });
+
+                    if (deleted.length < 1) {
+                        admin.error('系统提醒', '当前没有选择任何的主题');
+                    }
+
+                    layer.confirm(admin.DEL_QUESTION, function (index) {
+                        admin.post("del", {'topicNames': deleted.join(',')}, function () {
+                            if (table.cache.grid.length < 2) {
+                                const skip = $(".layui-laypage-skip");
+                                const curPage = skip.find("input").val();
+                                let page = parseInt(curPage) - 1;
+                                if (page < 1) {
+                                    page = 1;
+                                }
+                                skip.find("input").val(page);
+                                $(".layui-laypage-btn").click();
+                            } else {
+                                table.reload('grid');
+                            }
+                            layer.close(index);
+                            layer.closeAll('loading');
+                        });
+                    });
                 }
             });
 
@@ -183,7 +221,7 @@
                 if (obj.event === 'del') {
                     layer.confirm(admin.DEL_QUESTION, function (index) {
                         layer.load();
-                        admin.post("del", {topicName: data.topicName}, function () {
+                        admin.post("del", {'topicNames': data.topicName}, function () {
                             if (table.cache.grid.length < 2) {
                                 const skip = $(".layui-laypage-skip");
                                 const curPage = skip.find("input").val();

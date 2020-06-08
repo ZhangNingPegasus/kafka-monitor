@@ -167,8 +167,14 @@ public class TopicController {
 
     @PostMapping("del")
     @ResponseBody
-    public Result<?> del(@RequestParam(value = "topicName", required = true) String topicName) throws Exception {
-        kafkaTopicService.delete(topicName.trim());
+    public Result<?> del(@RequestParam(value = "topicNames", required = true) String topicNames) throws Exception {
+        String[] topicNameArray = topicNames.split(",");
+        for (String topicName : topicNameArray) {
+            if (StringUtils.isEmpty(topicName.trim())) {
+                continue;
+            }
+            kafkaTopicService.delete(topicName.trim());
+        }
         return Result.ok();
     }
 }
