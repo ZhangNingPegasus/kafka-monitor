@@ -17,14 +17,14 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class EhcacheConfig {
-    public static final Integer IDLE_SECONDS = 30;
-    public static final Integer LIVE_SECONDS = 30;
+    public static final Integer IDLE_SECONDS = 60;
+    public static final Integer LIVE_SECONDS = 60;
 
     @Bean
     public CacheManager cacheManager() {
         CacheConfiguration config = new CacheConfiguration();
         config.setName(Constants.EHCACHE_CONFIG_NAME);
-        config.setMaxEntriesLocalHeap(2000);
+        config.setMaxEntriesLocalHeap(0);
         config.setEternal(false);
         config.setMemoryStoreEvictionPolicy("LFU");
         config.setTimeToIdleSeconds(IDLE_SECONDS);

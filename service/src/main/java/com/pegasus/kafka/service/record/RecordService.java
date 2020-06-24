@@ -36,10 +36,10 @@ public class RecordService implements SmartLifecycle, DisposableBean {
     private final ThreadService threadService;
     private final CoreService kafkaRecordService;
     private final BlockingQueue<TopicRecord> blockingQueue;
+    private final Topic topic;
+    private final String consumerGroupdId;
+    private final AtomicLong discardCount;
     private boolean running;
-    private Topic topic;
-    private String consumerGroupdId;
-    private AtomicLong discardCount;
     private CountDownLatch cdl;
 
     public RecordService(Topic topic,
@@ -124,7 +124,7 @@ public class RecordService implements SmartLifecycle, DisposableBean {
                 }
 
                 while (isRunning()) {
-                    ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(1000));
+                    ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(200));
                     if (records.isEmpty()) {
                         continue;
                     }
@@ -162,11 +162,12 @@ public class RecordService implements SmartLifecycle, DisposableBean {
             List<TopicRecord> topicRecordList = new ArrayList<>(8192);
             while (isRunning()) {
                 try {
-                    Thread.sleep(200);
                     blockingQueue.drainTo(topicRecordList, 8192);
                     if (topicRecordList.size() > 0) {
                         topicRecordService.batchSave(topicRecordList);
                         topicRecordList.clear();
+                    } else {
+                        Thread.sleep(5);
                     }
                 } catch (Exception ignored) {
                 }

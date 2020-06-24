@@ -60,7 +60,6 @@ public class KafkaTopicService {
         for (String topicName : topicNameList) {
             KafkaTopicVo topicInfo = new KafkaTopicVo(topicName);
 
-//          topicInfo.setLogSize(topicRecordService.listMaxOffsetCount(topicName));
             Calendar calendar = Calendar.getInstance();
             calendar.set(calendar.get(Calendar.YEAR),
                     calendar.get(Calendar.MONTH),
@@ -72,7 +71,6 @@ public class KafkaTopicService {
 
             Date from = DateUtils.addDays(now, -6);
             Date to = DateUtils.addDays(now, 1);
-            topicInfo.setLogSize(sysLogSizeService.getHistoryLogSize(topicName, from, to));
 
             List<String> subscribeGroupIdList = kafkaConsumerVoList.stream().filter(p -> p.getTopicNames().contains(topicName)).map(KafkaConsumerVo::getGroupId).distinct().collect(Collectors.toList());
             topicInfo.setSubscribeNums(subscribeGroupIdList.size());

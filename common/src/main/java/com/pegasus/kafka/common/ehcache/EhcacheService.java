@@ -41,7 +41,7 @@ public class EhcacheService {
         Element element = new Element(
                 key,
                 value,
-                EhcacheConfig.IDLE_SECONDS,
+                expiredInSeconds,
                 expiredInSeconds);
         cache.put(element);
     }

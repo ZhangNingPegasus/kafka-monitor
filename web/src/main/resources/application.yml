@@ -1,7 +1,7 @@
 zookeeper:
   connect: ${zk.connect:192.168.6.166:2181,192.168.6.167:2181,192.168.0.197:2181}
 database:
-  needInitial: true
+  needInitial: ${db.needInitial:true}
   name: ${db.name:kafka_monitor_test}
   host: ${db.host:192.168.6.167}
   port: ${db.port:3306}
