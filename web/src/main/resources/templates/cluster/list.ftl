@@ -53,7 +53,7 @@
     <script>
         layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table', 'carousel', 'echarts'], function () {
             const admin = layui.admin, table = layui.table, $ = layui.$, echarts = layui.echarts;
-
+            tableErrorHandler();
             $("#btnOpenSetting").click(function () {
                 layer.open({
                     type: 2,

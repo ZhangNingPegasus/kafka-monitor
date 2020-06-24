@@ -135,6 +135,7 @@
     <script>
         layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table', 'carousel', 'echarts'], function () {
             const admin = layui.admin, table = layui.table, $ = layui.$;
+            tableErrorHandler();
             table.render({
                 elem: '#grid',
                 url: 'listTopicDetails?topicName=${topicName}',

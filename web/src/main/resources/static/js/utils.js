@@ -13,3 +13,14 @@ Date.prototype.format = function (fmt) {
         if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
     return fmt;
 };
+
+function tableErrorHandler() {
+    const admin = layui.admin, table = layui.table
+    table.set({
+        error: function (errorMsg, response) {
+            if (response.responseText.indexOf("<div class=\"layadmin-user-login-main\">") > -1) {
+                admin.toLogin();
+            }
+        }
+    });
+}

@@ -63,8 +63,7 @@
 
     admin.quit = function () {
         admin.post("quit", {}, function () {
-            admin.initPage();
-            location.href = "/"
+            admin.toLogin();
         });
     };
 
@@ -74,4 +73,8 @@
         }
     };
 
+    admin.toLogin = function () {
+        admin.initPage();
+        location.href = "/"
+    }
 });

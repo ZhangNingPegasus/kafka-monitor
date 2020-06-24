@@ -66,6 +66,7 @@
     <script>
         layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table', 'laydate'], function () {
             const admin = layui.admin, laydate = layui.laydate, $ = layui.$, form = layui.form, table = layui.table;
+            tableErrorHandler();
             let topicName = '';
             laydate.render({
                 elem: '#createTimeRange',

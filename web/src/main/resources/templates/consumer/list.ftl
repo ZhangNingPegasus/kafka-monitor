@@ -65,6 +65,7 @@
     <script type="text/javascript">
         layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table'], function () {
             const admin = layui.admin, form = layui.form, table = layui.table, $ = layui.$;
+            tableErrorHandler();
             form.on('submit(search)', function (data) {
                 const field = data.field;
                 table.reload('grid', {where: field, page: 1});

@@ -49,7 +49,7 @@
     <script>
         layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table'], function () {
             const admin = layui.admin, $ = layui.$, table = layui.table;
-
+            tableErrorHandler();
             table.render({
                 elem: '#grid',
                 url: 'list',

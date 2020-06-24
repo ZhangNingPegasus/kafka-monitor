@@ -121,7 +121,7 @@
         </div>
     </div>
     <script>
-        layui.config({base: '..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use('index', function () {
+        layui.config({base: '..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table'], function () {
         });
     </script>
     </body>

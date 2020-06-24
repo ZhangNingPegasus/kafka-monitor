@@ -29,6 +29,7 @@
     <script type="text/javascript">
         layui.config({base: '../../..${ctx}/layuiadmin/'}).extend({index: 'lib/index'}).use(['index', 'table'], function () {
             const table = layui.table;
+            tableErrorHandler();
             table.render({
                 elem: '#grid',
                 url: 'listTopicConsumers?topicName=${topicName}&partitionId=${partitionId}&offset=${offset}',
