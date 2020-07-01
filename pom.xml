@@ -38,7 +38,7 @@
         <lombok>1.18.12</lombok>
         <ehcache>2.10.6</ehcache>
         <mail>1.4.7</mail>
-        <fastjson>1.2.71</fastjson>
+        <fastjson>1.2.72</fastjson>
     </properties>
 
     <dependencies>
