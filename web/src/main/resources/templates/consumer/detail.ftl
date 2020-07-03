@@ -80,7 +80,7 @@
                     {{#  } else if(d.consumerId || d.offset) { }}
                     <span class="layui-badge layui-bg-green">{{ d.offset }}</span>
                     {{#  } else { }}
-                    <span class="layui-badge">0</span>
+                    <span class="layui-badge">{{ d.logSize }}</span>
                     {{#  } }}
                 </script>
 

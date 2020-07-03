@@ -281,8 +281,10 @@ public class KafkaService {
                 offsetVo.setOffset(partitionOffset.get(partitionId));
                 offsetVo.setLag(offsetVo.getOffset() == -1 ? 0 : (offsetVo.getLogSize() - offsetVo.getOffset()));
             } else {
-                offsetVo.setOffset(null);
-                offsetVo.setLag(null);
+//                offsetVo.setOffset(null);
+//                offsetVo.setLag(null);
+                offsetVo.setOffset(0L);
+                offsetVo.setLag(0L);
             }
 
             offsetVo.setConsumerId(getConsumerId(kafkaConsumerVoList, topicName, partitionId));
