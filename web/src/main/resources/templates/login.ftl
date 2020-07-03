@@ -37,6 +37,10 @@
         </div>
     </div>
 
+    <div class="layui-trans layadmin-user-login-footer">
+        <p>© 2020 <a href="http://www.layui.com/" target="_blank">Ning.Zhang (zhangningkid@163.com)</a></p>
+    </div>
+
     <script src="${ctx}/layuiadmin/layui/layui.js"></script>
     <script>
         if (window != top) {
