@@ -196,6 +196,7 @@
                     }
 
                     layer.confirm(admin.DEL_QUESTION, function (index) {
+                        layer.load();
                         admin.post("del", {'topicNames': deleted.join(',')}, function () {
                             if (table.cache.grid.length < 2) {
                                 const skip = $(".layui-laypage-skip");
