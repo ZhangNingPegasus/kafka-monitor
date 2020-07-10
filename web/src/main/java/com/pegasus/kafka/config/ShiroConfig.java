@@ -44,6 +44,9 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/layuiadmin/**", "anon"); // 静态资源
         filterChainDefinitionMap.put("/favicon.ico", "anon"); // 静态资源
         filterChainDefinitionMap.put(bean.getLoginUrl(), "anon"); // 登录页面
+
+        filterChainDefinitionMap.put("/consumer/listOffsetVo", "anon"); // 临时
+
         filterChainDefinitionMap.put("/login", "anon"); // 登录逻辑
         filterChainDefinitionMap.put("/quit", "anon"); // 登出逻辑
         filterChainDefinitionMap.put("/**", "authc");// 需要认证才可以访问
