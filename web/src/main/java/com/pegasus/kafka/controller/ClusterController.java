@@ -289,11 +289,10 @@ public class ClusterController {
                 "        //Consumer每次调用poll()时取到的records的最大数\n" +
                 "        properties2.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, \"1024\");\n" +
                 "\n" +
-                "        //当Consumer由于某种原因不能发Heartbeat到coordinator时,且时间超过session.timeout.ms时,就会认为该consumer已退出,它所订阅的分区会分配到同一group内的其它的consumer上\n" +
+                "        //调用poll方法时不仅会拉取消息、异步提交消费位点，还会发送心跳包，但是，当Consumer由于某种原因不能发Heartbeat到coordinator时,且时间超过session.timeout.ms时,就会认为该consumer已退出,会进行rebalance操作,它所订阅的分区会分配到同一group内的其它的consumer上\n" +
                 "        properties2.setProperty(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, String.valueOf(1000 * 60));\n" +
                 "\n" +
-                "        //表示最大的poll数据间隔，如果超过这个间隔没有发起pool请求，但heartbeat仍旧在发，就认为该consumer处于 livelock状态。就会将该consumer退出consumer group.\n" +
-                "        //所以为了不使Consumer被退出，Consumer应该不停的发起poll(timeout)操作\n" +
+                "        //调用poll方法之间的最大延迟,如果超过max.poll.interval.ms还未调用poll时，就会认为该consumer已退出,会进行rebalance操作,它所订阅的分区会分配到同一group内的其它的consumer上\n" +
                 "        properties2.setProperty(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, String.valueOf(1000 * 60));\n" +
                 "\n" +
                 "        //如果'enable.auto.commit'为true，则消费者偏移自动提交给Kafka的频率（以毫秒为单位），默认值为5000。\n" +

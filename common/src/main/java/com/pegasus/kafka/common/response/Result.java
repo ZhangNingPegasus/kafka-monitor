@@ -42,7 +42,6 @@ public class Result<T> implements Serializable {
         return new Result<>(respondCode.getCode(), respondCode.getDescription(), null, respondCode.getSuccess());
     }
 
-
     public static <T> Result<T> ok(T data) {
         return new Result<>(ResultCode.SUCCESS.getCode(), null, data, ResultCode.SUCCESS.getSuccess());
     }
