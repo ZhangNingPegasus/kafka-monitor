@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.Calendar;
+
 /**
  * The controller for providing a home page.
  * <p>
@@ -30,8 +32,9 @@ public class IndexController {
         this.sysAdminService = sysAdminService;
     }
 
-    @GetMapping(value = {"/","l"})
-    public String toLogin() {
+    @GetMapping(value = {"/", "l"})
+    public String toLogin(Model model) {
+        model.addAttribute("year", Calendar.getInstance().get(Calendar.YEAR));
         return "login";
     }
 

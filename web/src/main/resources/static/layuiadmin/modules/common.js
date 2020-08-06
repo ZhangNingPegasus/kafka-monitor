@@ -14,6 +14,7 @@
     admin.DEL_SUCCESS = '所选项已全部成功删除';
 
     admin.post = function (url, data, success, error) {
+        layer.load();
         $.ajax({
             url: url,
             type: 'POST',
@@ -28,9 +29,9 @@
                         error(result);
                     } else {
                         admin.error('系统错误', result.error);
-                        layer.closeAll('loading');
                     }
                 }
+                layer.closeAll('loading');
             }
         });
     };

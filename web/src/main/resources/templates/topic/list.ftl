@@ -196,7 +196,6 @@
                     }
 
                     layer.confirm(admin.DEL_QUESTION, function (index) {
-                        layer.load();
                         admin.post("del", {'topicNames': deleted.join(',')}, function () {
                             if (table.cache.grid.length < 2) {
                                 const skip = $(".layui-laypage-skip");
@@ -211,7 +210,6 @@
                                 table.reload('grid');
                             }
                             layer.close(index);
-                            layer.closeAll('loading');
                         });
                     });
                 }
@@ -221,7 +219,6 @@
                 const data = obj.data;
                 if (obj.event === 'del') {
                     layer.confirm(admin.DEL_QUESTION, function (index) {
-                        layer.load();
                         admin.post("del", {'topicNames': data.topicName}, function () {
                             if (table.cache.grid.length < 2) {
                                 const skip = $(".layui-laypage-skip");
@@ -236,7 +233,6 @@
                                 table.reload('grid');
                             }
                             layer.close(index);
-                            layer.closeAll('loading');
                         });
                     });
                 } else if (obj.event === 'edit') {

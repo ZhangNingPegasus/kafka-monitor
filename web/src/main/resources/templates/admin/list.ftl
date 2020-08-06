@@ -175,10 +175,8 @@
                     });
                 } else if (obj.event === 'repwd') {
                     layer.confirm("确定要重置[" + data.username + "]的密码吗?", function (index) {
-                        layer.load();
                         admin.post("repwd", data, function () {
                                 layer.close(index);
-                                layer.closeAll('loading');
                                 admin.success("系统提示", "密码重置成功, 初始密码为:admin");
                             }, function () {
                                 admin.error("系统提示", "密码重置失败");

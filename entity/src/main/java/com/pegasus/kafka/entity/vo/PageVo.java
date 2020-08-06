@@ -19,9 +19,6 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class PageVo extends BaseDto {
-    @TableField("id")
-    private Long id;
-
     @TableField("name")
     private String name;
 

@@ -3,8 +3,8 @@ package com.pegasus.kafka.common.utils;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import lombok.Data;
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.shiro.crypto.hash.Md5Hash;
+import org.springframework.beans.BeanUtils;
 import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
@@ -29,7 +29,7 @@ public class Common {
     private final static long TB_IN_BYTES = 1024 * GB_IN_BYTES;
     private final static DecimalFormat df = new DecimalFormat("0.00");
     private final static String SALT = "PEgASuS";
-    private static ThreadLocal<SimpleDateFormat> threadLocal = ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+    private static final ThreadLocal<SimpleDateFormat> threadLocal = ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
 
     public static DataSource createDataSource(String host,
                                               String port,
@@ -176,7 +176,7 @@ public class Common {
 
         try {
             T result = target.newInstance();
-            BeanUtils.copyProperties(result, source);
+            BeanUtils.copyProperties(source, result);
             return result;
         } catch (Exception e) {
             e.printStackTrace();

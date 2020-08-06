@@ -11,7 +11,6 @@ import com.pegasus.kafka.common.constant.Constants;
 import com.pegasus.kafka.common.exception.BusinessException;
 import com.pegasus.kafka.common.utils.Common;
 import com.pegasus.kafka.entity.dto.SysAdmin;
-import com.pegasus.kafka.entity.dto.SysRole;
 import com.pegasus.kafka.entity.vo.AdminVo;
 import com.pegasus.kafka.mapper.SysAdminMapper;
 import org.apache.shiro.SecurityUtils;
@@ -58,8 +57,7 @@ public class SysAdminService extends ServiceImpl<SysAdminMapper, SysAdmin> {
         if (adminVo == null) {
             return null;
         }
-        SysRole sysRole = sysRoleService.getById(adminVo.getSysRoleId());
-        adminVo.setSysRole(sysRole);
+        adminVo.setSysRole(sysRoleService.getById(adminVo.getSysRoleId()));
         return adminVo;
     }
 

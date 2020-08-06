@@ -29,7 +29,6 @@ public class AuthRealm extends AuthorizingRealm {
         if (adminVo == null) {
             return null;
         }
-
         return new SimpleAuthenticationInfo(adminVo, usernamePasswordToken.getPassword(), usernamePasswordToken.getUsername());
     }
 
