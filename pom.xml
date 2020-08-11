@@ -32,7 +32,7 @@
         <mybatis-plus-boot-starter>3.3.2</mybatis-plus-boot-starter>
         <curator-recipes>5.0.0</curator-recipes>
         <zookeeper>3.6.1</zookeeper>
-        <kafka-clients>2.5.0</kafka-clients>
+        <kafka-clients>2.6.0</kafka-clients>
         <shiro>1.5.3</shiro>
         <json>20200518</json>
         <lombok>1.18.12</lombok>
