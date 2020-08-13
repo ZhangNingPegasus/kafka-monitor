@@ -199,7 +199,7 @@
         <dependency>
             <groupId>com.sijibao.nacos</groupId>
             <artifactId>nacos-spring-config-ex</artifactId>
-            <version>1.1.0</version>
+            <version>1.1.8</version>
             <exclusions>
                 <exclusion>
                     <artifactId>fastjson</artifactId>

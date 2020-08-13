@@ -6,7 +6,7 @@ database:
   host: ${db.host:192.168.6.167}
   port: ${db.port:3306}
   username: ${db.username:root}
-  password: ${db.password:zhangningpegasus}
+  password: ${encrypt.db.password:zhangningpegasus}
   retention:
     days: ${db.retention.days:3}
 topic:

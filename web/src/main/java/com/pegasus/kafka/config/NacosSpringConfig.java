@@ -6,6 +6,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableNacosExConfig
-@NacosPropertySource(dataId = "kafka.monitor.info.set", groupId = "GLOBAL_SIJIBAO_BASIC_GROUP", autoRefreshed = true)
+@NacosPropertySource(dataId = "kafka.monitor.info.set", groupId = "GLOBAL_SIJIBAO_BASIC_GROUP")
 public class NacosSpringConfig {
 }
