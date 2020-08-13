@@ -1,5 +1,8 @@
 package com.pegasus.kafka.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pegasus.kafka.common.constant.Constants;
@@ -73,6 +76,17 @@ public class RecordController {
         model.addAttribute("offset", offset);
         model.addAttribute("key", key);
         model.addAttribute("createTime", Common.format(createTime));
+        try {
+            JSONObject object = JSONObject.parseObject(recordValue);
+            String jsonValue = JSON.toJSONString(object,
+                    SerializerFeature.PrettyFormat,
+                    SerializerFeature.WriteMapNullValue,
+                    SerializerFeature.WriteDateUseDateFormat,
+                    SerializerFeature.QuoteFieldNames,
+                    SerializerFeature.WriteBigDecimalAsPlain);
+            model.addAttribute("jsonValue", jsonValue);
+        } catch (Exception ignored) {
+        }
         model.addAttribute("value", recordValue);
         return String.format("%s/msgdetail", PREFIX);
     }
