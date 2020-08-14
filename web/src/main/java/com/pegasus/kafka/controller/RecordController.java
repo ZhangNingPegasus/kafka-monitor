@@ -111,7 +111,8 @@ public class RecordController {
     @PostMapping("list")
     @ResponseBody
     public Result<List<KafkaTopicRecordVo>> list(@RequestParam(name = "topicName", required = false, defaultValue = "") String topicName,
-                                                 @RequestParam(name = "partitionId", required = false) Integer partitionId,
+                                                 @RequestParam(name = "partitionId", required = false, defaultValue = "-1") Integer partitionId,
+                                                 @RequestParam(name = "offset", required = false, defaultValue = "-1") Long offset,
                                                  @RequestParam(name = "key", required = false, defaultValue = "") String key,
                                                  @RequestParam(name = "createTimeRange", required = false, defaultValue = "") String createTimeRange,
                                                  @RequestParam(value = "page", required = true) Integer pageNum,
@@ -129,7 +130,7 @@ public class RecordController {
         Common.TimeRange timeRange = Common.splitTime(createTimeRange);
         Date from = timeRange.getStart(), to = timeRange.getEnd();
         try {
-            return Result.ok(kafkaTopicService.listMessages(page, topicName, partitionId, key, from, to), page.getTotal());
+            return Result.ok(kafkaTopicService.listMessages(page, topicName, partitionId, offset, key, from, to), page.getTotal());
         } catch (Exception e) {
             e.printStackTrace();
             return Result.ok();

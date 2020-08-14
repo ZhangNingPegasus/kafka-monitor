@@ -29,6 +29,7 @@ public interface TopicRecordMapper extends BaseMapper<TopicRecord> {
     List<TopicRecord> listRecords(IPage page,
                                   @Param(value = "tableName") String tableName,
                                   @Param(value = "partitionId") Integer partitionId,
+                                  @Param(value = "offset") Long offset,
                                   @Param(value = "key") String key,
                                   @Param(value = "from") Date from,
                                   @Param(value = "to") Date to);

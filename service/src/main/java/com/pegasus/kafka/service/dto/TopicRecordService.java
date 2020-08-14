@@ -159,9 +159,9 @@ public class TopicRecordService extends ServiceImpl<TopicRecordMapper, TopicReco
     }
 
     @TranRead
-    public List<TopicRecord> listRecords(IPage page, String topicName, Integer partitionId, String key, Date from, Date to) {
+    public List<TopicRecord> listRecords(IPage page, String topicName, Integer partitionId, Long offset, String key, Date from, Date to) {
         try {
-            return this.baseMapper.listRecords(page, convertToTableName(topicName), partitionId, key, from, to);
+            return this.baseMapper.listRecords(page, convertToTableName(topicName), partitionId, offset, key, from, to);
         } catch (Exception e) {
             return new ArrayList<>();
         }

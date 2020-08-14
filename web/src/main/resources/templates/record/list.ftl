@@ -11,7 +11,7 @@
             <div class="layui-form layui-card-header layuiadmin-card-header-auto">
                 <div class="layui-form-item">
                     <div class="layui-inline">主题名称</div>
-                    <div class="layui-inline" style="width:450px">
+                    <div class="layui-inline" style="width:440px">
                         <select name="topicName" lay-filter="topicName" lay-verify="required" lay-search>
                             <option value="">请选择主题</option>
                             <#list topics as topic >
@@ -22,15 +22,21 @@
                     </div>
 
                     <div class="layui-inline">分区号</div>
-                    <div class="layui-inline" style="width:200px">
+                    <div class="layui-inline" style="width:120px">
                         <select name="partitionId" lay-verify="required" lay-search>
                             <option value="">所有分区</option>
                         </select>
                     </div>
 
                     <div class="layui-inline">消息Key</div>
-                    <div class="layui-inline" style="width:300px">
+                    <div class="layui-inline" style="width:180px">
                         <input type="text" name="key" placeholder="请输入消息Key" autocomplete="off" class="layui-input">
+                    </div>
+
+                    <div class="layui-inline">偏移量</div>
+                    <div class="layui-inline" style="width:140px">
+                        <input type="number" name="offset" placeholder="请输入消息偏移量" autocomplete="off"
+                               class="layui-input">
                     </div>
 
                     <div class="layui-inline">时间范围</div>

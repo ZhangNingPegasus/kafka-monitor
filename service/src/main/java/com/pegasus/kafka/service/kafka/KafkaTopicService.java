@@ -22,7 +22,10 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -227,8 +230,8 @@ public class KafkaTopicService {
         return getLogsize(topicName, null);
     }
 
-    public List<KafkaTopicRecordVo> listMessages(IPage page, String topicName, Integer partitionId, String key, Date from, Date to) {
-        List<TopicRecord> topicRecordList = topicRecordService.listRecords(page, topicName, partitionId, key, from, to);
+    public List<KafkaTopicRecordVo> listMessages(IPage page, String topicName, Integer partitionId, Long offset, String key, Date from, Date to) {
+        List<TopicRecord> topicRecordList = topicRecordService.listRecords(page, topicName, partitionId, offset, key, from, to);
         List<KafkaTopicRecordVo> result = new ArrayList<>(topicRecordList.size());
         for (TopicRecord topicRecord : topicRecordList) {
             result.add(topicRecord.toVo());

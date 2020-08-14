@@ -55,8 +55,11 @@
         *
         FROM `${tableName}`
         WHERE 1 = 1
-        <if test="partitionId >= 0">
+        <if test="partitionId != null and partitionId >= 0">
             AND `partition_id` = #{partitionId}
+        </if>
+        <if test="offset != null and offset >= 0">
+            AND `offset` = #{offset}
         </if>
         <if test="key != null and key != ''">
             AND `key` = #{key}
