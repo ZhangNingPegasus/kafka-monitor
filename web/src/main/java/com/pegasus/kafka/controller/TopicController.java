@@ -52,13 +52,14 @@ public class TopicController {
     }
 
     @GetMapping("toadd")
-    public String toAdd(Model model) {
+    public String toAdd(Model model) throws Exception {
         int brokerSize = 1;
         try {
             brokerSize = kafkaBrokerService.listAllBrokers().size();
         } catch (Exception ignored) {
         }
         model.addAttribute("brokerSize", brokerSize);
+        model.addAttribute("replicasNum", kafkaService.listBrokerInfos().size());
         return String.format("%s/add", PREFIX);
     }
 
@@ -160,8 +161,10 @@ public class TopicController {
     @PostMapping("edit")
     @ResponseBody
     public Result<?> edit(@RequestParam(name = "topicName", required = true) String topicName,
-                          @RequestParam(name = "partitionNumber", required = true) Integer partitionNumber) throws Exception {
-        kafkaTopicService.edit(topicName.trim(), partitionNumber);
+                          @RequestParam(name = "partitionCount", required = true) Integer partitionCount,
+                          @RequestParam(name = "replicationCount", required = false) Integer replicationCount) throws Exception {
+        kafkaTopicService.edit(topicName.trim(), partitionCount, replicationCount);
+
         return Result.ok();
     }
 

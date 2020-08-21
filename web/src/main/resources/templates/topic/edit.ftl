@@ -22,7 +22,10 @@
         <div class="layui-form-item">
             <label class="layui-form-label">分区数</label>
             <div class="layui-input-inline" style="width:700px">
-                <input type="number" name="partitionNumber" lay-verify="required|number" placeholder="请填写主题的分区数量"
+                <input type="number"
+                       name="partitionCount"
+                       lay-verify="required|number"
+                       placeholder="请填写主题的分区数量"
                        autocomplete="off"
                        autofocus="autofocus"
                        class="layui-input"
@@ -35,11 +38,14 @@
         <div class="layui-form-item">
             <label class="layui-form-label">副本分片数</label>
             <div class="layui-input-inline" style="width:700px">
-                <input type="number" name="replicationNumber" lay-verify="required|number" placeholder="请填写每个分区的副本分片数量"
+                <input type="number"
+                       name="replicationCount"
+                       lay-verify="required|number"
+                       placeholder="请填写每个分区的副本分片数量"
                        autocomplete="off"
-                       readonly="readonly"
-                       class="layui-input" value="${replicasNum}">
-                <span class="layui-bg-blue"><i class="layui-icon layui-icon-about"></i>&nbsp;无法修改</span>
+                       class="layui-input"
+                       value="${replicasNum}">
+                <span class="layui-bg-blue"><i class="layui-icon layui-icon-about"></i>&nbsp;每个主分片的副本分片数量</span>
             </div>
         </div>
 

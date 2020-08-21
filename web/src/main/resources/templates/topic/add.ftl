@@ -34,7 +34,7 @@
             <div class="layui-input-inline" style="width:700px">
                 <input type="number" name="replicationNumber" lay-verify="required|number" placeholder="请填写每个分区的副本分片数量"
                        autocomplete="off"
-                       class="layui-input" value="1">
+                       class="layui-input" value="${replicasNum}">
                 <span class="layui-bg-blue"><i class="layui-icon layui-icon-about"></i>&nbsp;每个主分片的副本分片数量</span>
             </div>
         </div>

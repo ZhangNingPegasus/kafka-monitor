@@ -148,10 +148,6 @@ public class RecordService implements SmartLifecycle, DisposableBean {
                     kafkaConsumer.close();
                 }
                 kafkaRecordService.uninstallTopic(this.topic);
-                try {
-                    kafkaService.deleteConsumerGroups(consumerGroupdId);
-                } catch (Exception ignored) {
-                }
                 logger.info(String.format("[%s] : topic [%s] is stopping to collect.", Thread.currentThread().getName(), this.topic.getName()));
                 cdl.countDown();
             }

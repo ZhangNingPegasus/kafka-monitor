@@ -15,17 +15,18 @@ import com.pegasus.kafka.service.dto.SysLagService;
 import com.pegasus.kafka.service.dto.SysLogSizeService;
 import com.pegasus.kafka.service.dto.TopicRecordService;
 import com.pegasus.kafka.service.record.CoreService;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.kafka.clients.admin.AlterPartitionReassignmentsResult;
+import org.apache.kafka.clients.admin.NewPartitionReassignment;
 import org.apache.kafka.common.ConsumerGroupState;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.zookeeper.data.Stat;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -169,13 +170,37 @@ public class KafkaTopicService {
         return kafkaService.listTopicMBean(topicName);
     }
 
-    public void edit(String topicName, Integer partitionNumber) throws Exception {
+    public void edit(String topicName, Integer partitionCount, Integer replicationCount) throws Exception {
         List<String> partitionIds = kafkaService.listPartitionIds(topicName);
-        if (partitionNumber > partitionIds.size()) {
-            kafkaService.alterTopics(topicName, partitionNumber);
-            kafkaRecordService.uninstallTopicName(topicName);
-        } else {
-            throw new BusinessException(String.format("新的分区数量必须大于%s", partitionIds.size()));
+        if (null != partitionCount && partitionCount != partitionIds.size()) {
+            if (partitionCount > partitionIds.size()) {
+                kafkaService.alterTopics(topicName, partitionCount);
+                kafkaRecordService.uninstallTopicName(topicName);
+            } else {
+                throw new BusinessException(String.format("新的分区数量必须大于%s", partitionIds.size()));
+            }
+        }
+
+        if (null != partitionCount) {
+            List<KafkaBrokerVo> kafkaBrokerVos = kafkaService.listBrokerInfos();
+            Map<TopicPartition, Optional<NewPartitionReassignment>> map = new HashMap<>();
+
+            for (String partitionId : partitionIds) {
+                List<Integer> newPartitions = new ArrayList<>();
+                for (int i = 0; i < replicationCount; i++) {
+                    int id = RandomUtils.nextInt(0, kafkaBrokerVos.size());
+                    while (newPartitions.contains(id)) {
+                        id = RandomUtils.nextInt(0, kafkaBrokerVos.size());
+                    }
+                    newPartitions.add(id);
+                }
+                map.put(new TopicPartition(topicName, Integer.parseInt(partitionId)), Optional.of(new NewPartitionReassignment(newPartitions)));
+            }
+
+            kafkaService.kafkaAdminClientDo(kafkaAdminClient -> {
+                AlterPartitionReassignmentsResult alterPartitionReassignmentsResult = kafkaAdminClient.alterPartitionReassignments(map);
+                alterPartitionReassignmentsResult.all().get();
+            });
         }
     }
 
