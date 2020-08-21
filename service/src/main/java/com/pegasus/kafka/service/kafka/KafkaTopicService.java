@@ -211,8 +211,6 @@ public class KafkaTopicService {
                         }
                     }
                 }
-
-
                 Collections.shuffle(newPartitions);
                 map.put(new TopicPartition(topicName, Integer.parseInt(partitionId)), Optional.of(new NewPartitionReassignment(newPartitions)));
             }
