@@ -66,6 +66,7 @@ public class ShiroConfig {
     public DefaultWebSessionManager sessionManager() {
         DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
 
+        sessionManager.setSessionIdCookieEnabled(true);
         sessionManager.setSessionIdCookie(sessionIdCookie());
 
         sessionManager.setGlobalSessionTimeout(1800000); // 全局会话超时时间 单位毫秒,默认30分钟
@@ -82,7 +83,7 @@ public class ShiroConfig {
     @Bean
     public SimpleCookie sessionIdCookie() {
         // 这个参数是cookie的名称
-        SimpleCookie simpleCookie = new SimpleCookie("sid");
+        SimpleCookie simpleCookie = new SimpleCookie("sidKafkaMonitor");
         // setcookie的httponly属性如果设为true的话，会增加对xss防护的安全系数。它有以下特点：
         // 只能通过http访问，javascript无法访问
         // 防止xss读取cookie
