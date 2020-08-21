@@ -183,17 +183,37 @@ public class KafkaTopicService {
 
         if (null != partitionCount) {
             List<KafkaBrokerVo> kafkaBrokerVos = kafkaService.listBrokerInfos();
+
+            if (replicationCount > kafkaBrokerVos.size()) {
+                throw new BusinessException(String.format("副本分片数量不能大于kafka节点数[%s]", partitionIds.size()));
+            }
+
+            List<KafkaTopicPartitionVo> topicDetails = this.listTopicDetails(topicName);
+            if (null != topicDetails && topicDetails.size() > 0) {
+                if (topicDetails.get(0).getReplicas().size() == replicationCount) {
+                    return;
+                }
+            }
+
             Map<TopicPartition, Optional<NewPartitionReassignment>> map = new HashMap<>();
 
             for (String partitionId : partitionIds) {
+
                 List<Integer> newPartitions = new ArrayList<>();
-                for (int i = 0; i < replicationCount; i++) {
-                    int id = RandomUtils.nextInt(0, kafkaBrokerVos.size());
-                    while (newPartitions.contains(id)) {
-                        id = RandomUtils.nextInt(0, kafkaBrokerVos.size());
+                if (replicationCount < kafkaBrokerVos.size()) {
+                    for (int i = 0; i < replicationCount; i++) {
+                        newPartitions.add(RandomUtils.nextInt(0, replicationCount + 1));
                     }
-                    newPartitions.add(id);
+                } else {
+                    while (newPartitions.size() < replicationCount) {
+                        for (int i = 0; i < kafkaBrokerVos.size(); i++) {
+                            newPartitions.add(i);
+                        }
+                    }
                 }
+
+
+                Collections.shuffle(newPartitions);
                 map.put(new TopicPartition(topicName, Integer.parseInt(partitionId)), Optional.of(new NewPartitionReassignment(newPartitions)));
             }
 
