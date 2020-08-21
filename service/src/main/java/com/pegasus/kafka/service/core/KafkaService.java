@@ -279,26 +279,11 @@ public class KafkaService {
             offsetVo.setLogSize(logSize);
             if (partitionOffset.containsKey(partitionId)) {
                 offsetVo.setOffset(partitionOffset.get(partitionId));
+                offsetVo.setLag(offsetVo.getOffset() == -1 ? 0 : (offsetVo.getLogSize() - offsetVo.getOffset()));
             } else {
-                AtomicLong offset = new AtomicLong(0L);
-                TopicPartition topicPartition = new TopicPartition(topicName, partitionId);
-                kafkaAdminClientDo(kafkaAdminClient -> {
-
-                    Map<TopicPartition, OffsetSpec> topicPartitionOffsets = new HashMap<>();
-                    topicPartitionOffsets.put(topicPartition, new OffsetSpec());
-
-                    ListOffsetsResult listOffsetsResult = kafkaAdminClient.listOffsets(topicPartitionOffsets);
-                    Map<TopicPartition, ListOffsetsResult.ListOffsetsResultInfo> offsetsResultInfoMap = listOffsetsResult.all().get();
-                    ListOffsetsResult.ListOffsetsResultInfo listOffsetsResultInfo = offsetsResultInfoMap.get(topicPartition);
-                    if (null != listOffsetsResultInfo) {
-                        offset.set(listOffsetsResultInfo.offset());
-                    }
-                });
-
-                offsetVo.setOffset(offset.get());
+                offsetVo.setOffset(-1L);
+                offsetVo.setLag(-1L);
             }
-            offsetVo.setLag(offsetVo.getOffset() == -1 ? 0 : (offsetVo.getLogSize() - offsetVo.getOffset()));
-
             offsetVo.setConsumerId(getConsumerId(kafkaConsumerVoList, topicName, partitionId));
             result.add(offsetVo);
         }
