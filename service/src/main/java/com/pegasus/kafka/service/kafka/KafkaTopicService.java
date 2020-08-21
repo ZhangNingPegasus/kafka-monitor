@@ -185,7 +185,7 @@ public class KafkaTopicService {
             List<KafkaBrokerVo> kafkaBrokerVos = kafkaService.listBrokerInfos();
 
             if (replicationCount > kafkaBrokerVos.size()) {
-                throw new BusinessException(String.format("副本分片数量不能大于kafka节点数[%s]", partitionIds.size()));
+                throw new BusinessException(String.format("副本分片数量不能大于kafka节点数[%s]", kafkaBrokerVos.size()));
             }
 
             List<KafkaTopicPartitionVo> topicDetails = this.listTopicDetails(topicName);
