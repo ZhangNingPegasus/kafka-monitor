@@ -173,7 +173,9 @@ public class KafkaTopicService {
     public void edit(String topicName, Integer partitionCount, Integer replicationCount) throws Exception {
         List<String> partitionIds = kafkaService.listPartitionIds(topicName);
         if (null != partitionCount && partitionCount != partitionIds.size()) {
-            if (partitionCount > partitionIds.size()) {
+            if (partitionCount < 1) {
+                return;
+            } else if (partitionCount > partitionIds.size()) {
                 kafkaService.alterTopics(topicName, partitionCount);
                 kafkaRecordService.uninstallTopicName(topicName);
             } else {
@@ -182,6 +184,9 @@ public class KafkaTopicService {
         }
 
         if (null != partitionCount) {
+            if (replicationCount < 1) {
+                return;
+            }
             List<KafkaBrokerVo> kafkaBrokerVos = kafkaService.listBrokerInfos();
 
             if (replicationCount > kafkaBrokerVos.size()) {
@@ -189,30 +194,33 @@ public class KafkaTopicService {
             }
 
             List<KafkaTopicPartitionVo> topicDetails = this.listTopicDetails(topicName);
-            if (null != topicDetails && topicDetails.size() > 0) {
-                if (topicDetails.get(0).getReplicas().size() == replicationCount) {
-                    return;
-                }
+            if (null == topicDetails) {
+                return;
+            } else if (topicDetails.size() > 0 && topicDetails.get(0).getReplicas().size() == replicationCount) {
+                return;
             }
 
             Map<TopicPartition, Optional<NewPartitionReassignment>> map = new HashMap<>();
 
-            for (String partitionId : partitionIds) {
-
+            for (KafkaTopicPartitionVo topicPartitionVo : topicDetails) {
                 List<Integer> newPartitions = new ArrayList<>();
                 if (replicationCount < kafkaBrokerVos.size()) {
                     for (int i = 0; i < replicationCount; i++) {
-                        newPartitions.add(RandomUtils.nextInt(0, replicationCount + 1));
+                        int nameInt = Integer.parseInt(kafkaBrokerVos.get(RandomUtils.nextInt(0, replicationCount + 1)).getName());
+                        while (newPartitions.contains(nameInt)) {
+                            nameInt = Integer.parseInt(kafkaBrokerVos.get(RandomUtils.nextInt(0, replicationCount + 1)).getName());
+                        }
+                        newPartitions.add(nameInt);
                     }
                 } else {
                     while (newPartitions.size() < replicationCount) {
-                        for (int i = 0; i < kafkaBrokerVos.size(); i++) {
-                            newPartitions.add(i);
+                        for (KafkaBrokerVo kafkaBrokerVo : kafkaBrokerVos) {
+                            newPartitions.add(Integer.parseInt(kafkaBrokerVo.getName()));
                         }
                     }
                 }
                 Collections.shuffle(newPartitions);
-                map.put(new TopicPartition(topicName, Integer.parseInt(partitionId)), Optional.of(new NewPartitionReassignment(newPartitions)));
+                map.put(new TopicPartition(topicName, Integer.parseInt(topicPartitionVo.getPartitionId())), Optional.of(new NewPartitionReassignment(newPartitions)));
             }
 
             kafkaService.kafkaAdminClientDo(kafkaAdminClient -> {

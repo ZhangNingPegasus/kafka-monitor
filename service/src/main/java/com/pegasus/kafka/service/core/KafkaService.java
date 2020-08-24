@@ -93,7 +93,7 @@ public class KafkaService {
         kafkaAdminClientDo(adminClient -> {
             Map<String, NewPartitions> newPartitionsMap = new HashMap<>();
             newPartitionsMap.put(topicName, NewPartitions.increaseTo(partitionNum));
-            adminClient.createPartitions(newPartitionsMap);
+            adminClient.createPartitions(newPartitionsMap).all().get();
         });
     }
 

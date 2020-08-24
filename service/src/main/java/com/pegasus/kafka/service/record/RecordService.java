@@ -29,6 +29,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
+import static com.pegasus.kafka.common.constant.Constants.KAFKA_MONITOR_PEGASUS_SYSTEM_PREFIX;
+
 public class RecordService implements SmartLifecycle, DisposableBean {
     private static final Logger logger = LoggerFactory.getLogger(RecordService.class);
     private final KafkaService kafkaService;
@@ -148,6 +150,12 @@ public class RecordService implements SmartLifecycle, DisposableBean {
                     kafkaConsumer.close();
                 }
                 kafkaRecordService.uninstallTopic(this.topic);
+                if (consumerGroupdId.startsWith(KAFKA_MONITOR_PEGASUS_SYSTEM_PREFIX)) {
+                    try {
+                        kafkaService.deleteConsumerGroups(consumerGroupdId);
+                    } catch (Exception ignored) {
+                    }
+                }
                 logger.info(String.format("[%s] : topic [%s] is stopping to collect.", Thread.currentThread().getName(), this.topic.getName()));
                 cdl.countDown();
             }

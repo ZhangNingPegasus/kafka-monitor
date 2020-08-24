@@ -164,7 +164,6 @@ public class TopicController {
                           @RequestParam(name = "partitionCount", required = true) Integer partitionCount,
                           @RequestParam(name = "replicationCount", required = false) Integer replicationCount) throws Exception {
         kafkaTopicService.edit(topicName.trim(), partitionCount, replicationCount);
-
         return Result.ok();
     }
 
