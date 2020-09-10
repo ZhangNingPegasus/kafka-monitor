@@ -174,6 +174,7 @@
                     refreshTopicSendChart();
                     refreshLagChart();
                     refreshConsumeTpsChart();
+                    refreshConsumeTpsChart();
                 });
 
                 const n = new Date();

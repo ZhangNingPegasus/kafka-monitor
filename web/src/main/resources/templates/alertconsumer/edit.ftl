@@ -70,6 +70,7 @@
                 if ($.trim(data.value) === '') {
                     return;
                 }
+
                 admin.post('listTopics', {'groupId': data.value}, function (res) {
                     $.each(res.data, function (key, val) {
                         const option = $("<option>").val(val).text(val);

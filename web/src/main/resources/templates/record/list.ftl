@@ -139,7 +139,12 @@
                 const data = obj.data;
                 if (obj.event === 'sendMsg') {
                     layer.confirm('确定要重发消息吗?', function (index) {
-                        admin.post('resend', data, function () {
+                        admin.post('resend', {
+                            "topicName": topicName,
+                            "key": data.key,
+                            "partitionId": data.partitionId,
+                            "offset": data.offset
+                        }, function () {
                             layer.close(index);
                             layer.msg('发送成功');
                         }, function (result) {

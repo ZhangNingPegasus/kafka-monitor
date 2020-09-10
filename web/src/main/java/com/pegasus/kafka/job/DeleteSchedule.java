@@ -44,7 +44,7 @@ public class DeleteSchedule {
         schemaService.deleteExpired(filterTableNames);
     }
 
-    //每天凌晨3点执行一次
+    //每天凌晨3点执行
     @Scheduled(cron = "0 0 3 * * ?")
     public void dropUnusedTable() throws Exception {
         Set<String> dbtableNames = schemaService.listTables();

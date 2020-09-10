@@ -98,7 +98,6 @@
             });
 
             table.on('tool(grid)', function (obj) {
-
                 const data = obj.data;
                 if (obj.event === 'del') {
                     layer.confirm(admin.DEL_QUESTION, function (index) {
@@ -122,8 +121,8 @@
                     const id = data.id;
                     layer.open({
                         type: 2,
-                        title: '编辑主题',
-                        content: 'toedit/' + id,
+                        title: '编辑消费组',
+                        content: 'toedit?id=' + id,
                         area: ['880px', '400px'],
                         btn: admin.BUTTONS,
                         resize: false,

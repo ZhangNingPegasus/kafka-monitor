@@ -139,12 +139,13 @@ public class RecordController {
 
     @PostMapping("resend")
     @ResponseBody
-    public Result<?> resend(@RequestParam(name = "topicName", required = true, defaultValue = "") String topicName,
-                            @RequestParam(name = "key", required = true, defaultValue = "") String key,
-                            @RequestParam(name = "value", required = true, defaultValue = "") String value) throws Exception {
+    public Result<?> resend(@RequestParam(name = "topicName") String topicName,
+                            @RequestParam(name = "key") String key,
+                            @RequestParam(name = "partitionId") Integer partitionId,
+                            @RequestParam(name = "offset") Long offset) throws Exception {
         topicName = topicName.trim();
         key = key.trim();
-        value = value.trim();
+        String value = topicRecordService.findRecordValue(topicName, partitionId, offset).trim();
         if (StringUtils.isEmpty(topicName)) {
             return Result.error("主题不能为空");
         }

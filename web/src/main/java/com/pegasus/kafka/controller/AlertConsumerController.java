@@ -49,9 +49,9 @@ public class AlertConsumerController {
         return String.format("%s/add", PREFIX);
     }
 
-    @GetMapping("toedit/{id}")
+    @GetMapping("toedit")
     public String toEdit(Model model,
-                         @PathVariable(required = true, value = "id") String id) throws Exception {
+                         @RequestParam(required = true, value = "id") String id) throws Exception {
         SysAlertConsumer sysAlertConsumer = sysAlertConsumerService.getById(id);
         List<KafkaConsumerVo> kafkaConsumerVoList = kafkaConsumerService.listKafkaConsumers();
         model.addAttribute("consumers", kafkaConsumerVoList);

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+    <logger name="org.apache" level="OFF">
+    </logger>
 
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.out</target>
