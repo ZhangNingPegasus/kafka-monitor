@@ -2,7 +2,8 @@ package com.pegasus.kafka.config;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
-import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.pegasus.kafka.common.utils.Common;
 import com.pegasus.kafka.service.property.PropertyService;
@@ -37,8 +38,8 @@ public class MybatisPlusConfig {
     }
 
     @Bean
-    public PaginationInterceptor paginationInterceptor() {
-        return new PaginationInterceptor();
+    public PaginationInnerInterceptor paginationInnerInterceptor() {
+        return new PaginationInnerInterceptor();
     }
 
     @Bean
@@ -64,7 +65,9 @@ public class MybatisPlusConfig {
         //configuration.setLogImpl(org.apache.ibatis.logging.stdout.StdOutImpl.class);
         configuration.setCacheEnabled(false);
         sqlSessionFactory.setConfiguration(configuration);
-        sqlSessionFactory.setPlugins(paginationInterceptor());
+        MybatisPlusInterceptor mybatisPlusInterceptor = new MybatisPlusInterceptor();
+        mybatisPlusInterceptor.addInnerInterceptor(paginationInnerInterceptor());
+        sqlSessionFactory.setPlugins(mybatisPlusInterceptor);
         return sqlSessionFactory.getObject();
     }
 
