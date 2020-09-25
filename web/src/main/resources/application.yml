@@ -15,7 +15,7 @@ topic:
 nacos:
   config:
   nacosLocalSnapshotPath: /wyyt/etc/acm/kafka-monitor
-  nacosLogPath:  /wyyt/logs/kafka-monitor
+  nacosLogPath: /wyyt/logs/kafka-monitor
   acmConfigPath: acmConfig.properties
 
 server:
@@ -28,6 +28,14 @@ server:
   servlet:
     session:
       timeout: 180m
+      tracking-modes: cookie
+      cookie:
+        http-only: true
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
 spring:
   application:
     name: kafka-monitor

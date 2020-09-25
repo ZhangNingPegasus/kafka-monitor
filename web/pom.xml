@@ -5,11 +5,12 @@
     <parent>
         <artifactId>kafka-monitor</artifactId>
         <groupId>com.pegasus.kafka</groupId>
-        <version>1.0</version>
+        <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
+    <version>1.0.0</version>
 
-    <artifactId>web</artifactId>
+    <artifactId>kafka-monitor-web</artifactId>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -33,7 +34,6 @@
     </dependencies>
 
     <build>
-        <finalName>kafka-monitor</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -42,8 +42,8 @@
 
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.2.0</version>
                 <configuration>
+                    <finalName>${project.artifactId}</finalName>
                     <descriptors>
                         <descriptor>src/main/assembly/assembly.xml</descriptor>
                     </descriptors>

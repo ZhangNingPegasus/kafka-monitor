@@ -88,7 +88,7 @@ public class ShiroConfig {
         // 只能通过http访问，javascript无法访问
         // 防止xss读取cookie
         simpleCookie.setHttpOnly(true);
-        simpleCookie.setPath("/");
+        simpleCookie.setPath("/kafka_monitor");
         // maxAge=-1表示浏览器关闭时失效此Cookie
         simpleCookie.setMaxAge(-1);
         return simpleCookie;

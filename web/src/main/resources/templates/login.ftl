@@ -39,6 +39,7 @@
 
     <div class="layui-trans layadmin-user-login-footer">
         <p>© ${year} <a href="http://www.layui.com/" target="_blank">Ning.Zhang (zhangningkid@163.com)</a></p>
+        <p>当前版本:&nbsp;${version}</p>
     </div>
 
     <script src="${ctx}/layuiadmin/layui/layui.js"></script>

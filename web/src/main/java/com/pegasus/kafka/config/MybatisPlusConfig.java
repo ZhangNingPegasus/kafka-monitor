@@ -38,11 +38,6 @@ public class MybatisPlusConfig {
     }
 
     @Bean
-    public PaginationInnerInterceptor paginationInnerInterceptor() {
-        return new PaginationInnerInterceptor();
-    }
-
-    @Bean
     public DataSource dataSource() {
         return Common.createDataSource(propertyService.getDbHost(),
                 propertyService.getDbPort().toString(),
@@ -66,7 +61,7 @@ public class MybatisPlusConfig {
         configuration.setCacheEnabled(false);
         sqlSessionFactory.setConfiguration(configuration);
         MybatisPlusInterceptor mybatisPlusInterceptor = new MybatisPlusInterceptor();
-        mybatisPlusInterceptor.addInnerInterceptor(paginationInnerInterceptor());
+        mybatisPlusInterceptor.addInnerInterceptor(new PaginationInnerInterceptor());
         sqlSessionFactory.setPlugins(mybatisPlusInterceptor);
         return sqlSessionFactory.getObject();
     }

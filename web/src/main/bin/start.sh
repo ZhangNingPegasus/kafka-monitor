@@ -1,89 +1,82 @@
 #!/bin/bash
-
-SERVER_NAME='kafka-monitor'
-
-# jar名称
-JAR_NAME='kafka-monitor.jar'
-
-COMMON_LOG_DIR="/wyyt/logs/kafka/kafka-monitor/"
-
-LOGS_JVM=$COMMON_LOG_DIR/gc_log
-if [ ! -d $LOGS_JVM ]; then
-    mkdir $LOGS_JVM
+JAR_NAME="kafka-monitor-web"
+Xms=4G
+Xmx=4G
+Xmn=1G
+COMMON_LOG_DIR="/wyyt/logs/dubbo/$JAR_NAME"
+if [ ! -d $COMMON_LOG_DIR ]; then
+  mkdir -p $COMMON_LOG_DIR
 fi
-
 LOGS_HEAPDUMP=$COMMON_LOG_DIR/heapdump
 if [ ! -d $LOGS_HEAPDUMP ]; then
-    mkdir $LOGS_HEAPDUMP
+  mkdir -p $LOGS_HEAPDUMP
 fi
-
-cd `dirname $0`
-BIN_DIR=`pwd`
+cd $(dirname $0) || exit 1
 cd ..
-DEPLOY_DIR=`pwd`
-CONF_DIR=$DEPLOY_DIR/config
-# SERVER_PORT=`sed '/server.port/!d;s/.*=//' config/application.properties | tr -d '\r'`
-# 获取应用的端口号
-SERVER_PORT=`sed -nr '/port: [0-9]+/ s/.*port: +([0-9]+).*/\1/p' config/application.yml`
-PIDS=`ps -f | grep java | grep "$CONF_DIR" |awk '{print $2}'`
+DEPLOY_DIR=$(pwd)
+LIB_DIR=$DEPLOY_DIR/lib
+JAR_FULL_NAME=
+files=$(ls $LIB_DIR)
+for filename in $files; do
+  if [[ "$filename" =~ ^${JAR_NAME}-.* ]]; then
+    JAR_FULL_NAME=$filename
+    break
+  fi
+done
+jarName=${JAR_FULL_NAME/.jar/}
+VERSION=${jarName##*-}
+JAR_DIR=$LIB_DIR/$JAR_FULL_NAME
+
+PID=$(ps -ef | grep $JAR_FULL_NAME | grep -v grep | awk '{print $2}')
+
 if [ "$1" = "status" ]; then
-  if [ -n "$PIDS" ]; then
-    echo "The $SERVER_NAME is running...!"
-    echo "PID: $PIDS"
+  if [ -n "$PID" ]; then
+    echo "The $JAR_NAME is running...! PID: $PID"
     exit 0
   else
-    echo "The $SERVER_NAME is stopped"
+    echo "The $JAR_NAME is stopped"
     exit 0
   fi
 fi
-if [ -n "$PIDS" ]; then
-  echo "ERROR: The $SERVER_NAME already started!"
-  echo "PID: $PIDS"
+
+if [ -n "${PID}" ]; then
+  echo "ERROR: The $JAR_NAME already started! PID: $PID"
   exit 1
 fi
-if [ -n "$SERVER_PORT" ]; then
-  SERVER_PORT_COUNT=`netstat -tln | grep $SERVER_PORT | wc -l`
-  if [ $SERVER_PORT_COUNT -gt 0 ]; then
-    echo "ERROR: The $SERVER_NAME port $SERVER_PORT already used!"
-    exit 1
-  fi
-fi
-LOGS_DIR=$DEPLOY_DIR/log
-if [ ! -d $LOGS_DIR ]; then
-  mkdir $LOGS_DIR
-fi
-STDOUT_FILE=$LOGS_DIR/stdout.log
-JAVA_OPTS=" -Xloggc:$LOGS_JVM/kafka-monitor-gc.log  -XX:NumberOfGCLogFiles=10  -XX:+UseGCLogFileRotation  -XX:GCLogFileSize=20M -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCApplicationStoppedTime -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true "
-JAVA_DEBUG_OPTS=""
 
-JAVA_JMX_OPTS=""
-if [ "$1" = "jmx" ]; then
-  JAVA_JMX_OPTS=" -Dcom.sun.management.jmxremote.port=1099 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false "
-fi
-JAVA_MEM_OPTS=""
-BITS=`java -version 2>&1 | grep -i 64-bit`
-if [ -n "$BITS" ]; then
-  JAVA_MEM_OPTS=" -server -Xmx2G -Xms2G -Xmn512m -Xss256k -XX:NewRatio=1 -XX:SurvivorRatio=2 -XX:MaxDirectMemorySize=512m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=$LOGS_HEAPDUMP/ -XX:+DisableExplicitGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:LargePageSizeInBytes=128m -XX:+UseFastAccessorMethods -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 "
+JAVA_OPTS="-Djava.awt.headless=true -Djava.net.preferIPv4Stack=true "
+JAVA_GC="-Xloggc:$COMMON_LOG_DIR/$JAR_NAME-gc.log -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCApplicationStoppedTime -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=10M "
+
+JAVA_MEM_OPTS="-server -Xms${Xms} -Xmx${Xmx} -Xmn${Xmn} -XX:NewRatio=1 -Xss256k -XX:+DisableExplicitGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+UseCMSCompactAtFullCollection -XX:LargePageSizeInBytes=128m -XX:+UseFastAccessorMethods -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 "
+JAVA_MEM_OPTS="$JAVA_MEM_OPTS -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=512m -XX:MaxDirectMemorySize=512m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=$LOGS_HEAPDUMP/ "
+JAVA_PARAMETER_OPTS="-Dversion=$VERSION -Dwork.dir=$DEPLOY_DIR"
+
+SKYWALKING_COMMON_LOG_DIR="$COMMON_LOG_DIR/skywalking/"
+SKYWALKING_SERVICE_NAME="-Dskywalking.agent.service_name=$JAR_NAME"
+SKYWALKING_AGENT_HOME="/wyyt/app/skywalking/agent"
+SKYWALKING_AGENT="-javaagent:$SKYWALKING_AGENT_HOME/skywalking-agent.jar "
+SKYWALKING_LOGGING_DIR="-Dskywalking.logging.dir=$SKYWALKING_COMMON_LOG_DIR"
+SKYWALKING_AGENT_CONFIG=" -Dskywalking_config=$SKYWALKING_AGENT_HOME/config/agent.config "
+SKYWALKING_AGENT_OPTS="$SKYWALKING_AGENT $SKYWALKING_LOGGING_DIR $SKYWALKING_SERVICE_NAME $SKYWALKING_AGENT_CONFIG "
+SKYFOLDER="/wyyt/app/skywalking/agent"
+if [ -d "$SKYFOLDER" ]; then
+  echo "java $JAVA_OPTS $JAVA_GC $SKYWALKING_AGENT_OPTS $JAVA_MEM_OPTS $JAVA_PARAMETER_OPTS -jar $JAR_DIR"
+  nohup java $JAVA_OPTS $JAVA_GC $SKYWALKING_AGENT_OPTS $JAVA_MEM_OPTS $JAVA_PARAMETER_OPTS -jar $JAR_DIR >/dev/null 2>&1 &
 else
-  JAVA_MEM_OPTS=" -server -Xms2G -Xmx2G -XX:SurvivorRatio=2 -XX:+UseParallelGC -XX:MaxDirectMemorySize=512m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=$LOGS_HEAPDUMP/  "
+  echo "java $JAVA_OPTS $JAVA_GC $JAVA_MEM_OPTS $JAVA_PARAMETER_OPTS -jar $JAR_DIR"
+  nohup java $JAVA_OPTS $JAVA_GC $JAVA_MEM_OPTS $JAVA_PARAMETER_OPTS -jar $JAR_DIR >/dev/null 2>&1 &
 fi
-CONFIG_FILES=" -Dlogging.path=$LOGS_DIR -Dlogging.config=$CONF_DIR/logback.xml -Dspring.config.location=$CONF_DIR/application.yml "
-echo -e "Starting the $SERVER_NAME ..."
-nohup java $JAVA_OPTS $JAVA_MEM_OPTS $JAVA_DEBUG_OPTS $JAVA_JMX_OPTS $CONFIG_FILES -jar $DEPLOY_DIR/lib/$JAR_NAME  >/dev/null 2>&1 &
+
+echo "Starting the $JAR_NAME"
+
 COUNT=0
 while [ $COUNT -lt 1 ]; do
   echo -e ".\c"
   sleep 1
-  if [ -n "$SERVER_PORT" ]; then
-    COUNT=`netstat -an | grep $SERVER_PORT | wc -l`
-  else
-   COUNT=`ps -f | grep java | grep "$DEPLOY_DIR" | awk '{print $2}' | wc -l`
-  fi
+  COUNT=$(ps -ef | grep $JAR_FULL_NAME | grep -v grep | awk '{print $2}' | wc -l)
   if [ $COUNT -gt 0 ]; then
     break
   fi
 done
-echo "OK!"
-PIDS=`ps -f | grep java | grep "$DEPLOY_DIR" | awk '{print $2}'`
-echo "PID: $PIDS"
-echo "STDOUT: $STDOUT_FILE"
+
+echo -e "\nStart $JAR_NAME successed with PID=$!"

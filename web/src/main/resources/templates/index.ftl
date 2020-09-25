@@ -19,6 +19,11 @@
                             <i class="layui-icon layui-icon-refresh-3"></i>
                         </a>
                     </li>
+                    <li class="layui-nav-item" lay-unselect>
+                        <a href="javascript:void(0)" style="cursor: default">
+                            <span>当前版本:&nbsp;${version}</span>
+                        </a>
+                    </li>
                 </ul>
                 <ul class="layui-nav layui-layout-right" lay-filter="layadmin-layout-right">
                     <li class="layui-nav-item layui-hide-xs" lay-unselect>

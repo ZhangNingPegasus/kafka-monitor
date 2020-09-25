@@ -34,6 +34,7 @@ public class IndexController {
 
     @GetMapping(value = {"/", "l"})
     public String toLogin(Model model) {
+        model.addAttribute("version", System.getProperty("version", "BETA"));
         model.addAttribute("year", Calendar.getInstance().get(Calendar.YEAR));
         return "login";
     }
@@ -41,6 +42,7 @@ public class IndexController {
     @GetMapping("index")
     public String toIndex(Model model,
                           AdminVo adminVo) {
+        model.addAttribute("version", System.getProperty("version", "BETA"));
         model.addAttribute("admin", adminVo);
         return "index";
     }
