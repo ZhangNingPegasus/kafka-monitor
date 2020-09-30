@@ -20,8 +20,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableScheduling
 @EnableTransactionManagement(proxyTargetClass = true)
 @MapperScan(basePackages = {"com.pegasus.kafka.mapper"})
-public class Application {
+public class KafkaMonitorApplication {
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(KafkaMonitorApplication.class, args);
     }
 }
