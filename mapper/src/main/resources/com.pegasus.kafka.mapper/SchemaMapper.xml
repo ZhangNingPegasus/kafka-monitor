@@ -258,7 +258,14 @@
 
     <delete id="deleteExpired">
         <foreach collection="tableNameList" item="tableName">
-            DELETE FROM ${dbName}.`${tableName}` WHERE `create_time` &lt; #{dateTime};
+            DELETE FROM ${dbName}.`${tableName}` WHERE `id` &lt;
+            (
+                SELECT `id`
+                FROM
+                (
+                    SELECT MAX(`id`) `id` FROM ${dbName}.`${tableName}` WHERE `create_time` &lt; #{dateTime}
+                ) a
+            );
         </foreach>
     </delete>
 
