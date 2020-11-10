@@ -34,12 +34,12 @@ public class SchemaService extends ServiceImpl<SchemaMapper, TopicRecord> {
         this.baseMapper.createTableIfNotExists(propertyService.getDbName());
     }
 
-    @TranSave
-    public void deleteExpired(Set<String> tableNames) {
-        Date now = new Date();
-        Date date = DateUtils.addDays(now, -propertyService.getDbRetentionDays());
-        this.baseMapper.deleteExpired(propertyService.getDbName(), tableNames, date);
-    }
+        @TranSave
+        public void deleteExpired(Set<String> tableNames) {
+            Date now = new Date();
+            Date date = DateUtils.addDays(now, -propertyService.getDbRetentionDays());
+            this.baseMapper.deleteExpired(propertyService.getDbName(), tableNames, date);
+        }
 
     @TranRead
     public Set<String> listTables() {

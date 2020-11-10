@@ -139,22 +139,20 @@ public class LogSizeSchedule {
         }
     }
 
-    private void tpsAlert(String kafkaUrl) throws Exception {
-        List<SysAlertTopic> sysAlertTopicList = sysAlertTopicService.list();
-        if (sysAlertTopicList == null || sysAlertTopicList.size() < 1) {
+    private void tpsAlert(final String kafkaUrl) throws Exception {
+        List<SysAlertTopic> sysAlertTopicList = this.sysAlertTopicService.list();
+        if (null == sysAlertTopicList || sysAlertTopicList.size() < 1) {
             return;
         }
 
-        Date now = new Date();
-        Date from = DateUtils.addMinutes(now, -4);
-        Map<String, List<SysLogSize>> sysLogSizeMap = sysLogSizeService.listByTopicNames(sysAlertTopicList.stream().map(SysAlertTopic::getTopicName).collect(Collectors.toList()), from, now);
+        final Date now = new Date();
+        final Date from = DateUtils.addMinutes(now, -4);
+        final Map<String, List<SysLogSize>> sysLogSizeMap = this.sysLogSizeService.listByTopicNames(sysAlertTopicList.stream().map(SysAlertTopic::getTopicName).collect(Collectors.toList()), from, now);
 
-        for (SysAlertTopic sysAlertTopic : sysAlertTopicList) {
-            Date start = toDate(sysAlertTopic.getFromTime());
-            Date end = toDate(sysAlertTopic.getToTime());
-
-            String topicName = sysAlertTopic.getTopicName();
-
+        for (final SysAlertTopic sysAlertTopic : sysAlertTopicList) {
+            final Date start = toDate(sysAlertTopic.getFromTime());
+            final Date end = toDate(sysAlertTopic.getToTime());
+            final String topicName = sysAlertTopic.getTopicName();
             if (!sysLogSizeMap.containsKey(topicName)) {
                 AlertService.Alert alert = new AlertService.Alert();
                 alert.setEmail(sysAlertTopic.getEmail());

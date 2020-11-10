@@ -734,7 +734,7 @@ public class KafkaService {
         KafkaConsumer kafkaConsumer = null;
         try {
             Properties props = new Properties();
-            props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, getBootstrapServers());
+            props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, this.getBootstrapServers());
             props.put(ConsumerConfig.GROUP_ID_CONFIG, Constants.KAFKA_MONITOR_SYSTEM_GROUP_NAME_FOR_MONITOR);
             props.put(ConsumerConfig.CLIENT_ID_CONFIG, String.format("%s_SEND_MSG", Constants.KAFKA_MONITOR_PEGASUS_SYSTEM_PREFIX));
             props.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
@@ -746,6 +746,7 @@ public class KafkaService {
             kafkaConsumer = new KafkaConsumer<>(props);
             kafkaConsumerAction.action(kafkaConsumer);
         } finally {
+
             if (kafkaConsumer != null) {
                 kafkaConsumer.close();
             }

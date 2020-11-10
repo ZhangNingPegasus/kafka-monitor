@@ -16,7 +16,6 @@ import com.pegasus.kafka.service.dto.SysLogSizeService;
 import com.pegasus.kafka.service.dto.TopicRecordService;
 import com.pegasus.kafka.service.record.CoreService;
 import org.apache.commons.lang3.RandomUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.apache.kafka.clients.admin.AlterPartitionReassignmentsResult;
 import org.apache.kafka.clients.admin.NewPartitionReassignment;
 import org.apache.kafka.common.ConsumerGroupState;
@@ -64,17 +63,7 @@ public class KafkaTopicService {
         for (String topicName : topicNameList) {
             KafkaTopicVo topicInfo = new KafkaTopicVo(topicName);
 
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(calendar.get(Calendar.YEAR),
-                    calendar.get(Calendar.MONTH),
-                    calendar.get(Calendar.DATE),
-                    0,
-                    0,
-                    0);
-            Date now = calendar.getTime();
 
-            Date from = DateUtils.addDays(now, -6);
-            Date to = DateUtils.addDays(now, 1);
 
             List<String> subscribeGroupIdList = kafkaConsumerVoList.stream().filter(p -> p.getTopicNames().contains(topicName)).map(KafkaConsumerVo::getGroupId).distinct().collect(Collectors.toList());
             topicInfo.setSubscribeNums(subscribeGroupIdList.size());
@@ -282,12 +271,12 @@ public class KafkaTopicService {
     }
 
     public List<KafkaTopicRecordVo> listMessages(IPage page, String topicName, Integer partitionId, Long offset, String key, Date from, Date to) {
-        List<TopicRecord> topicRecordList = topicRecordService.listRecords(page, topicName, partitionId, offset, key, from, to);
-        List<KafkaTopicRecordVo> result = new ArrayList<>(topicRecordList.size());
-        for (TopicRecord topicRecord : topicRecordList) {
-            result.add(topicRecord.toVo());
-        }
-        return result;
+            List<TopicRecord> topicRecordList = topicRecordService.listRecords(page, topicName, partitionId, offset, key, from, to);
+            List<KafkaTopicRecordVo> result = new ArrayList<>(topicRecordList.size());
+            for (TopicRecord topicRecord : topicRecordList) {
+                result.add(topicRecord.toVo());
+            }
+            return result;
     }
 
     public enum SearchType {

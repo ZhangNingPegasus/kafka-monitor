@@ -9,7 +9,6 @@
 
     <div class="layui-fluid">
         <div class="layui-card">
-            <div class="layui-card-header">ZooKeeper客户端</div>
             <div class="layui-card-body">
                 <div id="zkcli" class="terminal" style="height: 800px">
                 </div>

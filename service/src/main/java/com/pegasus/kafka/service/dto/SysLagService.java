@@ -1,6 +1,5 @@
 package com.pegasus.kafka.service.dto;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pegasus.kafka.common.annotation.TranRead;
@@ -24,12 +23,12 @@ import java.util.List;
 public class SysLagService extends ServiceImpl<SysLagMapper, SysLag> {
 
     @TranRead
-    public List<SysLag> listByGroupId(String topicName,
-                                      String groupId,
-                                      Date from,
-                                      Date to) {
-        QueryWrapper<SysLag> queryWrapper = new QueryWrapper<>();
-        LambdaQueryWrapper<SysLag> lambda = queryWrapper.lambda()
+    public List<SysLag> listByGroupId(final String topicName,
+                                      final String groupId,
+                                      final Date from,
+                                      final Date to) {
+        final QueryWrapper<SysLag> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda()
                 .eq(SysLag::getTopicName, topicName)
                 .eq(SysLag::getConsumerName, groupId)
                 .ge(SysLag::getCreateTime, from)

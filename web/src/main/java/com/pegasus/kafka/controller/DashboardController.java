@@ -312,12 +312,11 @@ public class DashboardController {
         Common.TimeRange timeRange = Common.splitTime(createTimeRange);
         Date from = timeRange.getStart(), to = timeRange.getEnd();
 
-        LineInfo result = new LineInfo();
+        final LineInfo result = new LineInfo();
 
-        List<SysLogSize> sysLogSizeList = sysLogSizeService.getTopicRank(5, from, to);
-
-        List<String> topicNames = sysLogSizeList.stream().map(SysLogSize::getTopicName).collect(Collectors.toList());
-        List<Double> logSizeList = sysLogSizeList.stream().map(p -> Double.parseDouble(p.getLogSize().toString())).collect(Collectors.toList());
+        final List<SysLogSize> sysLogSizeList = this.sysLogSizeService.getTopicRank(5, from, to);
+        final List<String> topicNames = sysLogSizeList.stream().map(SysLogSize::getTopicName).collect(Collectors.toList());
+        final List<Double> logSizeList = sysLogSizeList.stream().map(p -> Double.parseDouble(p.getLogSize().toString())).collect(Collectors.toList());
 
         List<LineInfo.Series> seriesList = new ArrayList<>();
 
