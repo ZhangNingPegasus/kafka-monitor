@@ -1,4 +1,4 @@
-**This project is depreceated. The new project already moved to https://github.com/ZhangNingPegasus/middleware.gitThis project is depreceated. The new project already moved to https://github.com/ZhangNingPegasus/middleware.gitThis project is depreceated. The new project already moved to https://github.com/ZhangNingPegasus/middleware.gitThis project is depreceated. The new project already moved to https://github.com/ZhangNingPegasus/middleware.gitThis project is depreceated. The new project already moved to https://github.com/ZhangNingPegasus/middleware.gitThis project is depreceated. The new project already moved to https://github.com/ZhangNingPegasus/middleware.gitThis project is depreceated. The new project already moved to https://github.com/ZhangNingPegasus/middleware.gitThis project is depreceated. The new project already moved to https://github.com/ZhangNingPegasus/middleware.git**
+**This project is depreceated. The new project already moved to https://github.com/ZhangNingPegasus/middleware.git**
 
 A kafka monitor and management tool and provide several functionals such as topic, consumer, offsets, lags, records trace, alerm, big screen reports and etc.
 
