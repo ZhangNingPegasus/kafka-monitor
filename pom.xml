@@ -35,7 +35,7 @@
         <curator-recipes>5.1.0</curator-recipes>
         <zookeeper>3.6.2</zookeeper>
         <kafka-clients>2.6.0</kafka-clients>
-        <shiro>1.6.0</shiro>
+        <shiro>1.10.0</shiro>
         <json>20200518</json>
         <lombok>1.18.16</lombok>
         <ehcache>2.10.6</ehcache>
